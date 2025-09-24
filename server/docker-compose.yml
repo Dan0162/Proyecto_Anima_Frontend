@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:16-alpine # Imagen ligera de Postgres
+    environment:
+      POSTGRES_USER: postgres # Usuario admin
+      POSTGRES_PASSWORD: postgres # Contraseña simple p/entorno DEV
+      POSTGRES_DB: anima_db # DB que se crea al iniciar
+    ports:
+    - "5432:5432" # Exponer puerto local
+    volumes:
+    - db_data:/var/lib/postgresql/data # Persistencia de datos
+volumes:
+  db_data:

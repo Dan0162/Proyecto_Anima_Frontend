@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pydantic[email]
+pydantic-settings
+sqlalchemy
+psycopg2-binary
+python-jose
+passlib[bcrypt]
+#TODO: agregar la librería para reconocimiento facial

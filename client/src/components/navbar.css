@@ -1,0 +1,304 @@
+.navbar {
+  --navbar-height: 64px; /* fallback height used for layout spacing */
+  background-color: #333;
+  color: #fff;
+  padding: 0 1rem; /* horizontal padding only; vertical centering handled by height */
+  height: var(--navbar-height);
+  position: fixed; /* keep navbar on screen */
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000; /* sit above page content */
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.navdiv {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  /* Do not constrain nav inner row to a max width so items can use the full available width
+     Horizontal spacing is handled by the navbar's own padding (see .navbar) so this will
+     line up with the rest of the page content while allowing actions to sit at the right edge. */
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.logo-btn {
+  color: #fff;
+  background: none;
+  border: none;
+  text-decoration: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+.logo-btn:hover {
+  opacity: 0.8;
+}
+
+.left-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  /* allow the left side to grow so the right-group (actions) sits flush to the right edge */
+  flex: 1 1 auto;
+}
+
+.right-group {
+  display: flex;
+  align-items: center;
+  /* ensure actions align to the very right of the nav inner container */
+  justify-content: flex-end;
+}
+
+.navlist {
+  list-style: none;
+  display: flex;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+}
+
+.actions {
+  margin-left: auto; /* safety: keep action buttons pushed right if layout changes */
+}
+
+.navlist li a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.btn {
+  background-color: #555;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: #777;
+}
+
+/* Logo button should be transparent and not inherit the .btn background */
+.btn.logo-btn,
+.logo-btn.btn {
+  background: transparent;
+  padding: 0; /* remove extra padding so image fits naturally */
+}
+
+.btn.logo-btn:hover,
+.logo-btn.btn:hover {
+  background: transparent; /* keep transparent on hover */
+  opacity: 0.9;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo-btn img {
+  width: 40px;
+  height: 40px;
+  display: block;
+}
+
+/* Mobile dropdown default hidden; only shown via media query when hamburger is visible */
+.mobile-dropdown {
+  display: none;
+}
+
+/* Hamburger button (hidden on desktop) */
+.hamburger {
+  display: none;
+  background: transparent;
+  border: none;
+  padding: 6px;
+  margin-left: 8px;
+  cursor: pointer;
+}
+
+.hamburger .bar {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: #fff;
+  margin: 4px 0;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.hamburger.open .bar:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+.hamburger.open .bar:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.open .bar:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+/* Desktop-only layout: no mobile hamburger styles */
+
+@media (max-width: 800px) {
+  .hamburger {
+    display: block;
+  }
+
+  /* Keep header in one row: logo/hamburger on left, actions on right */
+  .navdiv {
+    flex-direction: row;
+    align-items: center;
+  }
+
+
+  .left-group {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Dropdown menu anchored under the right-group (hamburger) */
+  .right-group {
+    position: relative; /* anchor for right-side dropdown */
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .navlist {
+    /* hidden on mobile header; mobile-dropdown handles mobile menu */
+    display: none;
+    position: static;
+    top: auto;
+    right: auto;
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    flex-direction: row;
+    gap: 1rem;
+    min-width: auto;
+    z-index: auto;
+  }
+
+  .navlist.open {
+    display: flex;
+  }
+
+  /* Full-width mobile dropdown that appears beneath header */
+  .mobile-dropdown {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: calc(var(--navbar-height)); /* place immediately below fixed navbar */
+    width: 100%;
+    background: #222;
+    color: #fff;
+    z-index: 35;
+    /* equal horizontal padding so inner content lines up evenly */
+    padding: 1rem 1rem 1.25rem 1rem;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+    box-sizing: border-box;
+  }
+
+  /* Backdrop sits behind the dropdown and above page content */
+  .mobile-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0 0 0 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 30; /* below the dropdown (35) */
+    opacity: 0;
+    transition: opacity 180ms ease-in-out;
+    pointer-events: none;
+    margin-top: var(--navbar-height); /* avoid covering the fixed header area */
+  }
+
+  .mobile-backdrop.open {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* mobile dropdown visible only on small screens when open */
+  .mobile-dropdown.open {
+    display: block;
+  }
+
+  /* Ensure per-group navlists are hidden on mobile to avoid duplicate menus */
+  .left-group .navlist,
+  .right-group .navlist {
+    display: none !important;
+  }
+
+  .mobile-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .mobile-nav li a {
+    color: #fff;
+    text-decoration: none;
+    padding: 0.5rem 0.25rem;
+    display: block;
+  }
+
+  .mobile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    width: 100%;
+    /* don't add extra inner horizontal padding here; mobile-dropdown controls outer inset */
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  /* Hide header action buttons on mobile (we show actions in the dropdown) */
+  .right-group .actions {
+    display: none;
+  }
+
+  .mobile-actions .btn {
+    display: block;
+    width: 100%; /* fill the dropdown inner width (respecting mobile-dropdown padding) */
+    text-align: center;
+    box-sizing: border-box;
+    margin: 0.25rem 0;
+    padding: 0.6rem 0.75rem;
+    text-decoration: none; /* keep visual tidy; override anchor default */
+  }
+
+  /* Ensure mobile nav links match the same horizontal inset */
+  .mobile-nav {
+    padding: 0;
+    margin: 0 0 1rem 0;
+  }
+
+  .right-group {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .right-group .actions {
+    gap: 0.5rem;
+  }
+}

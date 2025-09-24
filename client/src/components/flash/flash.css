@@ -1,0 +1,14 @@
+.flash-banner {
+  position: fixed;
+  top: 70px; /* below navbar */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1200;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+.flash-banner.success { background: #16a34a; }
+.flash-banner.error { background: #dc2626; }

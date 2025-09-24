@@ -1,0 +1,13 @@
+.auth-page {
+  display: flex;
+  min-height: calc(100vh - 64px); /* Adjust based on navbar height */
+  padding: 32px 16px;
+  background-color: #f9fafb;
+  align-items: center;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
