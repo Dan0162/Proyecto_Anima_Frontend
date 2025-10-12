@@ -1,0 +1,222 @@
+/* ============================================
+   EMOTION ANALYZER - Vista principal
+   ============================================ */
+
+.emotion-analyzer {
+  min-height: calc(100vh - 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  position: relative;
+}
+
+.analyzer-container {
+  max-width: 900px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5rem;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Logo Container */
+.logo-container {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  position: relative;
+}
+
+.anima-logo {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
+}
+
+/* Welcome Text */
+.welcome-text {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--black);
+  text-align: center;
+  margin: 0;
+  letter-spacing: -0.5px;
+  animation: fadeIn 0.8s ease-out 0.2s backwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.username-highlight {
+  background: linear-gradient(135deg, 
+    var(--lilac) 0%, 
+    var(--pink) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+}
+
+/* Description */
+.analyzer-description {
+  font-size: 1.125rem;
+  color: #4a5568;
+  text-align: center;
+  max-width: 600px;
+  line-height: 1.6;
+  margin: 0;
+  animation: fadeIn 0.8s ease-out 0.4s backwards;
+}
+
+/* Options Container */
+.analyzer-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.option-card {
+  padding: 2.5rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.option-card:hover {
+  transform: translateY(-8px) scale(1.02);
+}
+
+.option-card:active {
+  transform: translateY(-4px) scale(0.98);
+}
+
+/* Option Icon */
+.option-icon {
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.option-card:hover .option-icon {
+  transform: scale(1.1) rotate(5deg);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.option-icon svg {
+  width: 40px;
+  height: 40px;
+  color: var(--black);
+}
+
+/* Option Text */
+.option-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--black);
+  margin: 0;
+}
+
+.option-description {
+  font-size: 1rem;
+  color: #4a5568;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .analyzer-container {
+    gap: 2rem;
+    padding: 1rem;
+  }
+
+  .logo-container {
+    width: 160px;
+    height: 160px;
+  }
+
+  .anima-logo {
+    width: 100px;
+    height: 100px;
+  }
+
+  .welcome-text {
+    font-size: 2rem;
+  }
+
+  .analyzer-description {
+    font-size: 1rem;
+  }
+
+  .analyzer-options {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .option-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .option-icon {
+    width: 64px;
+    height: 64px;
+  }
+
+  .option-icon svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .option-title {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .emotion-analyzer {
+    padding: 1rem;
+  }
+
+  .welcome-text {
+    font-size: 1.75rem;
+  }
+
+  .analyzer-description {
+    font-size: 0.95rem;
+  }
+}

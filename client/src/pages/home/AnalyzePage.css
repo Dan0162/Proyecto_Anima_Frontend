@@ -1,0 +1,62 @@
+/* ============================================
+   ANALYZE PAGE - Página principal de análisis
+   ============================================ */
+
+.analyze-page {
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Gradient Background */
+.analyze-page.gradient-bg {
+  background: linear-gradient(135deg, 
+    rgba(195, 196, 250, 0.3) 0%, 
+    rgba(255, 208, 231, 0.3) 50%, 
+    rgba(0, 136, 255, 0.3) 100%);
+}
+
+.analyze-page.gradient-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 50%, 
+      rgba(195, 196, 250, 0.2) 0%, 
+      transparent 50%),
+    radial-gradient(circle at 80% 80%, 
+      rgba(255, 208, 231, 0.2) 0%, 
+      transparent 50%),
+    radial-gradient(circle at 40% 10%, 
+      rgba(0, 136, 255, 0.15) 0%, 
+      transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Content Area */
+.analyze-content {
+  position: relative;
+  z-index: 1;
+  padding: 2rem;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .analyze-content {
+    padding: 1.5rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .analyze-content {
+    padding: 1rem 0.5rem;
+  }
+}
