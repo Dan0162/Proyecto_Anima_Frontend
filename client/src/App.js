@@ -9,9 +9,9 @@ import Landingpage from './pages/landingpage';
 import RequireAuth from './components/RequireAuth';
 import SignInPage from './pages/auth/SignInPage';
 import SignUpPage from './pages/auth/SignUpPage';
+import AnalyzePage from './pages/home/AnalyzePage';
 
 function App() {
-  // Read location here so FlashBanner can react to location.state flashes too if needed
   const location = useLocation();
 
   return (
@@ -26,6 +26,11 @@ function App() {
             <Route path="/home" element={<RequireAuth><HomeLayout /></RequireAuth>}>
               <Route index element={<Homepage />} />
               <Route path="account" element={<Account />} />
+              <Route path="analyze" element={<AnalyzePage />} />
+              {/* TODO: Agregar rutas adicionales */}
+              {/* <Route path="history" element={<HistoryPage />} /> */}
+              {/* <Route path="recommendations" element={<RecommendationsPage />} /> */}
+              {/* <Route path="dashboard" element={<DashboardPage />} /> */}
             </Route>
           </Routes>
         </main>
