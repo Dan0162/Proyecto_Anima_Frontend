@@ -2,18 +2,32 @@
    PHOTO UPLOAD - Componente de subida
    ============================================ */
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .photo-upload {
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
   animation: fadeIn 0.4s ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 85vh;
 }
 
 .upload-container {
-  padding: 2rem;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
+  width: 100%;
 }
 
 /* Header */
@@ -59,27 +73,27 @@
 .upload-view {
   position: relative;
   width: 100%;
-  min-height: 400px;
+  min-height: 300px;
   border-radius: 16px;
   overflow: hidden;
 }
 
 /* Drop Zone */
 .upload-dropzone {
-  width: 100%;
+  width: 79.5%;
   height: 100%;
-  min-height: 400px;
+  min-height: 300px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1.5rem;
-  padding: 3rem;
-  border: 3px dashed rgba(0, 136, 255, 0.3);
+  gap: 1rem;
+  padding: 2rem;
+  border: 3px dashed rgba(0, 136, 255, 0.4);
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .upload-dropzone:hover {
@@ -95,9 +109,9 @@
 }
 
 .dropzone-icon {
-  width: 80px;
-  height: 80px;
-  background: rgba(0, 136, 255, 0.15);
+  width: 90px;
+  height: 90px;
+  background: rgba(0, 136, 255, 0.2);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -112,39 +126,42 @@
 }
 
 .dropzone-icon svg {
-  width: 40px;
-  height: 40px;
-  color: var(--blue);
+  width: 45px;
+  height: 45px;
+  color: var(--blue-dark);
 }
 
 .dropzone-title {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: var(--black);
   margin: 0;
   text-align: center;
+  line-height: 1.2;
 }
 
 .dropzone-subtitle {
-  font-size: 1rem;
-  color: #4a5568;
+  font-size: 1.125rem;
+  color: #2d3748;
   margin: 0;
+  font-weight: 500;
 }
 
 .dropzone-hint {
-  font-size: 0.875rem;
-  color: #718096;
+  font-size: 0.95rem;
+  color: #4a5568;
   margin: 0;
-  padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.3);
+  padding: 0.625rem 1.25rem;
+  background: rgba(255, 255, 255, 0.4);
   border-radius: 8px;
+  font-weight: 500;
 }
 
 /* Preview */
 .upload-preview {
   width: 100%;
   height: 100%;
-  min-height: 400px;
+  min-height: 300px;
   border-radius: 16px;
   overflow: hidden;
   background: #000;
@@ -233,14 +250,14 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 1rem 2rem;
+  padding: 1.125rem 2.25rem;
   border-radius: 12px;
   border: none;
-  font-size: 1rem;
+  font-size: 1.0625rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  min-width: 160px;
+  min-width: 180px;
   justify-content: center;
 }
 
@@ -250,8 +267,9 @@
 }
 
 .upload-button.browse {
-  min-width: 200px;
-  padding: 1.25rem 2.5rem;
+  min-width: 220px;
+  padding: 1.375rem 2.75rem;
+  font-size: 1.125rem;
 }
 
 .upload-button:hover {
@@ -272,10 +290,13 @@
   border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
+  .photo-upload {
+    min-height: auto;
+  }
+
   .upload-container {
-    padding: 1.5rem;
+    padding: 1.25rem;
   }
 
   .upload-title {
@@ -283,26 +304,31 @@
   }
 
   .upload-dropzone {
-    min-height: 350px;
-    padding: 2rem 1.5rem;
+    min-height: 260px;
+    padding: 1.75rem 1.25rem;
+    gap: 0.875rem;
   }
 
   .dropzone-icon {
-    width: 64px;
-    height: 64px;
+    width: 75px;
+    height: 75px;
   }
 
   .dropzone-icon svg {
-    width: 32px;
-    height: 32px;
+    width: 38px;
+    height: 38px;
   }
 
   .dropzone-title {
-    font-size: 1.25rem;
+    font-size: 1.4rem;
+  }
+  
+  .dropzone-subtitle {
+    font-size: 1rem;
   }
 
   .upload-preview {
-    min-height: 350px;
+    min-height: 260px;
   }
 
   .upload-controls {
@@ -320,11 +346,26 @@
   }
 
   .upload-dropzone {
-    min-height: 300px;
+    min-height: 240px;
     padding: 1.5rem 1rem;
+    gap: 0.75rem;
+  }
+  
+  .dropzone-icon {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .dropzone-icon svg {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .dropzone-title {
+    font-size: 1.25rem;
   }
 
   .upload-preview {
-    min-height: 300px;
+    min-height: 240px;
   }
 }
