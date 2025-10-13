@@ -19,9 +19,27 @@ const CameraCapture = ({ onCapture, onCancel }) => {
     };
   }, []);
 
+  // 🔧 CORRECCIÓN: Actualizar videoRef cuando el stream cambia
+  useEffect(() => {
+    if (stream && videoRef.current && !capturedPhoto) {
+      videoRef.current.srcObject = stream;
+      // Asegurar que el video se reproduzca
+      videoRef.current.play().catch(err => {
+        console.error('Error playing video:', err);
+      });
+    }
+  }, [stream, capturedPhoto]);
+
   const startCamera = async () => {
     try {
       setIsLoading(true);
+      setError(null);
+      
+      // Detener stream anterior si existe
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { 
           facingMode: 'user',
@@ -31,14 +49,11 @@ const CameraCapture = ({ onCapture, onCancel }) => {
         audio: false
       });
       
+      console.log('✅ Cámara iniciada correctamente');
       setStream(mediaStream);
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
-      setError(null);
       setIsLoading(false);
     } catch (err) {
-      console.error('Error accessing camera:', err);
+      console.error('❌ Error accessing camera:', err);
       setError('No se pudo acceder a la cámara. Por favor, verifica los permisos.');
       setIsLoading(false);
     }
@@ -46,16 +61,29 @@ const CameraCapture = ({ onCapture, onCancel }) => {
 
   const stopCamera = () => {
     if (stream) {
+      console.log('🛑 Deteniendo cámara');
       stream.getTracks().forEach(track => track.stop());
       setStream(null);
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
     }
   };
 
   const capturePhoto = () => {
-    if (!videoRef.current || !canvasRef.current) return;
+    if (!videoRef.current || !canvasRef.current) {
+      console.error('❌ Referencias no disponibles');
+      return;
+    }
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
+    
+    // Verificar que el video esté listo
+    if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+      setError('El video aún no está listo. Intenta de nuevo.');
+      return;
+    }
     
     // Set canvas size to match video
     canvas.width = video.videoWidth;
@@ -67,6 +95,8 @@ const CameraCapture = ({ onCapture, onCancel }) => {
     
     // Get image data
     const imageData = canvas.toDataURL('image/jpeg', 0.8);
+    
+    console.log('📸 Foto capturada');
     setCapturedPhoto(imageData);
     
     // Stop camera after capture
@@ -74,12 +104,17 @@ const CameraCapture = ({ onCapture, onCancel }) => {
   };
 
   const retakePhoto = () => {
+    console.log('🔄 Retomando foto');
     setCapturedPhoto(null);
-    startCamera();
+    // Pequeño delay para asegurar que el estado se actualice
+    setTimeout(() => {
+      startCamera();
+    }, 100);
   };
 
   const confirmPhoto = () => {
     if (capturedPhoto) {
+      console.log('✅ Foto confirmada');
       onCapture(capturedPhoto);
     }
   };
