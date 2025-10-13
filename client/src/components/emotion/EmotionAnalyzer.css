@@ -77,8 +77,8 @@
 
 .username-highlight {
   background: linear-gradient(135deg, 
-    var(--lilac) 0%, 
-    var(--pink) 100%);
+    #8B8CF5 0%,  /* Lilac más oscuro */
+    #FF9EC7 100%); /* Pink más oscuro */
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
