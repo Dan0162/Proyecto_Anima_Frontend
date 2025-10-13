@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Navbar from '../../components/navbar';
 import SignUpForm from '../../components/auth/SignUpForm';
 import './AuthPage.css';
