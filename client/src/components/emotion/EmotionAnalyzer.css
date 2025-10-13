@@ -158,7 +158,59 @@
   margin: 0;
 }
 
-/* Responsive */
+/* ============================================
+   LOADING STATE - Estado de carga
+   ============================================ */
+
+.loading-card {
+  padding: 3rem 2rem;
+  text-align: center;
+  max-width: 500px;
+  margin: 0 auto;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 5px solid rgba(195, 196, 250, 0.3);
+  border-top-color: var(--lilac);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-content h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--black);
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.loading-content p {
+  font-size: 1rem;
+  color: #4a5568;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
 @media (max-width: 768px) {
   .analyzer-container {
     gap: 2rem;
@@ -205,6 +257,24 @@
   .option-title {
     font-size: 1.25rem;
   }
+
+  .loading-card {
+    padding: 2rem 1.5rem;
+  }
+  
+  .loading-spinner {
+    width: 50px;
+    height: 50px;
+    border-width: 4px;
+  }
+  
+  .loading-content h2 {
+    font-size: 1.25rem;
+  }
+  
+  .loading-content p {
+    font-size: 0.95rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -218,5 +288,18 @@
 
   .analyzer-description {
     font-size: 0.95rem;
+  }
+
+  .loading-card {
+    padding: 2rem 1rem;
+  }
+  
+  .loading-spinner {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .loading-content h2 {
+    font-size: 1.125rem;
   }
 }

@@ -1,33 +1,89 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import GlassCard from '../layout/GlassCard';
 import CameraCapture from './CameraCapture';
 import PhotoUpload from './PhotoUpload';
 import { LOGO_SRC } from '../../constants/assets';
+import { analyzeEmotionBase64 } from '../../utils/api';
+import { useFlash } from '../flash/FlashContext';
 import './EmotionAnalyzer.css';
 
 const EmotionAnalyzer = ({ userName = 'Usuario' }) => {
   const [mode, setMode] = useState(null); // null | 'camera' | 'upload'
   const [analyzedPhoto, setAnalyzedPhoto] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState(null);
+  
+  const flash = useFlash();
+  const navigate = useNavigate();
+
+  const handleAnalyzeImage = async (photoData) => {
+    setIsAnalyzing(true);
+    
+    try {
+      console.log('Enviando imagen al backend para análisis...');
+      
+      // Enviar imagen al backend para análisis
+      const result = await analyzeEmotionBase64(photoData);
+      
+      console.log('✅ Resultado del análisis:', result);
+      setAnalysisResult(result);
+      setAnalyzedPhoto(photoData);
+      
+      // Mostrar mensaje de éxito
+      if (flash?.show) {
+        flash.show('¡Análisis completado con éxito!', 'success', 3000);
+      }
+      
+      // TODO: Navegar a página de resultados o mostrar resultados
+      // navigate('/home/results', { state: { result, photo: photoData } });
+      
+    } catch (error) {
+      console.error('❌ Error al analizar imagen:', error);
+      
+      // Manejar sesión expirada
+      if (error.message.includes('Sesión expirada')) {
+        if (flash?.show) {
+          flash.show('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'error', 4000);
+        }
+        setTimeout(() => {
+          navigate('/signin');
+        }, 2000);
+        return;
+      }
+      
+      // Mostrar error al usuario
+      if (flash?.show) {
+        flash.show(
+          error.message || 'Error al analizar la imagen. Por favor, intenta de nuevo.',
+          'error',
+          4000
+        );
+      }
+    } finally {
+      setIsAnalyzing(false);
+      setMode(null); // Volver al inicio
+    }
+  };
 
   const handleCameraCapture = (photoData) => {
-    console.log('Foto capturada:', photoData);
-    setAnalyzedPhoto(photoData);
-    // TODO: Enviar al backend para análisis
+    console.log('📸 Foto capturada desde cámara');
+    handleAnalyzeImage(photoData);
   };
 
   const handlePhotoUpload = (photoData) => {
-    console.log('Foto subida:', photoData);
-    setAnalyzedPhoto(photoData);
-    // TODO: Enviar al backend para análisis
+    console.log('📁 Foto subida desde archivo');
+    handleAnalyzeImage(photoData);
   };
 
   const resetMode = () => {
     setMode(null);
     setAnalyzedPhoto(null);
+    setAnalysisResult(null);
   };
 
   // Vista inicial - Selección de modo
-  if (!mode) {
+  if (!mode && !isAnalyzing) {
     return (
       <div className="emotion-analyzer">
         <div className="analyzer-container">
@@ -95,6 +151,23 @@ const EmotionAnalyzer = ({ userName = 'Usuario' }) => {
               </p>
             </GlassCard>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Vista de loading durante análisis
+  if (isAnalyzing) {
+    return (
+      <div className="emotion-analyzer">
+        <div className="analyzer-container">
+          <GlassCard variant="lilac" className="loading-card">
+            <div className="loading-content">
+              <div className="loading-spinner"></div>
+              <h2>Analizando tu emoción...</h2>
+              <p>Por favor espera mientras procesamos tu imagen</p>
+            </div>
+          </GlassCard>
         </div>
       </div>
     );

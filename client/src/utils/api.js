@@ -107,3 +107,105 @@ export const registerApi = async (formData) => {
     throw error;
   }
 };
+
+// ========================================
+// 🆕 NUEVAS FUNCIONES PARA ANÁLISIS DE IMAGEN
+// ========================================
+
+// Obtener token JWT del localStorage
+const getAuthToken = () => {
+  return localStorage.getItem('access_token');
+};
+
+// Crear headers con autenticación
+const getAuthHeaders = () => {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('No hay token de autenticación. Por favor, inicia sesión nuevamente.');
+  }
+  return {
+    'Authorization': `Bearer ${token}`
+  };
+};
+
+/**
+ * Enviar imagen en Base64 para análisis de emoción
+ * @param {string} imageBase64 - Imagen en formato Base64 (data:image/jpeg;base64,...)
+ * @returns {Promise} Resultado del análisis
+ */
+export const analyzeEmotionBase64 = async (imageBase64) => {
+  try {
+    const url = `${getBaseUrl()}/v1/analysis/analyze-base64`;
+    const response = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify({ image: imageBase64 })
+    }, 15000); // 15 segundos de timeout para análisis
+
+    if (!response.ok) {
+      // Manejar token expirado
+      if (response.status === 401) {
+        localStorage.removeItem('access_token');
+        throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+      }
+      
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Error ${response.status}: ${response.statusText}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error.message.includes('Sesión expirada')) {
+      throw error;
+    }
+    if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+      throw new Error('No se puede conectar con el servidor.');
+    }
+    throw error;
+  }
+};
+
+/**
+ * Enviar imagen como archivo (File/Blob) para análisis de emoción
+ * @param {File|Blob} imageFile - Archivo de imagen
+ * @returns {Promise} Resultado del análisis
+ */
+export const analyzeEmotionFile = async (imageFile) => {
+  try {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+
+    const url = `${getBaseUrl()}/v1/analysis/analyze`;
+    const response = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: {
+        ...getAuthHeaders()
+        // No incluir Content-Type; fetch lo establece automáticamente para FormData
+      },
+      body: formData
+    }, 15000);
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        localStorage.removeItem('access_token');
+        throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+      }
+      
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Error ${response.status}: ${response.statusText}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error.message.includes('Sesión expirada')) {
+      throw error;
+    }
+    if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+      throw new Error('No se puede conectar con el servidor.');
+    }
+    throw error;
+  }
+};
