@@ -32,7 +32,7 @@
   }
 }
 
-/* Logo Container - Más compacto */
+/* Logo Container - Más compacto con fondo oscuro */
 .logo-container {
   width: 140px;
   height: 140px;
@@ -42,6 +42,10 @@
   border-radius: 50%;
   position: relative;
   margin-bottom: 1rem;
+  background: linear-gradient(135deg, 
+    rgba(107, 109, 184, 0.3) 0%,  /* lilac-dark con transparencia */
+    rgba(232, 149, 192, 0.3) 100%); /* pink-dark con transparencia */
+  border: 2px solid rgba(107, 109, 184, 0.5);
 }
 
 .anima-logo {

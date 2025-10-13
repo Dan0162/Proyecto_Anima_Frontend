@@ -22,6 +22,12 @@ body {
   --black: #1A1A1A;
   --white: #FFFFFF;
   
+  /* Colores más oscuros para mejor contraste */
+  --lilac-dark: #6B6DB8;
+  --pink-dark: #E895C0;
+  --blue-dark: #0066CC;
+  --purple-dark: #5B5D9E;
+  
   /* Glass effect variables */
   --glass-bg: rgba(255, 255, 255, 0.1);
   --glass-border: rgba(255, 255, 255, 0.18);
@@ -29,9 +35,13 @@ body {
 }
 
 /* Ensure page content isn't hidden behind the fixed navbar */
+/* Solo se aplica padding en páginas con navbar (landing, signin, signup) */
 body {
-  padding-top: var(--navbar-height);
   box-sizing: border-box;
+}
+
+body.with-navbar {
+  padding-top: var(--navbar-height);
 }
 
 /* Global glass effect utilities */
@@ -129,3 +139,4 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
