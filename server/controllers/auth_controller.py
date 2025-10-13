@@ -7,6 +7,12 @@ from sqlalchemy.orm import Session
 from server.db.models.user import User
 
 def register_user(db: Session, user: UserCreate) -> UserResponse:
+    # Validar longitud de contraseña para bcrypt
+    if len(user.password.encode('utf-8')) > 72:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La contraseña no puede exceder 72 bytes"
+        )
 
     existing_user = db.query(User).filter(User.email == user.email).first()
     if existing_user:
@@ -14,7 +20,6 @@ def register_user(db: Session, user: UserCreate) -> UserResponse:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="El email ya está registrado"
         )
-
 
     hashed_pw = hash_password(user.password)
     db_user = User(
@@ -28,7 +33,6 @@ def register_user(db: Session, user: UserCreate) -> UserResponse:
     return UserResponse.from_orm(db_user)
 
 
-
 def login_user(db: Session, user: UserLogin) -> TokenResponse:
     db_user = db.query(User).filter(User.email == user.email).first()
     if not db_user or not verify_password(user.password, db_user.password):
@@ -37,7 +41,9 @@ def login_user(db: Session, user: UserLogin) -> TokenResponse:
             detail="Correo o contraseña invalida"
         )
     access_token = create_access_token(data={"sub": db_user.email})
-    return TokenResponse(access_token=access_token)  # ← ¡Este return es esencial!
     
-    
-  
+    # 🆕 Devolver también el nombre del usuario
+    return TokenResponse(
+        access_token=access_token,
+        user_name=db_user.nombre  # Incluir el nombre
+    )

@@ -13,14 +13,12 @@ const SignInPage = () => {
   const flash = useFlash();
   const { loading, error, callApi } = useApi();
 
-  // Mostrar flash message si viene de un registro exitoso o logout
   useEffect(() => {
     try {
       if (location && location.state && location.state.flash && flash && flash.show) {
         const flashType = location.state.flashType || 'success';
         flash.show(location.state.flash, flashType, 4000);
         
-        // Limpiar el estado de navegación
         const cleanState = { ...location.state };
         delete cleanState.flash;
         delete cleanState.flashType;
@@ -35,10 +33,11 @@ const SignInPage = () => {
     try {
       const data = await callApi(() => loginApi(formData));
       
+      // 🆕 Guardar el token de acceso
       localStorage.setItem('access_token', data.access_token);
 
       if (flash?.show) {
-        flash.show('Inicio de sesión exitoso! Bienvenido de vuelta.', 'success', 3000);
+        flash.show(`¡Bienvenido de vuelta!`, 'success', 3000);
       }
 
       const returnTo = location?.state?.from?.pathname || '/home';
@@ -49,7 +48,6 @@ const SignInPage = () => {
     } catch (err) {
       console.error('Sign in error:', err);
       
-      // Mensaje más específico según el tipo de error
       let errorMessage = err.message;
       if (err.message.includes('Failed to fetch')) {
         errorMessage = 'No se puede conectar con el servidor. Por favor, intenta más tarde.';
@@ -58,7 +56,6 @@ const SignInPage = () => {
       } else if (err.message.includes('500')) {
         errorMessage = 'Error interno del servidor. Por favor, intenta más tarde.';
       }
-      
     }
   };
 

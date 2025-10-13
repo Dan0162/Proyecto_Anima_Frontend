@@ -108,6 +108,43 @@ export const registerApi = async (formData) => {
   }
 };
 
+/**
+ * Obtener información del usuario autenticado actual
+ * @returns {Promise} Datos del usuario (id, nombre, email)
+ */
+export const getCurrentUserApi = async () => {
+  try {
+    const url = `${getBaseUrl()}/v1/auth/me`;
+    const response = await fetchWithTimeout(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      }
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        localStorage.removeItem('access_token');
+        throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+      }
+      
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Error ${response.status}: ${response.statusText}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error.message.includes('Sesión expirada')) {
+      throw error;
+    }
+    if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+      throw new Error('No se puede conectar con el servidor.');
+    }
+    throw error;
+  }
+};
+
 // ========================================
 // 🆕 NUEVAS FUNCIONES PARA ANÁLISIS DE IMAGEN
 // ========================================

@@ -6,16 +6,23 @@ import PhotoUpload from './PhotoUpload';
 import { LOGO_SRC } from '../../constants/assets';
 import { analyzeEmotionBase64 } from '../../utils/api';
 import { useFlash } from '../flash/FlashContext';
+import { useCurrentUser } from '../../hooks/useAuth';
 import './EmotionAnalyzer.css';
 
-const EmotionAnalyzer = ({ userName = 'Usuario' }) => {
-  const [mode, setMode] = useState(null); // null | 'camera' | 'upload'
+const EmotionAnalyzer = () => {
+  const [mode, setMode] = useState(null);
   const [analyzedPhoto, setAnalyzedPhoto] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
   
   const flash = useFlash();
   const navigate = useNavigate();
+  
+  // Obtener el usuario autenticado actual
+  const { user, loading: userLoading, error: userError } = useCurrentUser();
+  
+  // Mostrar el nombre del usuario o un placeholder mientras carga
+  const displayName = user?.nombre || 'Usuario';
 
   const handleAnalyzeImage = async (photoData) => {
     setIsAnalyzing(true);
@@ -23,25 +30,22 @@ const EmotionAnalyzer = ({ userName = 'Usuario' }) => {
     try {
       console.log('Enviando imagen al backend para análisis...');
       
-      // Enviar imagen al backend para análisis
       const result = await analyzeEmotionBase64(photoData);
       
       console.log('✅ Resultado del análisis:', result);
       setAnalysisResult(result);
       setAnalyzedPhoto(photoData);
       
-      // Mostrar mensaje de éxito
       if (flash?.show) {
         flash.show('¡Análisis completado con éxito!', 'success', 3000);
       }
       
-      // TODO: Navegar a página de resultados o mostrar resultados
+      // TODO: Navegar a página de resultados
       // navigate('/home/results', { state: { result, photo: photoData } });
       
     } catch (error) {
       console.error('❌ Error al analizar imagen:', error);
       
-      // Manejar sesión expirada
       if (error.message.includes('Sesión expirada')) {
         if (flash?.show) {
           flash.show('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'error', 4000);
@@ -52,7 +56,6 @@ const EmotionAnalyzer = ({ userName = 'Usuario' }) => {
         return;
       }
       
-      // Mostrar error al usuario
       if (flash?.show) {
         flash.show(
           error.message || 'Error al analizar la imagen. Por favor, intenta de nuevo.',
@@ -62,7 +65,7 @@ const EmotionAnalyzer = ({ userName = 'Usuario' }) => {
       }
     } finally {
       setIsAnalyzing(false);
-      setMode(null); // Volver al inicio
+      setMode(null);
     }
   };
 
@@ -88,7 +91,7 @@ const EmotionAnalyzer = ({ userName = 'Usuario' }) => {
       <div className="emotion-analyzer">
         <div className="analyzer-container">
           
-          {/* Logo flotante con efecto glass */}
+          {/* Logo compacto con efecto glass */}
           <GlassCard 
             variant="lilac" 
             className="logo-container" 
@@ -102,19 +105,18 @@ const EmotionAnalyzer = ({ userName = 'Usuario' }) => {
             />
           </GlassCard>
 
-          {/* Saludo personalizado */}
-          <h1 className="welcome-text">
-            Bienvenido, <span className="username-highlight">{userName}</span>
-          </h1>
+          {/* Sección de bienvenida */}
+          <div className="welcome-section">
+            <h1 className="welcome-text">
+              Bienvenido, <span className="username-highlight">{displayName}</span>
+            </h1>
+            <p className="analyzer-description">
+              Comencemos el análisis de tu emoción. 
+              Permítenos entender cómo te sientes hoy.
+            </p>
+          </div>
 
-          {/* Descripción motivacional */}
-          <p className="analyzer-description">
-            Comencemos el análisis de tu emoción. 
-            <br />
-            Permítenos entender cómo te sientes hoy.
-          </p>
-
-          {/* Opciones de captura */}
+          {/* Opciones de captura - Grid 2 columnas */}
           <div className="analyzer-options">
             <GlassCard 
               variant="pink"

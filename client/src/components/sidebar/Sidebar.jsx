@@ -1,12 +1,27 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useCurrentUser } from '../../hooks/useAuth';
 import './Sidebar.css';
 
-const Sidebar = ({ userName = 'Usuario' }) => {
+const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Obtener el usuario autenticado actual
+  const { user, loading: userLoading, error: userError } = useCurrentUser();
+  
+  // Mostrar el nombre del usuario o un placeholder mientras carga
+  const displayName = user?.nombre || 'Usuario';
 
   const toggleSidebar = () => setIsOpen(!isOpen);
+
+  const handleLogout = () => {
+    // Limpiar localStorage y redirigir al login
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user_name'); // Por si acaso también existe esto
+    navigate('/signin');
+  };
 
   const menuItems = [
     {
@@ -85,7 +100,7 @@ const Sidebar = ({ userName = 'Usuario' }) => {
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
           </div>
-          <h3 className="sidebar-username">{userName}</h3>
+          <h3 className="sidebar-username">{displayName}</h3>
         </div>
 
         {/* Navigation */}
@@ -108,7 +123,7 @@ const Sidebar = ({ userName = 'Usuario' }) => {
 
         {/* Footer - Cerrar sesión */}
         <div className="sidebar-footer">
-          <button className="sidebar-logout glass">
+          <button className="sidebar-logout glass" onClick={handleLogout}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
               <polyline points="16 17 21 12 16 7"></polyline>
