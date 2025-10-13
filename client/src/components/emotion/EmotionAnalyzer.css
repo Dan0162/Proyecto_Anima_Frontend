@@ -32,20 +32,14 @@
   }
 }
 
-/* Logo Container - Más compacto con fondo oscuro */
-.logo-container {
-  width: 140px;
-  height: 140px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  position: relative;
-  margin-bottom: 1rem;
-  background: linear-gradient(135deg, 
-    rgba(107, 109, 184, 0.3) 0%,  /* lilac-dark con transparencia */
-    rgba(232, 149, 192, 0.3) 100%); /* pink-dark con transparencia */
-  border: 2px solid rgba(107, 109, 184, 0.5);
+/* Flotación sutil del logo */
+@keyframes logo-float {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.05);
+  }
 }
 
 .anima-logo {
@@ -228,6 +222,11 @@
     padding: 1rem;
   }
 
+  .logo-wrapper {
+    width: 120px;
+    height: 120px;
+  }
+
   .logo-container {
     width: 120px;
     height: 120px;
@@ -237,6 +236,22 @@
   .anima-logo {
     width: 70px;
     height: 70px;
+  }
+
+  /* Ajustar tamaño de ondas en móvil */
+  .circle-1 {
+    width: 120px;
+    height: 120px;
+  }
+
+  .circle-2 {
+    width: 120px;
+    height: 120px;
+  }
+
+  .circle-3 {
+    width: 120px;
+    height: 120px;
   }
 
   .welcome-text {
@@ -300,6 +315,11 @@
     padding: 1rem;
   }
 
+  .logo-wrapper {
+    width: 100px;
+    height: 100px;
+  }
+
   .logo-container {
     width: 100px;
     height: 100px;
@@ -308,6 +328,22 @@
   .anima-logo {
     width: 60px;
     height: 60px;
+  }
+
+  /* Ajustar tamaño de ondas en móviles pequeños */
+  .circle-1 {
+    width: 100px;
+    height: 100px;
+  }
+
+  .circle-2 {
+    width: 100px;
+    height: 100px;
+  }
+
+  .circle-3 {
+    width: 100px;
+    height: 100px;
   }
 
   .welcome-text {
@@ -339,4 +375,137 @@
   .loading-content h2 {
     font-size: 1.125rem;
   }
+}
+
+/* ============================================
+   LOGO CONTAINER - Efecto Shazam mejorado
+   ============================================ */
+
+.logo-wrapper {
+  position: relative;
+  width: 200px;
+  height: 140px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-container {
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  position: relative;
+  background: linear-gradient(135deg, 
+    rgba(81, 83, 136, 0.557) 0%,
+    #b46a9086 100%);
+  border: 2px solid rgba(107, 109, 184, 0.5);
+  z-index: 2;
+}
+
+/* Logo */
+.anima-logo {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+  position: relative;
+  z-index: 3;
+}
+
+/* Círculos animados de fondo - Ondas tipo Shazam */
+.background-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Onda 1 - Lilac (más cercana) - Empieza en el borde */
+.circle-1 {
+  width: 230px;
+  height: 230px;
+  background: radial-gradient(circle, 
+    rgba(195, 196, 250, 0) 40%, 
+    rgba(165, 168, 243, 0.411) 48%,
+    rgba(189, 190, 236, 0.386) 52%,
+    rgba(195, 196, 250, 0) 60%);
+  animation: wave-pulse 3s ease-in-out infinite;
+}
+
+/* Onda 2 - Pink (intermedia) */
+.circle-2 {
+  width: 230px;
+  height: 230px;
+  background: radial-gradient(circle, 
+    rgba(255, 208, 231, 0) 40%, 
+    rgba(243, 144, 190, 0.274) 48%,
+    rgba(237, 182, 208, 0.336) 52%,
+    rgba(255, 208, 231, 0) 60%);
+  animation: wave-pulse 3s ease-in-out infinite 0.5s;
+}
+
+/* Onda 3 - Blue (más lejana) */
+.circle-3 {
+  width: 230px;
+  height: 230px;
+  background: radial-gradient(circle, 
+    rgba(0, 136, 255, 0) 40%, 
+    rgba(0, 136, 255, 0.162) 48%,
+    rgba(70, 169, 255, 0.128) 52%,
+    rgba(0, 136, 255, 0) 60%);
+  animation: wave-pulse 3s ease-in-out infinite 1s;
+}
+
+/* Animación de ondas expansivas */
+@keyframes wave-pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.2);
+    opacity: 0;
+  }
+}
+
+/* Resplandor pulsante del contenedor */
+.logo-container {
+  animation: container-glow 4s ease-in-out infinite;
+}
+
+@keyframes container-glow {
+  0%, 100% {
+    box-shadow: 
+      0 0 40px rgba(195, 196, 250, 0.4),
+      0 0 80px rgba(195, 196, 250, 0.2),
+      0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  33% {
+    box-shadow: 
+      0 0 50px rgba(255, 208, 231, 0.5),
+      0 0 100px rgba(255, 208, 231, 0.25),
+      0 6px 16px rgba(0, 0, 0, 0.18);
+  }
+  66% {
+    box-shadow: 
+      0 0 45px rgba(0, 136, 255, 0.45),
+      0 0 90px rgba(0, 136, 255, 0.22),
+      0 5px 14px rgba(0, 0, 0, 0.16);
+  }
+}
+
+/* Ajustar z-index del logo container dentro del wrapper */
+.logo-wrapper .logo-container {
+  position: relative;
+  z-index: 2;
 }

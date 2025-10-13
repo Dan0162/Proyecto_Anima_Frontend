@@ -91,19 +91,26 @@ const EmotionAnalyzer = () => {
       <div className="emotion-analyzer">
         <div className="analyzer-container">
           
-          {/* Logo compacto con efecto glass */}
-          <GlassCard 
-            variant="lilac" 
-            className="logo-container" 
-            floating 
-            glow
-          >
-            <img 
-              src={LOGO_SRC} 
-              alt="Ánima Logo" 
-              className="anima-logo"
-            />
-          </GlassCard>
+          {/* Logo compacto con efectos dinámicos */}
+          <div className="logo-wrapper">
+            {/* Círculos de fondo adicionales */}
+            <div className="background-circle circle-1"></div>
+            <div className="background-circle circle-2"></div>
+            <div className="background-circle circle-3"></div>
+            
+            <GlassCard 
+              variant="lilac" 
+              className="logo-container" 
+              floating={true}  /* Desactivamos el floating original */
+              glow
+            >
+              <img 
+                src={LOGO_SRC} 
+                alt="Ánima Logo" 
+                className="anima-logo"
+              />
+            </GlassCard>
+          </div>
 
           {/* Sección de bienvenida */}
           <div className="welcome-section">
