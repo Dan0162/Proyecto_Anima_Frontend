@@ -14,6 +14,14 @@ const SignInPage = () => {
   const { loading, error, callApi } = useApi();
 
   useEffect(() => {
+  // Agregar clase al body para manejar padding de navbar
+  document.body.classList.add('with-navbar');
+  return () => {
+    document.body.classList.remove('with-navbar');
+    };
+  }, []);
+
+  useEffect(() => {
     try {
       if (location && location.state && location.state.flash && flash && flash.show) {
         const flashType = location.state.flashType || 'success';

@@ -13,6 +13,14 @@ const SignUpPage = () => {
   const flash = useFlash();
   const { loading, error, callApi } = useApi();
 
+  useEffect(() => {
+    // Agregar clase al body para manejar padding de navbar
+    document.body.classList.add('with-navbar');
+    return () => {
+      document.body.classList.remove('with-navbar');
+    };
+  }, []);
+
   const handleSignUp = async (formData) => {
     try {
       // Prepare payload without confirmPassword
