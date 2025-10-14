@@ -27,6 +27,9 @@ const CameraCapture = ({ onCapture, onCancel }) => {
       videoRef.current.play().catch(err => {
         console.error('Error playing video:', err);
       });
+    } else if (capturedPhoto && videoRef.current) {
+      // Asegurar que el video se detenga completamente cuando hay foto capturada
+      videoRef.current.srcObject = null;
     }
   }, [stream, capturedPhoto]);
 
@@ -60,13 +63,19 @@ const CameraCapture = ({ onCapture, onCancel }) => {
   };
 
   const stopCamera = () => {
+    console.log('🛑 Deteniendo cámara');
+    
     if (stream) {
-      console.log('🛑 Deteniendo cámara');
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach(track => {
+        track.stop();
+        console.log(`Track detenido: ${track.kind}`);
+      });
       setStream(null);
     }
+    
     if (videoRef.current) {
       videoRef.current.srcObject = null;
+      videoRef.current.pause();
     }
   };
 
@@ -97,10 +106,14 @@ const CameraCapture = ({ onCapture, onCancel }) => {
     const imageData = canvas.toDataURL('image/jpeg', 0.8);
     
     console.log('📸 Foto capturada');
-    setCapturedPhoto(imageData);
     
-    // Stop camera after capture
+    // IMPORTANTE: Primero detener la cámara, LUEGO actualizar el estado
     stopCamera();
+    
+    // Pequeño delay para asegurar que los tracks se detengan antes de actualizar estado
+    setTimeout(() => {
+      setCapturedPhoto(imageData);
+    }, 50);
   };
 
   const retakePhoto = () => {

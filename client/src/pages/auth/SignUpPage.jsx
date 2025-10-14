@@ -6,6 +6,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useApi } from '../../hooks/useApi';
 import { registerApi } from '../../utils/api';
 import { useFlash } from '../../components/flash/FlashContext';
+import GlassCard from '../../components/layout/GlassCard';
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -57,15 +58,17 @@ const SignUpPage = () => {
   };
 
   return (
-    <div>
+    <div className="auth-page gradient-bg">
       <Navbar />
-      <div className="auth-page">
+      <div className="auth-page-content">
         <div className="auth-container">
-          <SignUpForm 
-            onSubmit={handleSignUp} 
-            isLoading={loading}
-            formError={error}
-          />
+          <GlassCard variant="pink" style={{ padding: '0' }}>
+            <SignUpForm 
+              onSubmit={handleSignUp} 
+              isLoading={loading}
+              formError={error}
+            />
+          </GlassCard>
         </div>
       </div>
     </div>

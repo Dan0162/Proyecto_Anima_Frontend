@@ -1,3 +1,375 @@
+/* ============================================
+   LANDING PAGE con Liquid Glass Effect
+   ============================================ */
+
 .landingpage {
-  /* Add landing page specific styles here */
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.landingpage-content {
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+  padding: 4rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+}
+
+/* Hero Section */
+.landing-hero {
+  text-align: center;
+  max-width: 800px;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.landing-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: var(--black);
+  margin: 0 0 1rem 0;
+  line-height: 1.2;
+  letter-spacing: -1px;
+  text-shadow: 0 2px 20px rgba(195, 196, 250, 0.3);
+}
+
+.landing-highlight {
+  background: linear-gradient(135deg, 
+    var(--lilac) 0%, 
+    var(--pink) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.landing-subtitle {
+  font-size: 1.5rem;
+  color: #4a5568;
+  margin: 0 0 2rem 0;
+  line-height: 1.6;
+}
+
+.landing-cta {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* 🆕 Botones con Liquid Glass + Colores específicos */
+.cta-button {
+  padding: 1rem 2.5rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.317);
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+}
+
+.cta-button.primary {
+  background: linear-gradient(135deg,
+    rgba(195, 196, 250, 0.6) 0%,
+    rgba(139, 140, 245, 0.6) 100%);
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.cta-button.secondary {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--black);
+  border: 1px solid rgba(195, 196, 250, 0.3);
+}
+
+.cta-button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px 0 rgba(195, 196, 250, 0.4);
+}
+
+.cta-button.primary:hover {
+  background: linear-gradient(135deg,
+    rgba(162, 163, 216, 0.8) 0%,
+    rgba(139, 140, 245, 0.8) 100%);
+}
+
+.cta-button.secondary:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.cta-button svg {
+  transition: transform 0.3s ease;
+}
+
+.cta-button:hover svg {
+  transform: translateX(4px);
+}
+
+/* Features Section */
+.landing-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  width: 100%;
+  max-width: 1200px;
+  margin-top: 2rem;
+}
+
+.feature-card {
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  /* Estado normal - Color uniforme y sutil */
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Hover - TODAS las cards usan lila intenso */
+.feature-card:hover {
+  background: rgba(139, 140, 245, 0.25);
+  border-color: rgba(139, 140, 245, 0.5);
+  box-shadow: 0 12px 40px rgba(139, 140, 245, 0.4);
+  transform: translateY(-10px);
+}
+
+/* Icono con color lila al hover */
+.feature-card:hover .feature-icon {
+  background: rgba(139, 140, 245, 0.35);
+  transform: scale(1.1) rotate(5deg);
+}
+
+/* Efecto de brillo al hover */
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.feature-card:hover::before {
+  opacity: 1;
+}
+
+.feature-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.feature-icon svg {
+  width: 32px;
+  height: 32px;
+  color: var(--black);
+}
+
+.feature-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--black);
+  margin: 0 0 0.5rem 0;
+}
+
+.feature-description {
+  font-size: 1rem;
+  color: #4a5568;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Stats Section */
+.landing-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  width: 100%;
+  max-width: 900px;
+  margin: 3rem 0;
+}
+
+.stat-card {
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.stat-number {
+  font-size: 3rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--lilac) 0%, var(--pink) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.stat-label {
+  font-size: 1.125rem;
+  color: #4a5568;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+/* How it Works */
+.landing-how-it-works {
+  width: 100%;
+  max-width: 1200px;
+  margin: 4rem 0;
+  text-align: center;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 3rem;
+  text-shadow: 0 2px 20px rgba(195, 196, 250, 0.3);
+}
+
+.steps-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.step-item {
+  flex: 1;
+  min-width: 200px;
+  max-width: 280px;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(195, 196, 250, 0.3);
+  transition: all 0.3s ease;
+}
+
+.step-item:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(195, 196, 250, 0.3);
+}
+
+.step-number {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 1rem;
+  background: linear-gradient(135deg, var(--lilac) 0%, var(--pink) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: white;
+}
+
+.step-item h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--black);
+  margin: 1rem 0 0.5rem 0;
+}
+
+.step-item p {
+  color: #4a5568;
+  margin: 0;
+}
+
+.step-arrow {
+  font-size: 2rem;
+  color: var(--lilac);
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .step-arrow {
+    display: none;
+  }
+  
+  .steps-container {
+    flex-direction: column;
+  }
+}
+/* Responsive */
+@media (max-width: 768px) {
+  .landingpage-content {
+    padding: 3rem 1.5rem;
+  }
+
+  .landing-title {
+    font-size: 2.5rem;
+  }
+
+  .landing-subtitle {
+    font-size: 1.25rem;
+  }
+
+  .landing-cta {
+    flex-direction: column;
+  }
+
+  .cta-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .landing-features {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .landing-title {
+    font-size: 2rem;
+  }
+
+  .landing-subtitle {
+    font-size: 1.125rem;
+  }
 }

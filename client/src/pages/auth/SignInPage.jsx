@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import GlassCard from '../../components/layout/GlassCard';
 import Navbar from '../../components/navbar';
 import SignInForm from '../../components/auth/SignInForm';
 import './AuthPage.css';
@@ -68,15 +69,17 @@ const SignInPage = () => {
   };
 
   return (
-    <div>
+    <div className="auth-page gradient-bg">
       <Navbar />
-      <div className="auth-page">
-        <div className="auth-container">          
-          <SignInForm 
-            onSubmit={handleSignIn} 
-            isLoading={loading}
-            formError={error}
-          />
+      <div className="auth-page-content">
+        <div className="auth-container">
+          <GlassCard variant="lilac" style={{ padding: '0' }}>
+            <SignInForm 
+              onSubmit={handleSignIn} 
+              isLoading={loading}
+              formError={error}
+            />
+          </GlassCard>
         </div>
       </div>
     </div>

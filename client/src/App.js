@@ -10,6 +10,8 @@ import RequireAuth from './components/RequireAuth';
 import SignInPage from './pages/auth/SignInPage';
 import SignUpPage from './pages/auth/SignUpPage';
 import AnalyzePage from './pages/home/AnalyzePage';
+import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
 
 function App() {
   const location = useLocation();
@@ -23,6 +25,8 @@ function App() {
             <Route path="/" element={<Landingpage />} />
             <Route path="/signin" element={<SignInPage />} />
             <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
             <Route path="/home" element={<RequireAuth><HomeLayout /></RequireAuth>}>
               <Route index element={<Homepage />} />
               <Route path="account" element={<Account />} />

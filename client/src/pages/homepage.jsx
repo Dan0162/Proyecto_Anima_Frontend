@@ -1,29 +1,15 @@
-import './homepage.css';
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useFlash } from '../components/flash/FlashContext';
+import { useNavigate } from 'react-router-dom';
 
 function Homepage() {
-  const location = useLocation();
-  const flash = useFlash();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    try {
-      if (location && location.state && location.state.flash && flash && flash.show) {
-        flash.show(location.state.flash, 'success', 4000);
-      }
-    } catch (e) {
-      // ignore
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    // Redirigir automáticamente a la página de análisis
+    navigate('/home/analyze');
+  }, [navigate]);
 
-  return (
-    <div className="homepage">
-      <h1>Bienvenido a la Homepage</h1>
-      <p>Esta es la pagina principal de la aplicación.</p>
-    </div>
-  );
+  return null;
 }
 
 export default Homepage;

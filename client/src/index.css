@@ -11,22 +11,22 @@ body {
   /* Keep this in sync with --navbar-height in navbar.css */
   --navbar-height: 64px;
   
-  /* Paleta de colores del proyecto */
-  --lilac: #C3C4FA;
-  --pink: #FFD0E7;
+  /* 🆕 Paleta de colores EXACTA del proyecto */
+  --lilac: #a1a2e6;
+  --pink: #e7a3c4;
   --yellow: #FFF200;
   --blue: #0088FF;
-  --salmon: #FFCDCD;
-  --misty-rose: #FEDAD8;
-  --rose-gray: #F7ADAF;
+  --salmon: #d89898;
+  --misty-rose: #e5a9a6;
+  --rose-gray: #e49396;
   --black: #1A1A1A;
   --white: #FFFFFF;
   
   /* Colores más oscuros para mejor contraste */
-  --lilac-dark: #6B6DB8;
-  --pink-dark: #E895C0;
+  --lilac-dark: #8B8CF5;
+  --pink-dark: #FF9EC7;
   --blue-dark: #0066CC;
-  --purple-dark: #5B5D9E;
+  --purple-dark: #7B7DCC;
   
   /* Glass effect variables */
   --glass-bg: rgba(255, 255, 255, 0.1);

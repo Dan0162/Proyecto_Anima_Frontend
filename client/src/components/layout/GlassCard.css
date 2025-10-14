@@ -1,16 +1,20 @@
+/* 🆕 Liquid Glass Card con colores específicos */
 .glass-card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.08) 100%);
+  backdrop-filter: blur(15px) saturate(180%);
+  -webkit-backdrop-filter: blur(15px) saturate(180%);
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   padding: 2rem;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
 }
 
+/* Efecto de brillo en movimiento */
 .glass-card::before {
   content: '';
   position: absolute;
@@ -21,7 +25,7 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.15),
     transparent
   );
   transition: left 0.5s;
@@ -33,29 +37,58 @@
 
 .glass-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.2);
+  border-color: rgba(255, 255, 255, 0.35);
 }
 
-/* Variants */
+/* 🆕 Variants con colores específicos */
 .glass-card.glass-lilac {
-  background: rgba(195, 196, 250, 0.15);
+  background: linear-gradient(135deg,
+    rgba(195, 196, 250, 0.2) 0%,
+    rgba(195, 196, 250, 0.1) 100%);
   border: 1px solid rgba(195, 196, 250, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(195, 196, 250, 0.2);
 }
 
 .glass-card.glass-pink {
-  background: rgba(255, 208, 231, 0.15);
+  background: linear-gradient(135deg,
+    rgba(255, 208, 231, 0.2) 0%,
+    rgba(255, 208, 231, 0.1) 100%);
   border: 1px solid rgba(255, 208, 231, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(255, 208, 231, 0.2);
 }
 
 .glass-card.glass-blue {
-  background: rgba(0, 136, 255, 0.15);
+  background: linear-gradient(135deg,
+    rgba(0, 136, 255, 0.2) 0%,
+    rgba(0, 136, 255, 0.1) 100%);
   border: 1px solid rgba(0, 136, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(0, 136, 255, 0.2);
 }
 
 .glass-card.glass-salmon {
-  background: rgba(255, 205, 205, 0.15);
+  background: linear-gradient(135deg,
+    rgba(255, 205, 205, 0.2) 0%,
+    rgba(255, 205, 205, 0.1) 100%);
   border: 1px solid rgba(255, 205, 205, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(255, 205, 205, 0.2);
+}
+
+/* Hover effects para cada variante */
+.glass-card.glass-lilac:hover {
+  box-shadow: 0 12px 40px 0 rgba(195, 196, 250, 0.3);
+}
+
+.glass-card.glass-pink:hover {
+  box-shadow: 0 12px 40px 0 rgba(255, 208, 231, 0.3);
+}
+
+.glass-card.glass-blue:hover {
+  box-shadow: 0 12px 40px 0 rgba(0, 136, 255, 0.3);
+}
+
+.glass-card.glass-salmon:hover {
+  box-shadow: 0 12px 40px 0 rgba(255, 205, 205, 0.3);
 }
 
 /* Animations */
@@ -79,11 +112,11 @@
 @keyframes pulse-glow {
   0%, 100% {
     box-shadow: 0 0 20px rgba(195, 196, 250, 0.5),
-                0 8px 32px 0 rgba(0, 0, 0, 0.1);
+                0 8px 32px 0 rgba(31, 38, 135, 0.15);
   }
   50% {
     box-shadow: 0 0 40px rgba(195, 196, 250, 0.8),
-                0 12px 40px 0 rgba(0, 0, 0, 0.15);
+                0 12px 40px 0 rgba(31, 38, 135, 0.2);
   }
 }
 

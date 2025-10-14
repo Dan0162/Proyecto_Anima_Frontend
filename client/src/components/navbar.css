@@ -1,17 +1,45 @@
 .navbar {
-  --navbar-height: 64px; /* fallback height used for layout spacing */
-  background-color: #333;
-  color: #fff;
-  padding: 0 1rem; /* horizontal padding only; vertical centering handled by height */
+  --navbar-height: 64px;
+  /* 🆕 Liquid Glass Effect */
+  background: linear-gradient(135deg, 
+    rgba(195, 196, 250, 0.15) 0%,
+    rgba(255, 208, 231, 0.15) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  color: var(--black);
+  padding: 0 1rem;
   height: var(--navbar-height);
-  position: fixed; /* keep navbar on screen */
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000; /* sit above page content */
+  z-index: 1000;
   display: flex;
   align-items: center;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* Efecto de brillo sutil en hover */
+.navbar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.5s;
+  pointer-events: none;
+}
+
+.navbar:hover::before {
+  left: 100%;
 }
 
 .navdiv {
@@ -19,16 +47,13 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  /* Do not constrain nav inner row to a max width so items can use the full available width
-     Horizontal spacing is handled by the navbar's own padding (see .navbar) so this will
-     line up with the rest of the page content while allowing actions to sit at the right edge. */
   max-width: none;
   margin: 0;
   padding: 0;
 }
 
 .logo-btn {
-  color: #fff;
+  color: var(--black);
   background: none;
   border: none;
   text-decoration: none;
@@ -36,24 +61,23 @@
   cursor: pointer;
   padding: 0;
   font-family: inherit;
+  transition: transform 0.3s ease;
 }
 
 .logo-btn:hover {
-  opacity: 0.8;
+  transform: scale(1.05);
 }
 
 .left-group {
   display: flex;
   align-items: center;
   gap: 1rem;
-  /* allow the left side to grow so the right-group (actions) sits flush to the right edge */
   flex: 1 1 auto;
 }
 
 .right-group {
   display: flex;
   align-items: center;
-  /* ensure actions align to the very right of the nav inner container */
   justify-content: flex-end;
 }
 
@@ -65,44 +89,70 @@
   padding: 0;
 }
 
-.actions {
-  margin-left: auto; /* safety: keep action buttons pushed right if layout changes */
+.navlist li a {
+  color: var(--black);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
 }
 
-.navlist li a {
-  color: #fff;
-  text-decoration: none;
+.navlist li a:hover {
+  background: rgba(195, 196, 250, 0.2);
+  color: var(--lilac-dark);
+  transform: translateY(-2px);
 }
 
 .actions {
   display: flex;
   gap: 0.75rem;
   align-items: center;
+  margin-left: auto;
 }
 
+/* 🆕 Botones con Liquid Glass Effect */
 .btn {
-  background-color: #555;
-  color: #fff;
-  border: none;
+  background: linear-gradient(135deg,
+    rgba(195, 196, 250, 0.2) 0%,
+    rgba(255, 208, 231, 0.2) 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--black);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   padding: 0.5rem 1rem;
+  border-radius: 10px;
   cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px 0 rgba(195, 196, 250, 0.2);
 }
 
 .btn:hover {
-  background-color: #777;
+  background: linear-gradient(135deg,
+    rgba(195, 196, 250, 0.35) 0%,
+    rgba(255, 208, 231, 0.35) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px 0 rgba(195, 196, 250, 0.3);
 }
 
-/* Logo button should be transparent and not inherit the .btn background */
+.btn:active {
+  transform: translateY(0);
+}
+
+/* Logo button específico */
 .btn.logo-btn,
 .logo-btn.btn {
   background: transparent;
-  padding: 0; /* remove extra padding so image fits naturally */
+  border: none;
+  padding: 0;
+  box-shadow: none;
 }
 
 .btn.logo-btn:hover,
 .logo-btn.btn:hover {
-  background: transparent; /* keep transparent on hover */
-  opacity: 0.9;
+  background: transparent;
+  transform: scale(1.05);
 }
 
 .logo {
@@ -114,14 +164,10 @@
   width: 40px;
   height: 40px;
   display: block;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
 }
 
-/* Mobile dropdown default hidden; only shown via media query when hamburger is visible */
-.mobile-dropdown {
-  display: none;
-}
-
-/* Hamburger button (hidden on desktop) */
+/* Hamburger */
 .hamburger {
   display: none;
   background: transparent;
@@ -135,9 +181,10 @@
   display: block;
   width: 22px;
   height: 2px;
-  background: #fff;
+  background: var(--black);
   margin: 4px 0;
   transition: transform 0.2s ease, opacity 0.2s ease;
+  border-radius: 2px;
 }
 
 .hamburger.open .bar:nth-child(1) {
@@ -149,19 +196,26 @@
 .hamburger.open .bar:nth-child(3) {
   transform: translateY(-6px) rotate(-45deg);
 }
-/* Desktop-only layout: no mobile hamburger styles */
+
+/* Mobile Dropdown */
+.mobile-dropdown {
+  display: none;
+}
+
+/* Backdrop */
+.mobile-backdrop {
+  display: none;
+}
 
 @media (max-width: 800px) {
   .hamburger {
     display: block;
   }
 
-  /* Keep header in one row: logo/hamburger on left, actions on right */
   .navdiv {
     flex-direction: row;
     align-items: center;
   }
-
 
   .left-group {
     display: flex;
@@ -170,61 +224,48 @@
     gap: 0.5rem;
   }
 
-  /* Dropdown menu anchored under the right-group (hamburger) */
   .right-group {
-    position: relative; /* anchor for right-side dropdown */
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: flex-end;
   }
 
   .navlist {
-    /* hidden on mobile header; mobile-dropdown handles mobile menu */
     display: none;
-    position: static;
-    top: auto;
-    right: auto;
-    background: none;
-    padding: 0;
-    border-radius: 0;
-    box-shadow: none;
-    flex-direction: row;
-    gap: 1rem;
-    min-width: auto;
-    z-index: auto;
   }
 
-  .navlist.open {
-    display: flex;
-  }
-
-  /* Full-width mobile dropdown that appears beneath header */
   .mobile-dropdown {
     display: none;
     position: absolute;
     left: 0;
-    top: calc(var(--navbar-height)); /* place immediately below fixed navbar */
+    top: calc(var(--navbar-height));
     width: 100%;
-    background: #222;
-    color: #fff;
+    /* 🆕 Liquid Glass Effect para mobile */
+    background: linear-gradient(135deg,
+      rgba(195, 196, 250, 0.25) 0%,
+      rgba(255, 208, 231, 0.25) 100%);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+    color: var(--black);
     z-index: 35;
-    /* equal horizontal padding so inner content lines up evenly */
     padding: 1rem 1rem 1.25rem 1rem;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
     box-sizing: border-box;
   }
 
-  /* Backdrop sits behind the dropdown and above page content */
   .mobile-backdrop {
     display: none;
     position: fixed;
     inset: 0 0 0 0;
-    background: rgba(0,0,0,0.35);
-    z-index: 30; /* below the dropdown (35) */
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 30;
     opacity: 0;
     transition: opacity 180ms ease-in-out;
     pointer-events: none;
-    margin-top: var(--navbar-height); /* avoid covering the fixed header area */
+    margin-top: var(--navbar-height);
   }
 
   .mobile-backdrop.open {
@@ -233,12 +274,10 @@
     pointer-events: auto;
   }
 
-  /* mobile dropdown visible only on small screens when open */
   .mobile-dropdown.open {
     display: block;
   }
 
-  /* Ensure per-group navlists are hidden on mobile to avoid duplicate menus */
   .left-group .navlist,
   .right-group .navlist {
     display: none !important;
@@ -250,14 +289,23 @@
     margin: 0 0 1rem 0;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
   }
 
   .mobile-nav li a {
-    color: #fff;
+    color: var(--black);
     text-decoration: none;
-    padding: 0.5rem 0.25rem;
+    padding: 0.75rem 1rem;
     display: block;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .mobile-nav li a:hover {
+    background: rgba(195, 196, 250, 0.3);
+    transform: translateX(4px);
   }
 
   .mobile-actions {
@@ -266,39 +314,21 @@
     gap: 0.5rem;
     margin-top: 1rem;
     width: 100%;
-    /* don't add extra inner horizontal padding here; mobile-dropdown controls outer inset */
     padding: 0;
     box-sizing: border-box;
   }
 
-  /* Hide header action buttons on mobile (we show actions in the dropdown) */
   .right-group .actions {
     display: none;
   }
 
   .mobile-actions .btn {
     display: block;
-    width: 100%; /* fill the dropdown inner width (respecting mobile-dropdown padding) */
+    width: 100%;
     text-align: center;
     box-sizing: border-box;
     margin: 0.25rem 0;
-    padding: 0.6rem 0.75rem;
-    text-decoration: none; /* keep visual tidy; override anchor default */
-  }
-
-  /* Ensure mobile nav links match the same horizontal inset */
-  .mobile-nav {
-    padding: 0;
-    margin: 0 0 1rem 0;
-  }
-
-  .right-group {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-  }
-
-  .right-group .actions {
-    gap: 0.5rem;
+    padding: 0.75rem;
+    text-decoration: none;
   }
 }
