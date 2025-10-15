@@ -38,8 +38,8 @@ app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, generic_exception_handler)
 
 @app.on_event("startup")
-def on_startup():
-    init_db_from_sql()
+async def on_startup():  # Cambia a async
+    await init_db_from_sql()    
     #Base.metadata.drop_all(bind=engine)
     #Base.metadata.create_all(bind=engine)  
 

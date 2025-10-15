@@ -45,19 +45,19 @@ def generate_fallback_data():
                 "duration_ms": 180000,
                 "popularity": 75
             }
-        ] * 10,
+        ] * 30,  # ← Aumentado a 30 canciones de respaldo
         "emotion": "happy",
-        "total_tracks": 10,
+        "total_tracks": 30,
         "search_method": "fallback"
     }
 
-# Mapeo de emociones a diferentes conjuntos de canciones
+# Mapeo de emociones a diferentes conjuntos de canciones - AHORA 30 CANCIONES
 EMOTION_TRACK_FILTERS = {
-    "happy": lambda tracks: tracks[:30],  # Primeras 30
-    "sad": lambda tracks: tracks[:30],
-    "angry": lambda tracks: tracks[:30],
-    "relaxed": lambda tracks: tracks[:30],
-    "energetic": lambda tracks: tracks[:30]
+    "happy": lambda tracks: tracks[:30],   # Primeras 30 canciones
+    "sad": lambda tracks: tracks[:30],     # Primeras 30 canciones  
+    "angry": lambda tracks: tracks[:30],   # Primeras 30 canciones
+    "relaxed": lambda tracks: tracks[:30], # Primeras 30 canciones
+    "energetic": lambda tracks: tracks[:30] # Primeras 30 canciones
 }
 
 @router.get("/mockup")
@@ -86,8 +86,10 @@ def get_mockup_recommendations(emotion: str = Query(...)):
             detail="No se pudieron cargar las canciones mockup"
         )
     
-    # Aplicar filtro según emoción y aleatorizar
+    # Mezclar las canciones para variedad
     random.shuffle(all_tracks)
+    
+    # Aplicar filtro según emoción - ahora devuelve 30 canciones
     filter_func = EMOTION_TRACK_FILTERS[emotion]
     selected_tracks = filter_func(all_tracks)
     
@@ -96,7 +98,7 @@ def get_mockup_recommendations(emotion: str = Query(...)):
         "emotion": emotion,
         "total_tracks": len(selected_tracks),
         "search_method": "mockup",
-        "note": f"Recomendaciones mockup para {emotion}",
+        "note": f"Recomendaciones mockup para {emotion} - 30 canciones",
         "mockup_mode": True
     }
 
@@ -112,10 +114,25 @@ def test_mockup():
             "status": "ok",
             "tracks_available": len(data.get("tracks", [])),
             "emotions": list(EMOTION_TRACK_FILTERS.keys()),
-            "note": "Sistema mockup funcionando correctamente"
+            "note": "Sistema mockup funcionando correctamente - 30 canciones por emoción"
         }
     except Exception as e:
         return {
             "status": "error",
             "error": str(e)
         }
+
+
+@router.get("/debug-tracks")
+def debug_tracks():
+    """🔧 Endpoint para diagnosticar cuántas canciones hay disponibles"""
+    mock_data = load_mock_data()
+    all_tracks = mock_data.get("tracks", [])
+    
+    return {
+        "total_tracks_in_json": len(all_tracks),
+        "tracks_per_emotion": 30,
+        "first_track": all_tracks[0] if all_tracks else None,
+        "emotion_filters": {k: "tracks[:30]" for k in EMOTION_TRACK_FILTERS.keys()},
+        "note": "Cada emoción devolverá 30 canciones aleatorias"
+    }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from '../../components/sidebar/Sidebar';
 import GlassCard from '../../components/layout/GlassCard';
@@ -12,16 +12,7 @@ const ResultsPage = () => {
   
   const { result, photo } = location.state || {};
 
-  useEffect(() => {
-    if (!result || !photo) {
-      navigate('/home/analyze');
-      return;
-    }
-
-    fetchRecommendations();
-  }, [result]);
-
-  const fetchRecommendations = async () => {
+  const fetchRecommendations = useCallback(async () => {
     setLoading(true);
     try {
       const url = `http://127.0.0.1:8000/recommend/mockup?emotion=${result.emotion}`;
@@ -40,8 +31,16 @@ const ResultsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [result]); // ← Dependencias de useCallback
 
+  useEffect(() => {
+    if (!result || !photo) {
+      navigate('/home/analyze');
+      return;
+    }
+
+    fetchRecommendations();
+  }, [fetchRecommendations, navigate, result, photo]); // ← Todas las dependencias
   // 🎨 Obtener color según emoción
   const getEmotionColor = (emotion) => {
     const colors = {
@@ -255,7 +254,7 @@ const ResultsPage = () => {
                 </div>
               ) : recommendations.length > 0 ? (
                 <div className="tracks-list">
-                  {recommendations.slice(0, 15).map((track, index) => (
+                  {recommendations.slice(0, 30).map((track, index) => (
                     <div 
                       key={index}
                       className="track-card"

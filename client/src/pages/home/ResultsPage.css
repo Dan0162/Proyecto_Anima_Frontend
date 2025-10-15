@@ -41,6 +41,12 @@
 .results-header {
   flex: 1;
   min-width: 300px;
+  margin-left: -70px; /* ← Mueve el texto 70px hacia la izquierda */
+}
+
+.action-button.new-analysis {
+  margin-right: 80px; /* ← Mueve el botón 800px hacia la izquierda */
+
 }
 
 .results-title {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Sidebar from '../../components/sidebar/Sidebar';
 import GlassCard from '../../components/layout/GlassCard';
 import './RecommendationsPage.css';
@@ -16,11 +16,7 @@ const RecommendationsPage = () => {
     { value: 'energetic', label: 'Energético', emoji: '⚡', description: 'Ritmos vibrantes y dinámicos' }
   ];
 
-  useEffect(() => {
-    fetchRecommendations();
-  }, [selectedEmotion]);
-
-  const fetchRecommendations = async () => {
+   const fetchRecommendations = useCallback(async () => {
     setLoading(true);
     try {
       const url = `http://127.0.0.1:8000/recommend/mockup?emotion=${selectedEmotion}`;
@@ -30,13 +26,20 @@ const RecommendationsPage = () => {
         const data = await response.json();
         setRecommendations(data.tracks || []);
         console.log('✅ Recomendaciones cargadas:', data.tracks?.length || 0);
+        console.log('📊 Datos recibidos del backend:', data); // ← Agrega esto
+        console.log('🎵 Número de tracks recibidos:', data.tracks?.length); // ← Y esto
       }
     } catch (error) {
       console.error('❌ Error:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedEmotion]); // Dependencias de useCallback
+
+  useEffect(() => {
+    fetchRecommendations();
+  }, [fetchRecommendations]); // Ahora fetchRecommendations es estable
+
 
   const getEmotionColor = (emotion) => {
     const colors = {
@@ -155,7 +158,7 @@ const RecommendationsPage = () => {
             </div>
           ) : recommendations.length > 0 ? (
             <div className="tracks-grid">
-              {recommendations.slice(0, 12).map((track, index) => (
+              {recommendations.slice(0, 30).map((track, index) => (
                 <div 
                   key={index}
                   className="track-item"

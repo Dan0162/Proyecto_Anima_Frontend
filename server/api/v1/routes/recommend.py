@@ -100,11 +100,11 @@ def generate_fallback_data():
 
 # Mapeo de emociones a diferentes conjuntos de canciones
 EMOTION_TRACK_FILTERS = {
-    "happy": lambda tracks: tracks[:30],
-    "sad": lambda tracks: tracks[:30],
-    "angry": lambda tracks: tracks[:30],
-    "relaxed": lambda tracks: tracks[:30],
-    "energetic": lambda tracks: tracks[:30]
+    "happy": lambda tracks: tracks[:31],
+    "sad": lambda tracks: tracks[:31],
+    "angry": lambda tracks: tracks[:31],
+    "relaxed": lambda tracks: tracks[:31],
+    "energetic": lambda tracks: tracks[:31]
 }
 
 @router.get("/mockup")
