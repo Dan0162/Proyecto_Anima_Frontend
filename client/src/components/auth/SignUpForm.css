@@ -1,0 +1,7 @@
+/* SignUpForm specific styles can be added here */
+
+.password-fields-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

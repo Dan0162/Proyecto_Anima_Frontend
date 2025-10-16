@@ -1,0 +1,334 @@
+.navbar {
+  --navbar-height: 64px;
+  /* 🆕 Liquid Glass Effect */
+  background: linear-gradient(135deg, 
+    rgba(195, 196, 250, 0.15) 0%,
+    rgba(255, 208, 231, 0.15) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  color: var(--black);
+  padding: 0 1rem;
+  height: var(--navbar-height);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+}
+
+/* Efecto de brillo sutil en hover */
+.navbar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.5s;
+  pointer-events: none;
+}
+
+.navbar:hover::before {
+  left: 100%;
+}
+
+.navdiv {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.logo-btn {
+  color: var(--black);
+  background: none;
+  border: none;
+  text-decoration: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  transition: transform 0.3s ease;
+}
+
+.logo-btn:hover {
+  transform: scale(1.05);
+}
+
+.left-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1 1 auto;
+}
+
+.right-group {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.navlist {
+  list-style: none;
+  display: flex;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+}
+
+.navlist li a {
+  color: var(--black);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+}
+
+.navlist li a:hover {
+  background: rgba(195, 196, 250, 0.2);
+  color: var(--lilac-dark);
+  transform: translateY(-2px);
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-left: auto;
+}
+
+/* 🆕 Botones con Liquid Glass Effect */
+.btn {
+  background: linear-gradient(135deg,
+    rgba(195, 196, 250, 0.2) 0%,
+    rgba(255, 208, 231, 0.2) 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--black);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px 0 rgba(195, 196, 250, 0.2);
+}
+
+.btn:hover {
+  background: linear-gradient(135deg,
+    rgba(195, 196, 250, 0.35) 0%,
+    rgba(255, 208, 231, 0.35) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px 0 rgba(195, 196, 250, 0.3);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* Logo button específico */
+.btn.logo-btn,
+.logo-btn.btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+}
+
+.btn.logo-btn:hover,
+.logo-btn.btn:hover {
+  background: transparent;
+  transform: scale(1.05);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo-btn img {
+  width: 40px;
+  height: 40px;
+  display: block;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
+}
+
+/* Hamburger */
+.hamburger {
+  display: none;
+  background: transparent;
+  border: none;
+  padding: 6px;
+  margin-left: 8px;
+  cursor: pointer;
+}
+
+.hamburger .bar {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--black);
+  margin: 4px 0;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  border-radius: 2px;
+}
+
+.hamburger.open .bar:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+.hamburger.open .bar:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.open .bar:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* Mobile Dropdown */
+.mobile-dropdown {
+  display: none;
+}
+
+/* Backdrop */
+.mobile-backdrop {
+  display: none;
+}
+
+@media (max-width: 800px) {
+  .hamburger {
+    display: block;
+  }
+
+  .navdiv {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .left-group {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .right-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .navlist {
+    display: none;
+  }
+
+  .mobile-dropdown {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: calc(var(--navbar-height));
+    width: 100%;
+    /* 🆕 Liquid Glass Effect para mobile */
+    background: linear-gradient(135deg,
+      rgba(195, 196, 250, 0.25) 0%,
+      rgba(255, 208, 231, 0.25) 100%);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+    color: var(--black);
+    z-index: 35;
+    padding: 1rem 1rem 1.25rem 1rem;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+    box-sizing: border-box;
+  }
+
+  .mobile-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0 0 0 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 30;
+    opacity: 0;
+    transition: opacity 180ms ease-in-out;
+    pointer-events: none;
+    margin-top: var(--navbar-height);
+  }
+
+  .mobile-backdrop.open {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .mobile-dropdown.open {
+    display: block;
+  }
+
+  .left-group .navlist,
+  .right-group .navlist {
+    display: none !important;
+  }
+
+  .mobile-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .mobile-nav li a {
+    color: var(--black);
+    text-decoration: none;
+    padding: 0.75rem 1rem;
+    display: block;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .mobile-nav li a:hover {
+    background: rgba(195, 196, 250, 0.3);
+    transform: translateX(4px);
+  }
+
+  .mobile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .right-group .actions {
+    display: none;
+  }
+
+  .mobile-actions .btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+    margin: 0.25rem 0;
+    padding: 0.75rem;
+    text-decoration: none;
+  }
+}
