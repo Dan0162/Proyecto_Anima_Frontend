@@ -56,6 +56,12 @@
   gap: 2rem;
 }
 
+/* Ensure right-column cards stack on the right in desktop */
+@media (min-width: 969px) {
+  .profile-card { grid-column: 1; }
+  .info-card, .settings-card, .actions-card { grid-column: 2; }
+}
+
 /* Profile Card - Tarjeta de avatar */
 .profile-card {
   padding: 2.5rem 2rem;

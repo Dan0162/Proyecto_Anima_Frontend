@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Request, Response, Header
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
+from jose import JWTError
 from fastapi import Response, Request
 from sqlalchemy.orm import Session
 from server.db.session import get_db
@@ -11,6 +12,7 @@ import secrets
 
 from server.core.security import verify_token
 from server.db.models.user import User
+from server.core.config import settings
 
 router = APIRouter(prefix="/v1/auth", tags=["auth"])
 
@@ -112,12 +114,59 @@ def spotify_status(request: Request):
 @router.post("/spotify/disconnect")
 def spotify_disconnect():
     """
-    Clears Spotify access and refresh token cookies.
+    Clears Spotify access and refresh token cookies and returns JSON 200.
+    Avoid redirecting so clients using POST don't get a 405 on follow-up.
     """
-    response = RedirectResponse(url="/v1/auth/spotify/status")
+    response = JSONResponse({"disconnected": True})
     response.delete_cookie(key="spotify_access_token", path="/")
     response.delete_cookie(key="spotify_refresh_token", path="/")
     return response
+
+@router.post("/spotify/revoke")
+def spotify_revoke(request: Request):
+    """
+    Best-effort "revoke" for Spotify: there is no official revocation endpoint.
+    This endpoint will attempt to invalidate the stored refresh token by exchanging
+    it for a new access token and then clearing cookies, which effectively prevents
+    our app from using the user's account unless they re-authorize.
+
+    Note: Users must remove the app from https://www.spotify.com/account/apps/ to
+    fully revoke on Spotify's side. This endpoint mainly clears our credentials.
+    """
+    refresh_token = request.cookies.get("spotify_refresh_token")
+    # Clear cookies regardless
+    res = JSONResponse({"revoked": True})
+    res.delete_cookie(key="spotify_access_token", path="/")
+    res.delete_cookie(key="spotify_refresh_token", path="/")
+    # Try a token refresh call to make any existing access token obsolete quickly
+    # (Spotify continues to honor refresh tokens until user removes the app.)
+    if refresh_token:
+        try:
+            # Use stdlib to avoid external import resolution issues
+            import urllib.request
+            import urllib.parse
+            basic_token = __import__('base64').b64encode(f"{settings.SPOTIFY_CLIENT_ID}:{settings.SPOTIFY_CLIENT_SECRET}".encode()).decode()
+            data = urllib.parse.urlencode({
+                "grant_type": "refresh_token",
+                "refresh_token": refresh_token,
+            }).encode()
+            req = urllib.request.Request(
+                url="https://accounts.spotify.com/api/token",
+                data=data,
+                headers={
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "Authorization": f"Basic {basic_token}",
+                },
+                method="POST",
+            )
+            # Fire-and-forget; ignore response and errors
+            try:
+                urllib.request.urlopen(req, timeout=5)
+            except Exception:
+                pass
+        except Exception:
+            pass
+    return res
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Request, Response, Header
 from server.core.security import verify_token
@@ -165,7 +214,7 @@ def get_current_user(
         
         return UserResponse.from_orm(user)
         
-    except ValueError as e:
+    except (JWTError, ValueError) as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token inválido o expirado"

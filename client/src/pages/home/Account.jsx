@@ -116,6 +116,19 @@ export default function Account() {
     }
   };
 
+  const handleRevokeSpotify = () => {
+    // No hay endpoint oficial para revocar vía API; abrimos la página de apps de Spotify
+    try {
+      window.open('https://www.spotify.com/account/apps/', '_blank', 'noopener,noreferrer');
+      if (flash?.show) {
+        flash.show('Abriendo la página de Spotify para revocar acceso.', 'info', 5000);
+      }
+    } catch (_) {
+      // fallback: navegar en la misma pestaña
+      window.location.href = 'https://www.spotify.com/account/apps/';
+    }
+  };
+
   if (userLoading) {
     return (
       <div className="account-page gradient-bg">
@@ -290,7 +303,6 @@ export default function Account() {
             </h3>
             
             <div className="actions-list">
-              {/* Spotify connect/disconnect first */}
               {spotifyConnected ? (
                 <button className="action-item" onClick={handleDisconnectSpotify}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

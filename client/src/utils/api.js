@@ -51,13 +51,23 @@ export const handleApiError = (error) => {
 };
 
 export const getBaseUrl = () => {
+  // Priority 1: explicit env var
   let base = process.env.REACT_APP_API_URL || '';
   try {
-    if (!base && typeof window !== 'undefined' && window.location.hostname.includes('localhost')) {
-      base = 'http://127.0.0.1:8000';
+    if (!base && typeof window !== 'undefined') {
+      const host = window.location.hostname || '';
+      const isDev = process.env.NODE_ENV !== 'production';
+      // If running the React dev server (localhost or 127.*), default to FastAPI on 127.0.0.1:8000
+      if (isDev && (host === 'localhost' || host === '127.0.0.1')) {
+        base = 'http://127.0.0.1:8000';
+      }
     }
   } catch (e) {
     console.error('Error getting base URL:', e);
+  }
+  // Final fallback in dev to avoid empty base causing relative calls to port 3000
+  if (!base) {
+    base = 'http://127.0.0.1:8000';
   }
   return base;
 };
