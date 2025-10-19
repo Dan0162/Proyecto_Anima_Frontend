@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from '../../components/sidebar/Sidebar';
 import GlassCard from '../../components/layout/GlassCard';
+import Input from '../../components/ui/Input';
+import PasswordInput from '../../components/ui/PasswordInput';
 import { useCurrentUser } from '../../hooks/useAuth';
 import { useFlash } from '../../components/flash/FlashContext';
+import { updateUserProfileApi, changePasswordApi } from '../../utils/api';
 import './Account.css';
 
 export default function Account() {
@@ -11,12 +14,27 @@ export default function Account() {
   const flash = useFlash();
   const navigate = useNavigate();
   const { user, loading: userLoading } = useCurrentUser();
+  
+  // Estados para edición de perfil
   const [isEditing, setIsEditing] = useState(false);
-  const [spotifyConnected, setSpotifyConnected] = useState(false);
   const [formData, setFormData] = useState({
     nombre: '',
     email: ''
   });
+  const [profileLoading, setProfileLoading] = useState(false);
+  
+  // Estados para cambio de contraseña
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    current_password: '',
+    new_password: '',
+    confirm_password: ''
+  });
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordErrors, setPasswordErrors] = useState({});
+  
+  // Estado de Spotify
+  const [spotifyConnected, setSpotifyConnected] = useState(false);
 
   useEffect(() => {
     try {
@@ -63,13 +81,54 @@ export default function Account() {
     }));
   };
 
-  const handleSave = () => {
-    // TODO: Implementar actualización de perfil en backend
-    console.log('Guardando cambios:', formData);
-    if (flash?.show) {
-      flash.show('Perfil actualizado exitosamente', 'success', 3000);
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
+    // Limpiar errores al escribir
+    if (passwordErrors[name]) {
+      setPasswordErrors(prev => ({ ...prev, [name]: '' }));
     }
-    setIsEditing(false);
+  };
+
+  const handleSave = async () => {
+    setProfileLoading(true);
+    
+    try {
+      const response = await updateUserProfileApi({
+        nombre: formData.nombre,
+        email: formData.email
+      });
+      
+      if (flash?.show) {
+        flash.show('Perfil actualizado exitosamente', 'success', 3000);
+      }
+      
+      setIsEditing(false);
+      
+      // Si el email cambió, actualizar el token podría ser necesario
+      // Por ahora solo actualizamos el estado local
+      
+    } catch (error) {
+      console.error('Error actualizando perfil:', error);
+      
+      if (error.message.includes('Sesión expirada')) {
+        if (flash?.show) {
+          flash.show('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'error', 4000);
+        }
+        setTimeout(() => navigate('/signin'), 2000);
+        return;
+      }
+      
+      if (flash?.show) {
+        flash.show(error.message || 'Error al actualizar el perfil', 'error', 4000);
+      }
+    } finally {
+      setProfileLoading(false);
+    }
   };
 
   const handleCancel = () => {
@@ -78,6 +137,71 @@ export default function Account() {
       email: user?.email || ''
     });
     setIsEditing(false);
+  };
+
+  const validatePasswordChange = () => {
+    const errors = {};
+    
+    if (!passwordData.current_password) {
+      errors.current_password = 'La contraseña actual es requerida';
+    }
+    
+    if (!passwordData.new_password) {
+      errors.new_password = 'La nueva contraseña es requerida';
+    } else if (passwordData.new_password.length < 8) {
+      errors.new_password = 'Debe tener al menos 8 caracteres';
+    }
+    
+    if (!passwordData.confirm_password) {
+      errors.confirm_password = 'Confirma la nueva contraseña';
+    } else if (passwordData.new_password !== passwordData.confirm_password) {
+      errors.confirm_password = 'Las contraseñas no coinciden';
+    }
+    
+    setPasswordErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleChangePassword = async () => {
+    if (!validatePasswordChange()) return;
+    
+    setPasswordLoading(true);
+    
+    try {
+      await changePasswordApi({
+        current_password: passwordData.current_password,
+        new_password: passwordData.new_password
+      });
+      
+      if (flash?.show) {
+        flash.show('Contraseña actualizada exitosamente', 'success', 3000);
+      }
+      
+      // Limpiar formulario y cerrar diálogo
+      setPasswordData({
+        current_password: '',
+        new_password: '',
+        confirm_password: ''
+      });
+      setShowPasswordDialog(false);
+      
+    } catch (error) {
+      console.error('Error cambiando contraseña:', error);
+      
+      if (error.message.includes('Sesión expirada')) {
+        if (flash?.show) {
+          flash.show('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'error', 4000);
+        }
+        setTimeout(() => navigate('/signin'), 2000);
+        return;
+      }
+      
+      if (flash?.show) {
+        flash.show(error.message || 'Error al cambiar la contraseña', 'error', 4000);
+      }
+    } finally {
+      setPasswordLoading(false);
+    }
   };
 
   const handleLogout = () => {
@@ -91,7 +215,6 @@ export default function Account() {
   };
 
   const handleConnectSpotify = () => {
-    // Generate state and redirect directly to backend OAuth endpoint
     const state = Math.random().toString(36).substring(7);
     localStorage.setItem('spotify_state', state);
     window.location.href = `http://127.0.0.1:8000/v1/auth/spotify?state=${state}`;
@@ -113,19 +236,6 @@ export default function Account() {
       if (flash?.show) {
         flash.show('No se pudo desconectar de Spotify', 'error', 3000);
       }
-    }
-  };
-
-  const handleRevokeSpotify = () => {
-    // No hay endpoint oficial para revocar vía API; abrimos la página de apps de Spotify
-    try {
-      window.open('https://www.spotify.com/account/apps/', '_blank', 'noopener,noreferrer');
-      if (flash?.show) {
-        flash.show('Abriendo la página de Spotify para revocar acceso.', 'info', 5000);
-      }
-    } catch (_) {
-      // fallback: navegar en la misma pestaña
-      window.location.href = 'https://www.spotify.com/account/apps/';
     }
   };
 
@@ -203,43 +313,40 @@ export default function Account() {
             </div>
 
             <div className="info-form">
-              <div className="form-group">
-                <label className="form-label">Nombre</label>
-                <input
-                  type="text"
-                  name="nombre"
-                  value={formData.nombre}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                  className={`form-input ${isEditing ? 'editing' : ''}`}
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Correo Electrónico</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                  className={`form-input ${isEditing ? 'editing' : ''}`}
-                />
-              </div>
+              <Input
+                label="Nombre"
+                name="nombre"
+                value={formData.nombre}
+                onChange={handleChange}
+                disabled={!isEditing}
+                className={isEditing ? 'editing' : ''}
+              />
+              
+              <Input
+                label="Correo Electrónico"
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                disabled={!isEditing}
+                className={isEditing ? 'editing' : ''}
+              />
 
               {isEditing && (
                 <div className="form-actions">
                   <button 
                     className="action-btn cancel"
                     onClick={handleCancel}
+                    disabled={profileLoading}
                   >
                     Cancelar
                   </button>
                   <button 
                     className="action-btn save"
                     onClick={handleSave}
+                    disabled={profileLoading}
                   >
-                    Guardar Cambios
+                    {profileLoading ? 'Guardando...' : 'Guardar Cambios'}
                   </button>
                 </div>
               )}
@@ -322,6 +429,7 @@ export default function Account() {
                   <span>Conectar con Spotify</span>
                 </button>
               )}
+              
               <button className="action-item">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -331,7 +439,10 @@ export default function Account() {
                 <span>Descargar mis datos</span>
               </button>
 
-              <button className="action-item">
+              <button 
+                className="action-item"
+                onClick={() => setShowPasswordDialog(true)}
+              >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
                   <line x1="12" y1="9" x2="12" y2="13"></line>
@@ -351,10 +462,81 @@ export default function Account() {
                 </svg>
                 <span>Cerrar sesión</span>
               </button>
-
             </div>
           </GlassCard>
         </div>
+
+        {/* Dialog para cambiar contraseña */}
+        {showPasswordDialog && (
+          <>
+            <div 
+              className="dialog-backdrop" 
+              onClick={() => setShowPasswordDialog(false)}
+            />
+            <div className="password-dialog">
+              <GlassCard variant="lilac" className="dialog-card">
+                <div className="dialog-header">
+                  <h2>Cambiar Contraseña</h2>
+                  <button 
+                    className="dialog-close"
+                    onClick={() => setShowPasswordDialog(false)}
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+                
+                <div className="dialog-content">
+                  <PasswordInput
+                    label="Contraseña Actual"
+                    name="current_password"
+                    value={passwordData.current_password}
+                    onChange={handlePasswordChange}
+                    error={passwordErrors.current_password}
+                    placeholder="Tu contraseña actual"
+                  />
+                  
+                  <PasswordInput
+                    label="Nueva Contraseña"
+                    name="new_password"
+                    value={passwordData.new_password}
+                    onChange={handlePasswordChange}
+                    error={passwordErrors.new_password}
+                    placeholder="Nueva contraseña segura"
+                  />
+                  
+                  <PasswordInput
+                    label="Confirmar Nueva Contraseña"
+                    name="confirm_password"
+                    value={passwordData.confirm_password}
+                    onChange={handlePasswordChange}
+                    error={passwordErrors.confirm_password}
+                    placeholder="Repite la nueva contraseña"
+                  />
+                </div>
+                
+                <div className="dialog-actions">
+                  <button 
+                    className="action-btn cancel"
+                    onClick={() => setShowPasswordDialog(false)}
+                    disabled={passwordLoading}
+                  >
+                    Cancelar
+                  </button>
+                  <button 
+                    className="action-btn save"
+                    onClick={handleChangePassword}
+                    disabled={passwordLoading}
+                  >
+                    {passwordLoading ? 'Cambiando...' : 'Cambiar Contraseña'}
+                  </button>
+                </div>
+              </GlassCard>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

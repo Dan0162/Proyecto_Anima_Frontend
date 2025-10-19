@@ -526,3 +526,145 @@
     flex-direction: column;
   }
 }
+
+/* ============================================
+   DIALOG - Modal para cambiar contraseña
+   ============================================ */
+
+.dialog-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1100;
+  animation: fadeIn 0.3s ease;
+}
+
+.password-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1200;
+  width: 90%;
+  max-width: 500px;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -45%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.dialog-card {
+  padding: 2rem;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.dialog-header h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--black);
+  margin: 0;
+}
+
+.dialog-close {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: none;
+  background: rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dialog-close:hover {
+  background: rgba(229, 62, 62, 0.2);
+  transform: scale(1.1);
+}
+
+.dialog-close svg {
+  width: 20px;
+  height: 20px;
+  color: #c53030;
+}
+
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+/* 🔧 FIX: Preferencias - Evitar que los toggles se muevan */
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: background 0.3s ease, transform 0.3s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  min-height: 80px; /* 🆕 Altura fija para evitar movimiento */
+}
+
+.setting-item:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: none; /* 🆕 Eliminar el translateX para evitar movimiento */
+}
+
+.toggle-switch {
+  flex-shrink: 0; /* 🆕 Evitar que se comprima */
+  margin-left: 1rem; /* 🆕 Espacio fijo */
+}
+
+/* Responsive para diálogo */
+@media (max-width: 576px) {
+  .password-dialog {
+    width: 95%;
+    max-width: none;
+  }
+
+  .dialog-card {
+    padding: 1.5rem;
+  }
+
+  .dialog-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .dialog-actions {
+    flex-direction: column;
+  }
+
+  .dialog-actions .action-btn {
+    width: 100%;
+  }
+}
