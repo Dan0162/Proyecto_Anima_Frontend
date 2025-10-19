@@ -178,3 +178,175 @@ def send_verification_email(recipient_email: str, code: str) -> bool:
     except Exception as e:
         print(f"❌ Error enviando email: {e}")
         return False
+    
+def send_contact_email(name: str, email: str, subject: str, message: str) -> bool:
+    """
+    Envía un email de contacto al equipo de soporte
+    
+    Args:
+        name: Nombre del remitente
+        email: Email del remitente
+        subject: Asunto del mensaje
+        message: Contenido del mensaje
+    
+    Returns:
+        True si se envió exitosamente, False en caso contrario
+    """
+    try:
+        sender_email = settings.EMAIL_SENDER
+        sender_password = settings.EMAIL_PASSWORD
+        support_email = "equipo.soporte.anima@gmail.com"
+        
+        # Crear mensaje
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = f'Contacto Ánima: {subject}'
+        msg['From'] = f"Ánima Contacto <{sender_email}>"
+        msg['To'] = support_email
+        msg['Reply-To'] = email
+        
+        # HTML del email
+        html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body {{
+                    margin: 0;
+                    padding: 0;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                    background: #f5f5f5;
+                }}
+                .container {{
+                    max-width: 600px;
+                    margin: 20px auto;
+                    background: white;
+                    border-radius: 12px;
+                    padding: 30px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                }}
+                .header {{
+                    text-align: center;
+                    margin-bottom: 30px;
+                    padding-bottom: 20px;
+                    border-bottom: 2px solid #C3C4FA;
+                }}
+                .logo {{
+                    font-size: 36px;
+                    margin-bottom: 10px;
+                }}
+                h1 {{
+                    color: #1A1A1A;
+                    font-size: 24px;
+                    margin: 0;
+                }}
+                .info-box {{
+                    background: #f8f9fa;
+                    padding: 20px;
+                    border-radius: 8px;
+                    margin: 20px 0;
+                }}
+                .info-row {{
+                    display: flex;
+                    margin: 10px 0;
+                }}
+                .info-label {{
+                    font-weight: 600;
+                    color: #4a5568;
+                    min-width: 100px;
+                }}
+                .info-value {{
+                    color: #1A1A1A;
+                }}
+                .message-box {{
+                    background: rgba(195, 196, 250, 0.1);
+                    border-left: 4px solid #8B8CF5;
+                    padding: 20px;
+                    margin: 20px 0;
+                    border-radius: 0 8px 8px 0;
+                }}
+                .message-content {{
+                    color: #1A1A1A;
+                    line-height: 1.6;
+                    white-space: pre-wrap;
+                }}
+                .footer {{
+                    text-align: center;
+                    margin-top: 30px;
+                    padding-top: 20px;
+                    border-top: 1px solid #e2e8f0;
+                    color: #718096;
+                    font-size: 14px;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <div class="logo">🎵</div>
+                    <h1>Nuevo mensaje de contacto</h1>
+                </div>
+                
+                <div class="info-box">
+                    <div class="info-row">
+                        <span class="info-label">De:</span>
+                        <span class="info-value">{name}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">{email}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Asunto:</span>
+                        <span class="info-value">{subject}</span>
+                    </div>
+                </div>
+                
+                <div class="message-box">
+                    <strong style="color: #4a5568; display: block; margin-bottom: 10px;">Mensaje:</strong>
+                    <div class="message-content">{message}</div>
+                </div>
+                
+                <div class="footer">
+                    <p>Este mensaje fue enviado desde el formulario de contacto de Ánima</p>
+                    <p>© 2025 Ánima - Todos los derechos reservados</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Versión texto plano
+        text = f"""
+        Nuevo mensaje de contacto - Ánima
+        
+        De: {name}
+        Email: {email}
+        Asunto: {subject}
+        
+        Mensaje:
+        {message}
+        
+        ---
+        Este mensaje fue enviado desde el formulario de contacto de Ánima
+        © 2025 Ánima
+        """
+        
+        # Adjuntar ambas versiones
+        part1 = MIMEText(text, 'plain')
+        part2 = MIMEText(html, 'html')
+        
+        msg.attach(part1)
+        msg.attach(part2)
+        
+        # Enviar email
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+            server.login(sender_email, sender_password)
+            server.send_message(msg)
+        
+        print(f"✅ Email de contacto enviado desde {name} ({email})")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Error enviando email de contacto: {e}")
+        return False

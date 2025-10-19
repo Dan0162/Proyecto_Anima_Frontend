@@ -3,15 +3,19 @@ import Navbar from '../components/navbar';
 import GlassCard from '../components/layout/GlassCard';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
+import { useFlash } from '../components/flash/FlashContext';
 import './ContactPage.css';
 
 function ContactPage() {
+  const flash = useFlash();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     subject: '',
     message: ''
   });
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     document.body.classList.add('with-navbar');
@@ -21,16 +25,89 @@ function ContactPage() {
   }, []);
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
+    // Limpiar error del campo al escribir
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: '' });
+    }
   };
 
-  const handleSubmit = (e) => {
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.name.trim()) {
+      newErrors.name = 'El nombre es requerido';
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'El correo es requerido';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Correo electrónico inválido';
+    }
+    
+    if (!formData.subject.trim()) {
+      newErrors.subject = 'El asunto es requerido';
+    }
+    
+    if (!formData.message.trim()) {
+      newErrors.message = 'El mensaje es requerido';
+    } else if (formData.message.trim().length < 10) {
+      newErrors.message = 'El mensaje debe tener al menos 10 caracteres';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Implementar envío de formulario
-    console.log('Form data:', formData);
+    
+    if (!validateForm()) {
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      const response = await fetch('http://127.0.0.1:8000/v1/contact/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        flash?.show(data.message || 'Mensaje enviado exitosamente', 'success', 4000);
+        // Limpiar formulario
+        setFormData({
+          name: '',
+          email: '',
+          subject: '',
+          message: ''
+        });
+      } else {
+        flash?.show(data.detail || 'Error al enviar el mensaje', 'error', 4000);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      flash?.show('Error de conexión. Por favor intenta de nuevo.', 'error', 4000);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleWhatsAppClick = () => {
+    // Formato internacional: +502 3003 9839
+    const phoneNumber = '50230039839';
+    const message = encodeURIComponent('Hola, me gustaría obtener más información sobre Ánima.');
+    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
   };
 
   return (
@@ -59,6 +136,7 @@ function ContactPage() {
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="Tu nombre completo"
+                error={errors.name}
                 required
               />
               
@@ -70,6 +148,7 @@ function ContactPage() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="tu@ejemplo.com"
+                error={errors.email}
                 required
               />
               
@@ -80,6 +159,7 @@ function ContactPage() {
                 value={formData.subject}
                 onChange={handleChange}
                 placeholder="¿En qué podemos ayudarte?"
+                error={errors.subject}
                 required
               />
               
@@ -95,8 +175,13 @@ function ContactPage() {
                   placeholder="Escribe tu mensaje aquí..."
                   required
                   rows="6"
-                  className="input textarea"
+                  className={`input textarea ${errors.message ? 'input--error' : ''}`}
                 />
+                {errors.message && (
+                  <div className="input-error" role="alert">
+                    {errors.message}
+                  </div>
+                )}
               </div>
 
               <Button 
@@ -104,22 +189,31 @@ function ContactPage() {
                 variant="primary" 
                 size="large"
                 className="submit-button"
+                disabled={loading}
               >
-                Enviar Mensaje
+                {loading ? 'Enviando...' : 'Enviar Mensaje'}
               </Button>
             </form>
           </GlassCard>
 
           {/* Información de contacto */}
           <div className="contact-info-cards">
-            <GlassCard variant="pink" className="info-card">
+            <GlassCard 
+              variant="pink" 
+              className="info-card clickable"
+              onClick={handleWhatsAppClick}
+              style={{ cursor: 'pointer' }}
+            >
               <div className="info-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                 </svg>
               </div>
-              <h3>Teléfono</h3>
+              <h3>WhatsApp</h3>
               <p>+502 3003 9839</p>
+              <p style={{ fontSize: '0.85rem', color: '#4a5568', marginTop: '0.5rem' }}>
+                Click para chatear
+              </p>
             </GlassCard>
 
             <GlassCard variant="blue" className="info-card">
@@ -130,7 +224,7 @@ function ContactPage() {
                 </svg>
               </div>
               <h3>Email</h3>
-              <p>info@anima.gt</p>
+              <p>equipo.soporte.anima@gmail.com</p>
             </GlassCard>
 
             <GlassCard variant="salmon" className="info-card">

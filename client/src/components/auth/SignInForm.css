@@ -1,8 +1,8 @@
 /* Enlace de olvidé mi contraseña */
 .forgot-password-link {
   text-align: right;
-  margin-top: -0.5rem;
-  margin-bottom: 0.5rem;
+  margin-top: 0.25rem;
+  margin-bottom: 1.25rem; /* Más espacio abajo */
 }
 
 .forgot-password-link a {
@@ -11,9 +11,12 @@
   font-size: 0.875rem;
   font-weight: 600;
   transition: color 0.3s ease;
+  display: inline-block; /* Permite transformaciones */
+  padding: 0.25rem 0; /* Área clickeable más grande */
 }
 
 .forgot-password-link a:hover {
   color: var(--blue-dark);
   text-decoration: underline;
+  transform: translateX(2px); /* Pequeño movimiento al hover */
 }
