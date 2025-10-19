@@ -11,10 +11,14 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
+    # Email credentials
+    EMAIL_SENDER: str
+    EMAIL_PASSWORD: str
+
 
     model_config = SettingsConfigDict(
         env_file = os.path.join(BASE_DIR, '.env'),
-        env_file_encoding = "utf-8"
+        env_file_encoding = "utf-8",
     )
 
     SPOTIFY_CLIENT_ID: str

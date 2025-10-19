@@ -9,6 +9,7 @@ import Landingpage from './pages/landingpage';
 import RequireAuth from './components/RequireAuth';
 import SignInPage from './pages/auth/SignInPage';
 import SignUpPage from './pages/auth/SignUpPage';
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import AnalyzePage from './pages/home/AnalyzePage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
@@ -17,6 +18,7 @@ import HistoryPage from './pages/home/HistoryPage';
 import DashboardPage from './pages/home/DashboardPage';
 import RecommendationsPage from './pages/home/RecommendationsPage';
 import SpotifyConnect from './pages/home/SpotifyConnect';
+
 
 function App() {
 
@@ -29,6 +31,7 @@ function App() {
             <Route path="/" element={<Landingpage />} />
             <Route path="/signin" element={<SignInPage />} />
             <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/home" element={<RequireAuth><HomeLayout /></RequireAuth>}>
@@ -40,10 +43,6 @@ function App() {
               <Route path="recommendations" element={<RecommendationsPage />} />
               <Route path="dashboard" element={<DashboardPage />} />
               <Route path="spotify-connect" element={<SpotifyConnect />} />
-              {/* TODO: Agregar rutas adicionales */}
-              {/* <Route path="history" element={<HistoryPage />} /> */}
-              {/* <Route path="recommendations" element={<RecommendationsPage />} /> */}
-              {/* <Route path="dashboard" element={<DashboardPage />} /> */}
             </Route>
           </Routes>
         </main>

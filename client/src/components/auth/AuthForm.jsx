@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import Button from '../ui/Button';
 import './AuthForm.css';
@@ -27,6 +26,7 @@ const AuthForm = ({
   formError,
   submitLabel = 'Submit',
   submitDisabled = false,
+  isFormComplete = false, 
   alternateText,
   alternateLinkTo,
   alternateLinkText,
@@ -61,7 +61,7 @@ const AuthForm = ({
         <Button 
           type="submit" 
           disabled={isLoading || submitDisabled} 
-          className="auth-submit-button"
+          className={`auth-submit-button ${isFormComplete ? 'form-complete' : 'form-incomplete'}`}
         >
           {isLoading ? 'Loading...' : submitLabel}
         </Button>

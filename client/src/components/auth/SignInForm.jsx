@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import Input from '../ui/Input';
 import PasswordInput from '../ui/PasswordInput';
 import AuthForm from './AuthForm';
@@ -15,8 +16,13 @@ const SignInForm = ({
   });
   
   const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({}); // Nuevo estado para campos tocados
+  const [touched, setTouched] = useState({});
   const [triedSubmit, setTriedSubmit] = useState(false);
+  
+  // 🆕 Verificar si el formulario está completo
+  const isFormComplete = useMemo(() => {
+    return formData.email.trim() !== '' && formData.password !== '';
+  }, [formData.email, formData.password]);
   
   // Validación en tiempo real cuando el campo pierde el foco
   const validateField = (name, value) => {
@@ -92,7 +98,7 @@ const SignInForm = ({
   const handleSubmit = (e) => {
     e.preventDefault();
     setTriedSubmit(true);
-    setTouched({ email: true, password: true }); // Marcar todos como tocados
+    setTouched({ email: true, password: true });
     
     if (validateForm()) {
       onSubmit(formData);
@@ -106,6 +112,8 @@ const SignInForm = ({
       isLoading={isLoading}
       formError={formError}
       submitLabel={isLoading ? "Iniciando Sesión..." : "Iniciar Sesión"}
+      submitDisabled={!isFormComplete || isLoading}
+      isFormComplete={isFormComplete}
       alternateText="¿No tienes una cuenta?"
       alternateLinkTo="/signup"
       alternateLinkText="Regístrate"
@@ -135,6 +143,11 @@ const SignInForm = ({
         placeholder="Tu contraseña"
         required
       />
+      
+      {/* 🆕 Enlace de olvidé mi contraseña */}
+      <div className="forgot-password-link">
+        <Link to="/forgot-password">¿Olvidaste tu contraseña?</Link>
+      </div>
     </AuthForm>
   );
 };
