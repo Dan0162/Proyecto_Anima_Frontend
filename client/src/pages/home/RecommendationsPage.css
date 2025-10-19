@@ -451,3 +451,24 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* Modo oscuro - Contraste */
+body.dark-mode .recommendations-subtitle {
+  color: #cbd5e1;
+}
+
+body.dark-mode .emotion-option-desc {
+  color: #cbd5e1;
+}
+
+body.dark-mode .info-description {
+  color: #cbd5e1;
+}
+
+body.dark-mode .track-artist {
+  color: #cbd5e1;
+}
+
+body.dark-mode .loading-state p {
+  color: #e2e8f0;
+}

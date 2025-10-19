@@ -304,3 +304,27 @@
     display: none;
   }
 }
+
+/* ============================================
+   MODO OSCURO - Navegación móvil
+   ============================================ */
+
+body.dark-mode .sidebar-username {
+  color: #ffffff;
+}
+
+body.dark-mode .sidebar-label {
+  color: #f7fafc;
+}
+
+body.dark-mode .sidebar-item {
+  color: #f7fafc;
+}
+
+body.dark-mode .sidebar-item:hover {
+  color: #ffffff;
+}
+
+body.dark-mode .sidebar-item.active {
+  color: #ffffff;
+}

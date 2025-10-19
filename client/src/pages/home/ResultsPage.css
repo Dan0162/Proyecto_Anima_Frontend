@@ -650,3 +650,17 @@
     font-size: 1rem;
   }
 }
+
+/* Modo oscuro - Contraste */
+body.dark-mode .music-subtitle {
+  color: #cbd5e1;
+}
+
+body.dark-mode .artist-name {
+  color: #cbd5e1;
+}
+
+body.dark-mode .loading-state p,
+body.dark-mode .no-music p {
+  color: #e2e8f0;
+}

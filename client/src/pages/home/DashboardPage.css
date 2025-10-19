@@ -405,3 +405,16 @@
     font-size: 0.875rem;
   }
 }
+
+/* Modo oscuro - Contraste */
+body.dark-mode .dashboard-subtitle {
+  color: #cbd5e1;
+}
+
+body.dark-mode .stat-label {
+  color: #cbd5e1;
+}
+
+body.dark-mode .day-label {
+  color: #cbd5e1;
+}

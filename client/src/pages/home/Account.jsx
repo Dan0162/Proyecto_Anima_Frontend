@@ -8,12 +8,14 @@ import { useCurrentUser } from '../../hooks/useAuth';
 import { useFlash } from '../../components/flash/FlashContext';
 import { updateUserProfileApi, changePasswordApi } from '../../utils/api';
 import './Account.css';
+import { useTheme } from '../../hooks/useTheme';
 
 export default function Account() {
   const location = useLocation();
   const flash = useFlash();
   const navigate = useNavigate();
   const { user, loading: userLoading } = useCurrentUser();
+  const { isDarkMode, toggleTheme } = useTheme();
   
   // Estados para edición de perfil
   const [isEditing, setIsEditing] = useState(false);
@@ -362,39 +364,25 @@ export default function Account() {
               </svg>
               Preferencias
             </h3>
-            
+
             <div className="settings-list">
+              {/* ÚNICA OPCIÓN: Modo Oscuro */}
               <div className="setting-item">
                 <div className="setting-info">
-                  <div className="setting-name">Notificaciones</div>
-                  <div className="setting-desc">Recibe actualizaciones por email</div>
+                  <div className="setting-name">
+                    {isDarkMode ? '🌙 Modo Oscuro' : '☀️ Modo Claro'}
+                  </div>
+                  <div className="setting-desc">
+                  {isDarkMode 
+                    ? 'Tema oscuro activado para reducir fatiga visual' 
+                    : 'Activa el tema oscuro'
+                  }
+                  </div>
+                  <label className="toggle-switch">
+                    <input type="checkbox" checked={isDarkMode} onChange={toggleTheme} />
+                    <span className="toggle-slider"></span>
+                  </label>
                 </div>
-                <label className="toggle-switch">
-                  <input type="checkbox" defaultChecked />
-                  <span className="toggle-slider"></span>
-                </label>
-              </div>
-
-              <div className="setting-item">
-                <div className="setting-info">
-                  <div className="setting-name">Análisis Automático</div>
-                  <div className="setting-desc">Guarda análisis automáticamente</div>
-                </div>
-                <label className="toggle-switch">
-                  <input type="checkbox" defaultChecked />
-                  <span className="toggle-slider"></span>
-                </label>
-              </div>
-
-              <div className="setting-item">
-                <div className="setting-info">
-                  <div className="setting-name">Modo Oscuro</div>
-                  <div className="setting-desc">Activa el tema oscuro</div>
-                </div>
-                <label className="toggle-switch">
-                  <input type="checkbox" />
-                  <span className="toggle-slider"></span>
-                </label>
               </div>
             </div>
           </GlassCard>
@@ -430,14 +418,6 @@ export default function Account() {
                 </button>
               )}
               
-              <button className="action-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="7 10 12 15 17 10"></polyline>
-                  <line x1="12" y1="15" x2="12" y2="3"></line>
-                </svg>
-                <span>Descargar mis datos</span>
-              </button>
 
               <button 
                 className="action-item"

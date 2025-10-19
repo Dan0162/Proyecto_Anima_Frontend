@@ -503,3 +503,45 @@
   position: relative;
   z-index: 2;
 }
+
+/* ============================================
+   MODO OSCURO - Mejoras de contraste
+   ============================================ */
+
+body.dark-mode .analyzer-description {
+  color: #e2e8f0; /* Gris claro para mejor contraste */
+}
+
+body.dark-mode .option-description {
+  color: #cbd5e1; /* Gris claro para descripciones */
+}
+
+body.dark-mode .option-title {
+  color: #f7fafc; /* Blanco suave para títulos */
+}
+
+/* Logo mucho más brillante y visible */
+body.dark-mode .anima-logo {
+  filter: brightness(2.5) contrast(1.3) saturate(0.8);
+  opacity: 0.95;
+}
+
+/* Mejorar contraste del círculo del logo */
+body.dark-mode .logo-container {
+  background: linear-gradient(135deg, 
+    rgba(195, 196, 250, 0.35) 0%,
+    rgba(255, 208, 231, 0.35) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+body.dark-mode .analyzer-description {
+  color: #f0f4f8; /* Blanco muy suave para máximo contraste */
+}
+
+body.dark-mode .option-description {
+  color: #e2e8f0; /* Gris muy claro */
+}
+
+body.dark-mode .option-title {
+  color: #ffffff; /* Blanco puro para títulos */
+}
