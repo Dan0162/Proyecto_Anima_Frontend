@@ -27,10 +27,20 @@ const Sidebar = () => {
     {
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+           <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+           <circle cx="12" cy="13" r="4"></circle>
+        </svg>
+      ),
+      label: 'Analizar',
+      path: '/home/analyze'
+    },
+    {
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
           <circle cx="12" cy="7" r="4"></circle>
         </svg>
-      ),
+    ),
       label: 'Perfil',
       path: '/home/account'
     },

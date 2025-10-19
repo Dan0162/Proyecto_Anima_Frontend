@@ -5,7 +5,9 @@
 .account-page {
   min-height: 100vh;
   position: relative;
+  padding-top: 0;
 }
+
 
 .account-content {
   padding: 2rem;
@@ -57,9 +59,11 @@
 }
 
 /* Ensure right-column cards stack on the right in desktop */
+
 @media (min-width: 969px) {
-  .profile-card { grid-column: 1; }
-  .info-card, .settings-card, .actions-card { grid-column: 2; }
+  .account-page {
+    padding-top: 70px;
+  }
 }
 
 /* Profile Card - Tarjeta de avatar */

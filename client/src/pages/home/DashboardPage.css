@@ -5,7 +5,9 @@
 .dashboard-page {
   min-height: 100vh;
   position: relative;
+  padding-top: 0;
 }
+
 
 .dashboard-content {
   padding: 2rem;
@@ -347,6 +349,12 @@
 }
 
 /* Responsive */
+@media (min-width: 969px) {
+  .dashboard-page {
+    padding-top: 70px;
+  }
+}
+
 @media (max-width: 968px) {
   .dashboard-content {
     padding: 1.5rem;

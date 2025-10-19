@@ -5,6 +5,7 @@
 .results-page {
   min-height: 100vh;
   position: relative;
+  padding-top: 0;
 }
 
 .results-content {
@@ -570,6 +571,11 @@
    RESPONSIVE
    ============================================ */
 
+@media (min-width: 969px) {
+  .results-page {
+    padding-top: 70px;
+  }
+}
 @media (max-width: 968px) {
   .results-header-section {
     flex-direction: column;

@@ -5,6 +5,7 @@
 .recommendations-page {
   min-height: 100vh;
   position: relative;
+  padding-top: 0;
 }
 
 .recommendations-content {
@@ -372,6 +373,12 @@
 }
 
 /* Responsive */
+@media (min-width: 969px) {
+  .recommendations-page {
+    padding-top: 70px;
+  }
+}
+
 @media (max-width: 968px) {
   .recommendations-content {
     padding: 1.5rem;

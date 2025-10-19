@@ -5,7 +5,10 @@
 .history-page {
   min-height: 100vh;
   position: relative;
+  padding-top: 0;
 }
+
+
 
 .history-content {
   padding: 2rem;
@@ -326,6 +329,12 @@
 }
 
 /* Responsive */
+@media (min-width: 969px) {
+  .history-page {
+    padding-top: 70px;
+  }
+}
+
 @media (max-width: 768px) {
   .history-content {
     padding: 1.5rem;

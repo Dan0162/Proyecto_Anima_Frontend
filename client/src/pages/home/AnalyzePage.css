@@ -6,7 +6,9 @@
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
+  padding-top: 0; /* Sin padding en móvil */
 }
+
 
 /* Gradient Background */
 .analyze-page.gradient-bg {
@@ -49,6 +51,13 @@
 }
 
 /* Responsive */
+
+@media (min-width: 969px) {
+  .analyze-page {
+    padding-top: 70px; 
+  }
+}
+
 @media (max-width: 768px) {
   .analyze-content {
     padding: 1.5rem 1rem;

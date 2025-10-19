@@ -289,3 +289,18 @@
     top: 20px;
   }
 }
+
+/* Ocultar sidebar en desktop cuando hay navbar */
+@media (min-width: 969px) {
+  .sidebar-toggle {
+    display: none;
+  }
+  
+  .sidebar {
+    display: none;
+  }
+  
+  .sidebar-backdrop {
+    display: none;
+  }
+}
