@@ -7,6 +7,7 @@ from server.db.models.user import Base   # importa el Base que contiene tus mode
 from server.db.session import engine  # importa el engine de la base de datos
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.exceptions import RequestValidationError
+from server.controllers import rekognition_controller
 
 from server.middlewares.error_handler import (
     http_exception_handler,
@@ -50,7 +51,7 @@ app.include_router(api_router)
 def health_check():
     return {"status": "ok"}
 
-
+app.include_router(rekognition_controller.router)
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+    uvicorn.run(app, host="0.0.0.0", port=8000)
