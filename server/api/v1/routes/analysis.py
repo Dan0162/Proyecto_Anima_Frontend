@@ -108,14 +108,8 @@ async def analyze_emotion_base64(
     request: ImageBase64Request,
     authorization: str = Header(..., alias="Authorization")
 ):
-    """
-    🎭 Análisis de emoción desde imagen Base64 (MOCKUP)
-    
-    Este endpoint simula el análisis de emociones sin usar AWS Rekognition.
-    Perfecto para desarrollo y pruebas.
-    """
     try:
-        # Verificar autenticación
+        # Verifica autenticación
         if not authorization or not authorization.startswith("Bearer "):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -188,26 +182,29 @@ async def analyze_emotion_base64(
 
                 # Convert to dictionary and normalize confidences to 0..1
                 emotions_detected = {}
-                total_conf = 0.0
                 for e in emotions_list:
                     typ = e.get('Type') or e.get('type') or e.get('emotion')
                     conf = e.get('Confidence') or e.get('confidence') or 0.0
-                    # Rekognition returns confidence in percent (0-100)
                     conf = float(conf) / 100.0
-                    total_conf += conf
                     key = aws_to_app.get(typ.upper(), typ.lower() if isinstance(typ, str) else str(typ))
-                    emotions_detected[key] = conf
+                    if key in emotions_detected:
+                        emotions_detected[key] += conf
+                    else:
+                        emotions_detected[key] = conf
 
-                # If total_conf is 0, avoid division; otherwise normalize so values are proportions
-                if total_conf > 0:
+                # Normalize after mapping and summing
+                mapped_total = sum(emotions_detected.values())
+                if mapped_total > 0:
                     for k in list(emotions_detected.keys()):
-                        emotions_detected[k] = round(emotions_detected[k] / total_conf, 4)
+                        emotions_detected[k] = round(emotions_detected[k] / mapped_total, 3)
 
-                # Pick top emotion by original confidence (not normalized)
-                top = max(emotions_list, key=lambda x: x.get('Confidence', 0))
-                top_type = top.get('Type') or top.get('type') or top.get('emotion')
-                top_conf = float(top.get('Confidence', 0)) / 100.0
-                app_top = aws_to_app.get(top_type.upper(), top_type.lower() if isinstance(top_type, str) else str(top_type))
+                # Pick top emotion by normalized value
+                if emotions_detected:
+                    app_top = max(emotions_detected, key=lambda k: emotions_detected[k])
+                    top_conf = emotions_detected[app_top]
+                else:
+                    app_top = None
+                    top_conf = 0.0
 
                 emotion_data = {
                     'emotion': app_top,

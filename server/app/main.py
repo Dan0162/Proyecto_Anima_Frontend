@@ -8,6 +8,7 @@ from server.db.session import engine  # importa el engine de la base de datos
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.exceptions import RequestValidationError
 from server.controllers import rekognition_controller
+from contextlib import asynccontextmanager
 
 from server.middlewares.error_handler import (
     http_exception_handler,
@@ -39,11 +40,13 @@ app.add_exception_handler(StarletteHTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, generic_exception_handler)
 
-@app.on_event("startup")
-def on_startup():
+@asynccontextmanager
+async def lifespan(app):
     init_db_from_sql()
     #Base.metadata.drop_all(bind=engine)
-    #Base.metadata.create_all(bind=engine)  
+    #Base.metadata.create_all(bind=engine)
+    yield #Antes de Yield, lo que hace la app al iniciar
+    #Despues de Yield, lo que hace la app al cerrar
 
 app.include_router(api_router)
 

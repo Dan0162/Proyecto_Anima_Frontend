@@ -170,6 +170,7 @@ const SignUpForm = ({
       isLoading={isLoading}
       formError={formError}
       submitDisabled={!isFormValid() || isLoading}
+      isFormComplete={isFormValid()}
       submitLabel={isLoading ? "Creando Cuenta..." : "Registrarse"}
       alternateText="¿Ya tienes una cuenta?"
       alternateLinkTo="/signin"

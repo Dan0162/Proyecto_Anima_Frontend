@@ -180,7 +180,7 @@ const ResultsPage = () => {
                   WebkitTextFillColor: 'transparent'
                 }}
               >
-                {Math.round(result.confidence * 100)}%
+                {(result.confidence * 100).toFixed(1)}%
               </div>
               <div className="confidence-label">Confianza</div>
             </GlassCard>
@@ -221,7 +221,7 @@ const ResultsPage = () => {
                           className="emotion-value"
                           style={{ color: barColor.secondary }}
                         >
-                          {Math.round(value * 100)}%
+                          {(value * 100).toFixed(1)}%
                         </span>
                       </div>
                     );

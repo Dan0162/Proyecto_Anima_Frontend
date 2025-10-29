@@ -13,3 +13,5 @@ python-multipart
 boto3>=1.34.0
 botocore>=1.34.0
 aws-requests-auth>=0.4.3
+pytest
+httpx

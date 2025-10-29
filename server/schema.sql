@@ -30,7 +30,7 @@ CREATE TABLE cancion (
     ID_emocion INTEGER NOT NULL REFERENCES emocion(id) ON DELETE CASCADE,
     titulo VARCHAR(100) NOT NULL,
     artista VARCHAR(100),
-    album VARCHAR(100),
+    album VARCHAR(100)
 );
 
 -- Tabla para códigos de recuperación de contraseña

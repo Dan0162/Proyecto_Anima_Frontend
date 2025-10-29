@@ -16,10 +16,18 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 
 # Manejo de errores de validación (Pydantic)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    logger.error(f"Validation error: {exc.errors()} - Path: {request.url}")
+    # Convert any exception objects in ctx to string for JSON serialization
+    errors = exc.errors()
+    for err in errors:
+        ctx = err.get("ctx")
+        if ctx and isinstance(ctx, dict):
+            for k, v in ctx.items():
+                if isinstance(v, Exception):
+                    ctx[k] = str(v)
+    logger.error(f"Validation error: {errors} - Path: {request.url}")
     return JSONResponse(
         status_code=422,
-        content={"detail": exc.errors()}
+        content={"detail": errors}
     )
 
 # Manejo genérico de errores no controlados

@@ -70,6 +70,9 @@ const EmotionAnalyzer = () => {
       const result = await analyzeEmotionBase64(photoData);
       
       console.log('✅ Resultado del análisis:', result);
+      if (result && result.emotions_detected) {
+        console.log('🎯 Porcentajes de emociones:', result.emotions_detected);
+      }
       setAnalysisResult(result);
       setAnalyzedPhoto(photoData);
       

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr, field_validator,ConfigDict
 
 class UserCreate(BaseModel):
     name: str
@@ -15,23 +15,20 @@ class UserCreate(BaseModel):
         return v
 
 
+
 class UserResponse(BaseModel):
     id: int
     nombre: str
     email: EmailStr
     message: str | None = None
-    
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Schema para actualizar perfil
 class UserUpdate(BaseModel):
     nombre: str | None = None
     email: EmailStr | None = None
-    
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Schema para cambiar contraseña
