@@ -259,49 +259,24 @@ const ResultsPage = () => {
                 </div>
               ) : recommendations.length > 0 ? (
                 <div className="tracks-list">
-                  {recommendations.slice(0, 15).map((track, index) => (
+                  {recommendations.slice(0, 30).map((track, index) => (
                     <div 
-                      key={index}
-                      className="track-card"
-                      onClick={() => window.open(track.external_urls?.spotify, '_blank')}
-                    >
-                      {track.album?.images?.[0]?.url ? (
-                        <img 
-                          src={track.album.images[0].url} 
-                          alt={track.name}
-                          className="album-cover"
-                        />
-                      ) : (
-                        <div className="album-cover-placeholder">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M9 18V5l12-2v13"></path>
-                            <circle cx="6" cy="18" r="3"></circle>
-                            <circle cx="18" cy="16" r="3"></circle>
-                          </svg>
-                        </div>
-                      )}
-                      <div className="track-info">
-                        <div className="track-name">{track.name}</div>
-                        <div className="artist-name">
-                          {track.artists?.map(a => a.name).join(', ') || 'Artista Desconocido'}
-                        </div>
-                      </div>
-                      <div 
-                        className="track-play-icon"
-                        style={{ 
-                          background: emotionColors.glassBg,
-                          borderColor: emotionColors.glassBorder 
-                        }}
-                      >
-                        <svg 
-                          viewBox="0 0 24 24" 
-                          fill="currentColor"
-                          style={{ color: emotionColors.primary }}
-                        >
-                          <path d="M8 5v14l11-7z"/>
-                        </svg>
-                      </div>
-                    </div>
+                    key={index}
+                    className="track-card"
+                  >
+                    {/* Solo el reproductor de Spotify */}
+                    {track.uri && (
+                      <iframe
+                        title={`Spotify Player ${track.name}`}
+                        src={`https://open.spotify.com/embed/track/${track.uri.split(":").pop()}?utm_source=generator&theme=dark`}
+                        width="100%"
+                        height="80"
+                        frameBorder="0"
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                        style={{ borderRadius: 8 }}
+                      ></iframe>
+                    )}
+                  </div>
                   ))}
                 </div>
               ) : (

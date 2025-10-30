@@ -25,7 +25,7 @@ const SpotifyConnect = () => {
   // Manejar callback de Spotify
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-  const state = params.get('state');
+    const state = params.get('state');
     const err = params.get('error');
     const show = flash?.show;
 
