@@ -12,3 +12,5 @@
 }
 .flash-banner.success { background: #16a34a; }
 .flash-banner.error { background: #dc2626; }
+/* Informational / neutral flash (use black text for contrast) */
+.flash-banner.info { background: #fff3bf; color: #222; }

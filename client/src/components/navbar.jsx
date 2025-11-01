@@ -3,7 +3,7 @@ import './navbar.css';
 import Button from './Button';
 import { LOGO_SRC } from '../constants/assets';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useFlash } from './flash/FlashContext'; // 👈 Importar useFlash
+import { useFlash } from './flash/FlashContext'; // Importar useFlash
 
 function Navbar() {
   const [open, setOpen] = useState(false);
@@ -13,7 +13,7 @@ function Navbar() {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const flash = useFlash(); // 👈 Inicializar flash
+  const flash = useFlash(); // Inicializar flash
 
   // Verificar autenticación basada en el token
   useEffect(() => {

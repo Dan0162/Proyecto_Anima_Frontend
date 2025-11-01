@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import GlassCard from '../layout/GlassCard';
 import './PhotoUpload.css';
 
-const PhotoUpload = ({ onUpload, onCancel }) => {
+const PhotoUpload = ({ onUpload, onCancel, spotifyConnected = true }) => {
   const navigate = useNavigate();
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -72,6 +72,16 @@ const PhotoUpload = ({ onUpload, onCancel }) => {
   };
 
   const openFileDialog = () => {
+    if (!spotifyConnected) {
+      // Redirect to Spotify connect and persist intent
+      try {
+        sessionStorage.setItem('return_to', '/home/analyze');
+      } catch (_) {}
+      const state = Math.random().toString(36).substring(7);
+      try { localStorage.setItem('spotify_state', state); } catch (_) {}
+      window.location.href = `http://127.0.0.1:8000/v1/auth/spotify?state=${state}`;
+      return;
+    }
     fileInputRef.current?.click();
   };
 
@@ -157,10 +167,10 @@ const PhotoUpload = ({ onUpload, onCancel }) => {
           ) : (
             // Drop Zone
             <div
-              className={`upload-dropzone glass ${isDragging ? 'dragging' : ''}`}
-              onDragOver={handleDragOver}
+              className={`upload-dropzone glass ${isDragging ? 'dragging' : ''} ${!spotifyConnected ? 'disabled' : ''}`}
+              onDragOver={spotifyConnected ? handleDragOver : (e) => { e.preventDefault(); }}
               onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
+              onDrop={spotifyConnected ? handleDrop : (e) => { e.preventDefault(); }}
               onClick={openFileDialog}
             >
               <div className="dropzone-icon">
@@ -238,8 +248,9 @@ const PhotoUpload = ({ onUpload, onCancel }) => {
                 Cambiar foto
               </button>
               <button 
-                className="upload-button primary glass-lilac"
+                className={`upload-button primary glass-lilac ${!spotifyConnected ? 'disabled' : ''}`}
                 onClick={confirmUpload}
+                aria-disabled={!spotifyConnected}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="20 6 9 17 4 12"></polyline>
@@ -249,8 +260,9 @@ const PhotoUpload = ({ onUpload, onCancel }) => {
             </>
           ) : (
             <button 
-              className="upload-button browse glass-pink"
+              className={`upload-button browse glass-pink ${!spotifyConnected ? 'disabled' : ''}`}
               onClick={openFileDialog}
+              aria-disabled={!spotifyConnected}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>

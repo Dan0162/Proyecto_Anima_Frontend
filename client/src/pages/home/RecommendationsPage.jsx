@@ -1,12 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/sidebar/Sidebar';
 import GlassCard from '../../components/layout/GlassCard';
 import './RecommendationsPage.css';
+import { useFlash } from '../../components/flash/FlashContext';
 
 const RecommendationsPage = () => {
   const [selectedEmotion, setSelectedEmotion] = useState('happy');
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+  const flash = useFlash();
 
   const emotions = [
     { value: 'happy', label: 'Feliz', emoji: '😊', description: 'Música alegre y positiva' },
@@ -32,8 +37,9 @@ const RecommendationsPage = () => {
       if (!response.ok) {
         // If unauthorized, redirect to landing/homepage to force re-connect
         if (response.status === 401) {
+          // Clear any invalid spotify_jwt and show an informational banner
           localStorage.removeItem('spotify_jwt');
-          window.location.href = '/';
+          try { flash?.show('Conecta tu cuenta de Spotify para ver esta página y obtener recomendaciones personalizadas.', 'info', 6000); } catch(_) {}
           return;
         }
         const fallbackUrl = `http://127.0.0.1:8000/recommend/mockup?emotion=${selectedEmotion}`;
@@ -50,7 +56,7 @@ const RecommendationsPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedEmotion]);
+  }, [selectedEmotion, navigate]);
 
   useEffect(() => {
     fetchRecommendations();

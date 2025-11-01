@@ -26,9 +26,14 @@ const ResultsPage = () => {
 
       if (!response.ok) {
         if (response.status === 401) {
-          // Invalid or missing token -> send user to homepage
+          // Invalid or missing token -> send user to homepage with banner
           localStorage.removeItem('spotify_jwt');
-          navigate('/');
+          navigate('/', {
+            state: {
+              flash: 'Tu sesión de Spotify expiró o es inválida. Por favor, vuelve a conectar para ver recomendaciones.',
+              flashType: 'error'
+            }
+          });
           return;
         }
         // Fallback to mockup if protected endpoint fails
@@ -48,7 +53,7 @@ const ResultsPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [result?.emotion]);
+  }, [result?.emotion, navigate]);
 
   useEffect(() => {
     if (!result || !photo) {
