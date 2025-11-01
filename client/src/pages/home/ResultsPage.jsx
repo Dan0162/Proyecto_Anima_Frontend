@@ -16,9 +16,21 @@ const ResultsPage = () => {
     setLoading(true);
     try {
       const protectedUrl = `http://127.0.0.1:8000/recommend?emotion=${result.emotion}`;
-      let response = await fetch(protectedUrl, { credentials: 'include' });
+      const jwt = localStorage.getItem('spotify_jwt');
+      let response;
+      if (jwt) {
+        response = await fetch(protectedUrl, { headers: { 'Authorization': `Bearer ${jwt}` } });
+      } else {
+        response = { ok: false, status: 401 };
+      }
 
       if (!response.ok) {
+        if (response.status === 401) {
+          // Invalid or missing token -> send user to homepage
+          localStorage.removeItem('spotify_jwt');
+          navigate('/');
+          return;
+        }
         // Fallback to mockup if protected endpoint fails
         const fallbackUrl = `http://127.0.0.1:8000/recommend/mockup?emotion=${result.emotion}`;
         response = await fetch(fallbackUrl);

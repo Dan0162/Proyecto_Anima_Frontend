@@ -44,20 +44,47 @@ const SpotifyConnect = () => {
       return;
     }
 
-    // Handle successful callback exactly once
+    // Handle successful callback exactly once: exchange state for server-signed JWT
     if (state && !processedRef.current) {
       processedRef.current = true;
+      // Remove local marker
       localStorage.removeItem('spotify_state');
-      if (show) {
-        show('Conectado a Spotify exitosamente', 'success', 4000);
-      }
-      // Redirect back to where the flow started (default to analyze)
-      let dest = '/home/analyze';
-      try {
-        const stored = sessionStorage.getItem('return_to');
-        if (stored) dest = stored;
-      } catch (_) {}
-      navigate(dest, { replace: true });
+
+      // Exchange on the backend for a signed JWT that contains spotify tokens
+      (async () => {
+        try {
+          const res = await fetch(`http://127.0.0.1:8000/v1/auth/spotify/exchange?state=${encodeURIComponent(state)}`);
+          if (!res.ok) {
+            throw new Error('No se pudo completar el intercambio de tokens');
+          }
+          const body = await res.json();
+          const token = body?.spotify_jwt;
+          if (!token) throw new Error('No se recibió token');
+
+          // Store the jwt for later API calls (frontend will send it as Authorization)
+          localStorage.setItem('spotify_jwt', token);
+
+          if (show) {
+            show('Conectado a Spotify exitosamente', 'success', 4000);
+          }
+
+          // Redirect back to where the flow started (default to analyze)
+          let dest = '/home/analyze';
+          try {
+            const stored = sessionStorage.getItem('return_to');
+            if (stored) dest = stored;
+          } catch (_) {}
+          navigate(dest, { replace: true });
+
+        } catch (err) {
+          localStorage.removeItem('spotify_state');
+          if (show) {
+            show('No se pudo conectar con Spotify (intercambio falló)', 'error', 5000);
+          }
+          setConnecting(false);
+        }
+      })();
+
       return;
     }
   }, [navigate, flash?.show]);

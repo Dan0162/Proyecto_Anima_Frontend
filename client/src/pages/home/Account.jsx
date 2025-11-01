@@ -61,12 +61,21 @@ export default function Account() {
   useEffect(() => {
     const checkStatus = async () => {
       try {
+        const jwt = localStorage.getItem('spotify_jwt');
+        if (!jwt) {
+          setSpotifyConnected(false);
+          return;
+        }
         const res = await fetch('http://127.0.0.1:8000/v1/auth/spotify/status', {
-          credentials: 'include'
+          headers: { 'Authorization': `Bearer ${jwt}` }
         });
         if (res.ok) {
           const data = await res.json();
           setSpotifyConnected(!!data.connected);
+        } else if (res.status === 401) {
+          // Invalid token: remove and force re-connect
+          localStorage.removeItem('spotify_jwt');
+          setSpotifyConnected(false);
         }
       } catch (e) {
         // ignore
@@ -224,11 +233,14 @@ export default function Account() {
 
   const handleDisconnectSpotify = async () => {
     try {
+      const jwt = localStorage.getItem('spotify_jwt');
       const res = await fetch('http://127.0.0.1:8000/v1/auth/spotify/disconnect', {
         method: 'POST',
-        credentials: 'include'
+        headers: jwt ? { 'Authorization': `Bearer ${jwt}` } : {}
       });
       if (res.ok) {
+        // Remove client-side stored JWT
+        localStorage.removeItem('spotify_jwt');
         setSpotifyConnected(false);
         if (flash?.show) {
           flash.show('Desconectado de Spotify', 'success', 3000);

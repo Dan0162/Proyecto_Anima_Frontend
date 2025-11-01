@@ -87,12 +87,22 @@ const PhotoUpload = ({ onUpload, onCancel }) => {
   const confirmUpload = async () => {
     if (!previewUrl) return;
     try {
-      // Check Spotify connection status
-      const res = await fetch('http://127.0.0.1:8000/v1/auth/spotify/status', { credentials: 'include' });
+      // Check Spotify connection status using server-issued JWT
+      const jwt = localStorage.getItem('spotify_jwt');
       let connected = false;
-      if (res.ok) {
-        const data = await res.json();
-        connected = !!data.connected;
+      if (!jwt) {
+        // Not connected
+        connected = false;
+      } else {
+        const res = await fetch('http://127.0.0.1:8000/v1/auth/spotify/status', {
+          headers: {
+            'Authorization': `Bearer ${jwt}`
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          connected = !!data.connected;
+        }
       }
       if (!connected) {
         // Persist pending analyze data and send user to connect prompt

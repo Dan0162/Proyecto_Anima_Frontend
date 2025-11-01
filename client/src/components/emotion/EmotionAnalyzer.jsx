@@ -48,20 +48,41 @@ const EmotionAnalyzer = () => {
     try {
       // Ensure Spotify is connected before analyzing
       try {
-        const res = await fetch('http://127.0.0.1:8000/v1/auth/spotify/status', { credentials: 'include' });
+        // Prefer Authorization header with server-signed spotify_jwt
+        const jwt = localStorage.getItem('spotify_jwt');
+        if (!jwt) {
+          sessionStorage.setItem('pending_analyze_photo', photoData);
+          sessionStorage.setItem('return_to', '/home/analyze');
+          sessionStorage.setItem('connect_reason', 'analyze');
+          setIsAnalyzing(false);
+          setMode(null);
+          navigate('/home/spotify-connect');
+          return;
+        }
+
+        const res = await fetch('http://127.0.0.1:8000/v1/auth/spotify/status', {
+          headers: { 'Authorization': `Bearer ${jwt}` }
+        });
         if (res.ok) {
           const data = await res.json();
           if (!data.connected) {
-            // Persist pending photo and redirect to connect page
             sessionStorage.setItem('pending_analyze_photo', photoData);
             sessionStorage.setItem('return_to', '/home/analyze');
             sessionStorage.setItem('connect_reason', 'analyze');
-            // Stop analyzing state and go to connect route
             setIsAnalyzing(false);
             setMode(null);
             navigate('/home/spotify-connect');
             return;
           }
+        } else {
+          // If token invalid, force reconnect
+          sessionStorage.setItem('pending_analyze_photo', photoData);
+          sessionStorage.setItem('return_to', '/home/analyze');
+          sessionStorage.setItem('connect_reason', 'analyze');
+          setIsAnalyzing(false);
+          setMode(null);
+          navigate('/home/spotify-connect');
+          return;
         }
       } catch (_) {}
 

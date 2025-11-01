@@ -20,9 +20,22 @@ const RecommendationsPage = () => {
     setLoading(true);
     try {
       const protectedUrl = `http://127.0.0.1:8000/recommend?emotion=${selectedEmotion}`;
-      let response = await fetch(protectedUrl, { credentials: 'include' });
+      const jwt = localStorage.getItem('spotify_jwt');
+      let response;
+      if (jwt) {
+        response = await fetch(protectedUrl, { headers: { 'Authorization': `Bearer ${jwt}` } });
+      } else {
+        // No token -> treat as unauthorized and fall back to mockup
+        response = { ok: false, status: 401 };
+      }
 
       if (!response.ok) {
+        // If unauthorized, redirect to landing/homepage to force re-connect
+        if (response.status === 401) {
+          localStorage.removeItem('spotify_jwt');
+          window.location.href = '/';
+          return;
+        }
         const fallbackUrl = `http://127.0.0.1:8000/recommend/mockup?emotion=${selectedEmotion}`;
         response = await fetch(fallbackUrl);
       }

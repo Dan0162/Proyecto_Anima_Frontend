@@ -4,6 +4,7 @@ import requests
 import json
 import os
 import random
+from server.core.security import verify_token
 
 router = APIRouter(prefix="/recommend", tags=["recommendations"])
 
@@ -24,7 +25,7 @@ def get_recommendations(
     if authorization and authorization.startswith("Bearer "):
         token = authorization.split(" ")[1].strip()
 
-    # If no header token, attempt to retrieve httpOnly cookie set by OAuth callback
+    # If no header token, attempt to retrieve httpOnly cookie set by OAuth callback (legacy)
     if not token:
         cookie_token = request.cookies.get('spotify_access_token')
         if cookie_token:
@@ -36,7 +37,19 @@ def get_recommendations(
             detail="Token inválido o ausente. Envíe Authorization header o configure Spotify (conexión)."
         )
 
-    return recommend_songs_by_emotion(token, emotion)
+    # If the provided token is a server-signed JWT (our spotify_jwt), decode and
+    # extract the underlying spotify access_token
+    spotify_access = token
+    try:
+        payload = verify_token(token)
+        spotify_info = payload.get('spotify') if payload else None
+        if spotify_info and spotify_info.get('access_token'):
+            spotify_access = spotify_info.get('access_token')
+    except Exception:
+        # Not a JWT or invalid -> assume it is a raw Spotify access token string
+        pass
+
+    return recommend_songs_by_emotion(spotify_access, emotion)
 
 
 @router.get("/test-spotify")

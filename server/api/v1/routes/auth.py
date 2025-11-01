@@ -10,9 +10,14 @@ from server.controllers.auth_controller import register_user, login_user
 from server.services.spotify import get_spotify_auth_url, get_spotify_token
 import secrets
 
-from server.core.security import verify_token
+from server.core.security import verify_token, create_access_token
 from server.db.models.user import User
 from server.core.config import settings
+
+# Temporary in-memory store for tokens returned by Spotify callback keyed by the 'state'
+# This is simple and OK for development; for production use a persistent/short-lived store
+# (Redis, DB, etc.) and rotate/expire entries.
+_spotify_temp_store: dict[str, dict] = {}
 
 router = APIRouter(prefix="/v1/auth", tags=["auth"])
 
@@ -61,38 +66,17 @@ def spotify_callback(
     try:
         token_data = get_spotify_token(code=code)
 
-        # Establecer tokens como cookies seguras (httpOnly)
-        # Nota: en desarrollo usamos http://, por eso 'secure' no puede ser True en localhost without HTTPS
-        access_token = token_data.get('access_token')
-        refresh_token = token_data.get('refresh_token')
-        expires_in = token_data.get('expires_in')
+        # Store the token_data temporarily keyed by the state so the frontend can
+        # exchange it for a server-signed JWT in a separate request.
+        # NOTE: This avoids placing tokens in URL params and avoids relying on cookies.
+        _spotify_temp_store[state] = {
+            "access_token": token_data.get('access_token'),
+            "refresh_token": token_data.get('refresh_token'),
+            "expires_in": token_data.get('expires_in')
+        }
 
-        # Set cookies on the response. httpOnly protects from JS access.
-        # The cookie will be sent back on subsequent requests to the backend so the server can use it.
-        # For production: set secure=True and samesite='Lax' or 'None' depending on cross-site needs.
+        # Redirect back to frontend which will read `state` and call the exchange endpoint
         response = RedirectResponse(url=f"http://127.0.0.1:3000/home/spotify-connect?state={state}")
-        # Lifetime: expires_in seconds (optional)
-        if access_token:
-            response.set_cookie(
-                key="spotify_access_token",
-                value=access_token,
-                httponly=True,
-                secure=False,
-                samesite='lax',
-                max_age=expires_in or 3600,
-                path='/'
-            )
-        if refresh_token:
-            response.set_cookie(
-                key="spotify_refresh_token",
-                value=refresh_token,
-                httponly=True,
-                secure=False,
-                samesite='lax',
-                max_age=60 * 60 * 24 * 30,  # 30 days
-                path='/'
-            )
-
         return response
 
     except Exception as e:
@@ -107,42 +91,70 @@ def spotify_status(request: Request):
     Returns whether a Spotify access token cookie is present.
     Optionally, could call Spotify /me to verify validity, but this keeps it fast.
     """
-    connected = bool(request.cookies.get("spotify_access_token"))
-    return {"connected": connected}
+    # Prefer Authorization: Bearer <spotify_jwt>. For backward compatibility we
+    # no longer read cookies. If a cookie-based approach is detected elsewhere it
+    # should be migrated to the JWT flow.
+    auth = request.headers.get('Authorization')
+    if not auth or not auth.startswith('Bearer '):
+        return {"connected": False}
+
+    token = auth.split(' ', 1)[1]
+    try:
+        payload = verify_token(token)
+    except Exception:
+        return {"connected": False}
+
+    # Expect a payload carrying spotify tokens
+    spotify_info = payload.get('spotify')
+    return {"connected": bool(spotify_info and spotify_info.get('access_token'))}
 
 
 @router.post("/spotify/disconnect")
-def spotify_disconnect():
+def spotify_disconnect(request: Request):
     """
     Clears Spotify access and refresh token cookies and returns JSON 200.
     Avoid redirecting so clients using POST don't get a 405 on follow-up.
     """
+    # Expect Authorization: Bearer <spotify_jwt>
+    auth = request.headers.get('Authorization')
     response = JSONResponse({"disconnected": True})
-    response.delete_cookie(key="spotify_access_token", path="/")
-    response.delete_cookie(key="spotify_refresh_token", path="/")
+    if not auth or not auth.startswith('Bearer '):
+        return response
+
+    token = auth.split(' ', 1)[1]
+    try:
+        payload = verify_token(token)
+    except Exception:
+        return response
+
+    # Invalidate client-side token by instructing frontend to remove it. Server doesn't
+    # hold long-lived spotify session state in this design.
     return response
 
 @router.post("/spotify/revoke")
 def spotify_revoke(request: Request):
     """
-    Best-effort "revoke" for Spotify: there is no official revocation endpoint.
-    This endpoint will attempt to invalidate the stored refresh token by exchanging
-    it for a new access token and then clearing cookies, which effectively prevents
-    our app from using the user's account unless they re-authorize.
-
-    Note: Users must remove the app from https://www.spotify.com/account/apps/ to
-    fully revoke on Spotify's side. This endpoint mainly clears our credentials.
+    Revoke attempt: accept Authorization: Bearer <spotify_jwt>, try to refresh the
+    refresh_token to make existing refresh_token less useful, and instruct frontend
+    to remove stored JWT.
     """
-    refresh_token = request.cookies.get("spotify_refresh_token")
-    # Clear cookies regardless
+    auth = request.headers.get('Authorization')
     res = JSONResponse({"revoked": True})
-    res.delete_cookie(key="spotify_access_token", path="/")
-    res.delete_cookie(key="spotify_refresh_token", path="/")
-    # Try a token refresh call to make any existing access token obsolete quickly
-    # (Spotify continues to honor refresh tokens until user removes the app.)
+    if not auth or not auth.startswith('Bearer '):
+        return res
+
+    token = auth.split(' ', 1)[1]
+    try:
+        payload = verify_token(token)
+    except Exception:
+        return res
+
+    spotify_info = payload.get('spotify') or {}
+    refresh_token = spotify_info.get('refresh_token')
+
+    # Try to hit Spotify token endpoint to consume or rotate the refresh token.
     if refresh_token:
         try:
-            # Use stdlib to avoid external import resolution issues
             import urllib.request
             import urllib.parse
             basic_token = __import__('base64').b64encode(f"{settings.SPOTIFY_CLIENT_ID}:{settings.SPOTIFY_CLIENT_SECRET}".encode()).decode()
@@ -159,14 +171,41 @@ def spotify_revoke(request: Request):
                 },
                 method="POST",
             )
-            # Fire-and-forget; ignore response and errors
             try:
                 urllib.request.urlopen(req, timeout=5)
             except Exception:
                 pass
         except Exception:
             pass
+
     return res
+
+
+@router.get('/spotify/exchange')
+def spotify_exchange(state: str = Query(...)):
+    """
+    Exchange the temporary token_data (stored at callback time keyed by state) for
+    a server-signed JWT that the frontend will store and send as Authorization: Bearer <jwt>.
+    """
+    token_data = _spotify_temp_store.pop(state, None)
+    if not token_data:
+        raise HTTPException(status_code=404, detail="State not found or expired")
+
+    # Create a JWT containing the spotify tokens. Set short expiry (access token lifetime)
+    payload = {
+        "spotify": {
+            "access_token": token_data.get('access_token'),
+            "refresh_token": token_data.get('refresh_token')
+        }
+    }
+    # Use the expires_in if present to set expiry
+    expires = None
+    if token_data.get('expires_in'):
+        from datetime import timedelta
+        expires = timedelta(seconds=int(token_data.get('expires_in')))
+
+    jwt_token = create_access_token(payload, expires_delta=expires)
+    return {"spotify_jwt": jwt_token}
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Request, Response, Header
 from server.core.security import verify_token
