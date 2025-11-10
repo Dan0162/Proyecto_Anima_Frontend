@@ -1,0 +1,25 @@
+[run]
+branch = True
+source = server
+omit =
+    server/api/v1/routes/analysis.py
+    server/api/v1/routes/analytics.py
+    server/api/v1/routes/recommend.py
+    server/api/v1/routes/spotify.py
+    server/controllers/rekognition_controller.py
+    server/services/*
+    server/db/database.py
+    server/api/v1/routes/contact.py
+
+[report]
+show_missing = True
+skip_covered = False
+include =
+    */server/controllers/*
+    */server/core/*
+    */server/api/v1/routes/auth.py
+    */server/api/v1/routes/user.py
+    */server/middlewares/error_handler.py
+    */server/schemas/*
+    */server/db/session.py
+    */server/db/models/*
