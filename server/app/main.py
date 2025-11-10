@@ -16,7 +16,17 @@ from server.middlewares.error_handler import (
     generic_exception_handler,
 )
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app):
+    # Initialize DB from SQL on application startup
+    init_db_from_sql()
+    #Base.metadata.drop_all(bind=engine)
+    #Base.metadata.create_all(bind=engine)
+    yield #Antes de Yield, lo que hace la app al iniciar
+    #Despues de Yield, lo que hace la app al cerrar
+
+# Create the FastAPI application and attach the lifespan context manager
+app = FastAPI(lifespan=lifespan)
 
 origins = [
     "http://localhost:5173",
@@ -40,13 +50,7 @@ app.add_exception_handler(StarletteHTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, generic_exception_handler)
 
-@asynccontextmanager
-async def lifespan(app):
-    init_db_from_sql()
-    #Base.metadata.drop_all(bind=engine)
-    #Base.metadata.create_all(bind=engine)
-    yield #Antes de Yield, lo que hace la app al iniciar
-    #Despues de Yield, lo que hace la app al cerrar
+
 
 app.include_router(api_router)
 
