@@ -30,7 +30,9 @@ CREATE TABLE analisis (
     id SERIAL PRIMARY KEY,
     ID_sesion INTEGER NOT NULL REFERENCES sesion(id) ON DELETE CASCADE,
     ID_emocion INTEGER NOT NULL REFERENCES emocion(id) ON DELETE CASCADE,
-    fecha_analisis TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    fecha_analisis TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    confidence FLOAT DEFAULT 0.0,
+    emotions_detected JSONB
 );
 
 CREATE TABLE cancion (

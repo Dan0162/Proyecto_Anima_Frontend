@@ -3,7 +3,9 @@ from sqlalchemy.orm import Session
 from server.db.session import get_db
 from server.core.security import verify_token
 from server.db.models.user import User
-from sqlalchemy import func, desc
+from server.db.models.session import Session as UserSession
+from server.db.models.analysis import Analysis, Emotion
+from sqlalchemy import func, desc, extract, and_
 from datetime import datetime, timedelta
 from jose import JWTError
 from pydantic import BaseModel
@@ -20,6 +22,10 @@ class WeeklyActivity(BaseModel):
     day: str
     analyses_count: int
 
+class WeeklyEmotionData(BaseModel):
+    week_start: str
+    emotions: Dict[str, int]
+
 class UserStats(BaseModel):
     total_analyses: int
     most_frequent_emotion: Optional[str]
@@ -27,6 +33,9 @@ class UserStats(BaseModel):
     streak: int
     emotions_distribution: List[EmotionStats]
     weekly_activity: List[WeeklyActivity]
+    hourly_activity: List[int]
+    weekly_emotions: List[WeeklyEmotionData]
+    positive_negative_balance: Dict[str, int]
 
 class AnalysisHistory(BaseModel):
     id: str
@@ -38,9 +47,6 @@ class AnalysisHistory(BaseModel):
 class AnalysisHistoryResponse(BaseModel):
     analyses: List[AnalysisHistory]
     total: int
-
-# Simulación temporal de datos hasta implementar almacenamiento real
-MOCK_USER_ANALYSES = {}
 
 def get_current_user(authorization: str, db: Session):
     """Helper para obtener usuario actual"""
@@ -64,51 +70,61 @@ def get_current_user(authorization: str, db: Session):
     except JWTError:
         raise HTTPException(status_code=401, detail="Token inválido o expirado")
 
+def ensure_emotions_exist(db: Session):
+    """Asegurar que las emociones básicas existan en la base de datos"""
+    basic_emotions = ['happy', 'sad', 'angry', 'relaxed', 'energetic']
+    
+    for emotion_name in basic_emotions:
+        existing = db.query(Emotion).filter(Emotion.nombre == emotion_name).first()
+        if not existing:
+            new_emotion = Emotion(nombre=emotion_name)
+            db.add(new_emotion)
+    
+    db.commit()
+
 @router.get("/stats", response_model=UserStats)
 def get_user_stats(
     authorization: str = Header(..., alias="Authorization"),
     db: Session = Depends(get_db)
 ):
     """
-    Obtiene estadísticas del usuario para el dashboard
+    Obtiene estadísticas del usuario para el dashboard usando datos reales
     """
     user = get_current_user(authorization, db)
+    ensure_emotions_exist(db)
     
-    # TODO: Reemplazar con datos reales de la base de datos
-    # Por ahora devolvemos estructura vacía para nuevos usuarios
-    user_analyses = MOCK_USER_ANALYSES.get(user.id, [])
+    # Obtener todas las sesiones del usuario
+    user_sessions = db.query(UserSession).filter(UserSession.id_usuario == user.id).all()
+    session_ids = [session.id for session in user_sessions]
     
-    if not user_analyses:
-        # Usuario sin análisis - datos iniciales
-        return UserStats(
-            total_analyses=0,
-            most_frequent_emotion=None,
-            average_confidence=0.0,
-            streak=0,
-            emotions_distribution=[],
-            weekly_activity=[
-                WeeklyActivity(day="Lun", analyses_count=0),
-                WeeklyActivity(day="Mar", analyses_count=0),
-                WeeklyActivity(day="Mié", analyses_count=0),
-                WeeklyActivity(day="Jue", analyses_count=0),
-                WeeklyActivity(day="Vie", analyses_count=0),
-                WeeklyActivity(day="Sáb", analyses_count=0),
-                WeeklyActivity(day="Dom", analyses_count=0),
-            ]
-        )
-
+    if not session_ids:
+        # Usuario sin sesiones - datos iniciales
+        return create_empty_stats()
     
-    # Calcular estadísticas reales basadas en análisis almacenados
-    total_analyses = len(user_analyses)
+    # Obtener análisis reales de la base de datos
+    analyses = db.query(Analysis, Emotion).join(
+        Emotion, Analysis.id_emocion == Emotion.id
+    ).filter(Analysis.id_sesion.in_(session_ids)).all()
     
-    # Emoción más frecuente
+    if not analyses:
+        return create_empty_stats()
+    
+    total_analyses = len(analyses)
+    
+    # Calcular estadísticas
     emotion_counts = {}
     total_confidence = 0
+    hourly_counts = [0] * 24
     
-    for analysis in user_analyses:
-        emotion = analysis["emotion"]
-        emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
-        total_confidence += analysis["confidence"]
+    for analysis, emotion in analyses:
+        emotion_name = emotion.nombre
+        emotion_counts[emotion_name] = emotion_counts.get(emotion_name, 0) + 1
+        total_confidence += analysis.confidence or 0
+        
+        # Actividad por hora
+        hour = analysis.fecha_analisis.hour if analysis.fecha_analisis else 0
+        if 0 <= hour < 24:
+            hourly_counts[hour] += 1
     
     most_frequent_emotion = max(emotion_counts, key=emotion_counts.get) if emotion_counts else None
     average_confidence = total_confidence / total_analyses if total_analyses > 0 else 0
@@ -124,23 +140,16 @@ def get_user_stats(
         ))
     
     # Actividad semanal (últimos 7 días)
-    weekly_activity = []
-    days = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
+    weekly_activity = calculate_weekly_activity(db, session_ids)
     
-    # Actividad por hora del día (24 horas)
-    hourly_activity = [0] * 24
-    for analysis in user_analyses:
-        hour = analysis["date"].hour if isinstance(analysis["date"], datetime) else 0
-        if 0 <= hour < 24:
-            hourly_activity[hour] += 1
-
-    for i, day in enumerate(days):
-        # Calcular análisis reales por día de la semana
-        count = sum(1 for analysis in user_analyses[-7:] if analysis.get("day_of_week") == i)
-        weekly_activity.append(WeeklyActivity(day=day, analyses_count=count))
+    # Emociones por semana (últimas 8 semanas)
+    weekly_emotions = calculate_weekly_emotions(db, session_ids)
+    
+    # Balance positivo vs negativo
+    positive_negative_balance = calculate_positive_negative_balance(emotion_counts)
     
     # Calcular racha
-    streak = calculate_streak(user_analyses)
+    streak = calculate_streak(db, session_ids)
     
     return UserStats(
         total_analyses=total_analyses,
@@ -148,8 +157,136 @@ def get_user_stats(
         average_confidence=average_confidence,
         streak=streak,
         emotions_distribution=emotions_distribution,
-        weekly_activity=weekly_activity
+        weekly_activity=weekly_activity,
+        hourly_activity=hourly_counts,
+        weekly_emotions=weekly_emotions,
+        positive_negative_balance=positive_negative_balance
     )
+
+def create_empty_stats():
+    """Crear estadísticas vacías para usuarios nuevos"""
+    return UserStats(
+        total_analyses=0,
+        most_frequent_emotion=None,
+        average_confidence=0.0,
+        streak=0,
+        emotions_distribution=[],
+        weekly_activity=[WeeklyActivity(day=day, analyses_count=0) for day in ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]],
+        hourly_activity=[0] * 24,
+        weekly_emotions=[],
+        positive_negative_balance={"positive": 0, "negative": 0}
+    )
+
+def calculate_weekly_activity(db: Session, session_ids: List[int]) -> List[WeeklyActivity]:
+    """Calcular actividad de los últimos 7 días"""
+    today = datetime.now().date()
+    week_start = today - timedelta(days=today.weekday())  # Lunes de esta semana
+    
+    daily_counts = {}
+    days = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
+    
+    # Inicializar contadores
+    for i, day in enumerate(days):
+        daily_counts[i] = 0
+    
+    # Obtener análisis de la semana actual
+    week_end = week_start + timedelta(days=6)
+    analyses = db.query(Analysis).filter(
+        and_(
+            Analysis.id_sesion.in_(session_ids),
+            Analysis.fecha_analisis >= week_start,
+            Analysis.fecha_analisis <= week_end + timedelta(days=1)
+        )
+    ).all()
+    
+    # Contar por día de la semana
+    for analysis in analyses:
+        weekday = analysis.fecha_analisis.weekday()  # 0=Lunes, 6=Domingo
+        if 0 <= weekday <= 6:
+            daily_counts[weekday] += 1
+    
+    return [WeeklyActivity(day=days[i], analyses_count=daily_counts[i]) for i in range(7)]
+
+def calculate_weekly_emotions(db: Session, session_ids: List[int]) -> List[WeeklyEmotionData]:
+    """Calcular emociones por semana (últimas 8 semanas)"""
+    today = datetime.now().date()
+    weeks_data = []
+    
+    for week_offset in range(7, -1, -1):  # Últimas 8 semanas
+        week_start = today - timedelta(days=today.weekday() + (week_offset * 7))
+        week_end = week_start + timedelta(days=6)
+        
+        # Obtener análisis de esta semana
+        analyses = db.query(Analysis, Emotion).join(
+            Emotion, Analysis.id_emocion == Emotion.id
+        ).filter(
+            and_(
+                Analysis.id_sesion.in_(session_ids),
+                Analysis.fecha_analisis >= week_start,
+                Analysis.fecha_analisis <= week_end + timedelta(days=1)
+            )
+        ).all()
+        
+        emotion_counts = {}
+        for analysis, emotion in analyses:
+            emotion_name = emotion.nombre
+            emotion_counts[emotion_name] = emotion_counts.get(emotion_name, 0) + 1
+        
+        weeks_data.append(WeeklyEmotionData(
+            week_start=week_start.strftime("%Y-%m-%d"),
+            emotions=emotion_counts
+        ))
+    
+    return weeks_data
+
+def calculate_positive_negative_balance(emotion_counts: Dict[str, int]) -> Dict[str, int]:
+    """Calcular balance de emociones positivas vs negativas"""
+    positive_emotions = ['happy', 'energetic', 'relaxed']
+    negative_emotions = ['sad', 'angry']
+    
+    positive_count = sum(emotion_counts.get(emotion, 0) for emotion in positive_emotions)
+    negative_count = sum(emotion_counts.get(emotion, 0) for emotion in negative_emotions)
+    
+    return {
+        "positive": positive_count,
+        "negative": negative_count
+    }
+
+def calculate_streak(db: Session, session_ids: List[int]) -> int:
+    """Calcular racha de días consecutivos con análisis"""
+    if not session_ids:
+        return 0
+    
+    # Obtener fechas únicas de análisis, ordenadas descendentemente
+    dates_query = db.query(
+        func.date(Analysis.fecha_analisis).label('analysis_date')
+    ).filter(
+        Analysis.id_sesion.in_(session_ids)
+    ).distinct().order_by(
+        func.date(Analysis.fecha_analisis).desc()
+    ).all()
+    
+    if not dates_query:
+        return 0
+    
+    dates = [row.analysis_date for row in dates_query]
+    today = datetime.now().date()
+    
+    streak = 0
+    current_date = today
+    
+    for analysis_date in dates:
+        if analysis_date == current_date:
+            streak += 1
+            current_date -= timedelta(days=1)
+        elif analysis_date == current_date + timedelta(days=1):
+            # Si hay un gap de un día, podemos continuar
+            streak += 1
+            current_date = analysis_date - timedelta(days=1)
+        else:
+            break
+    
+    return streak
 
 @router.get("/history", response_model=AnalysisHistoryResponse)
 def get_user_history(
@@ -158,30 +295,39 @@ def get_user_history(
     emotion_filter: Optional[str] = None
 ):
     """
-    Obtiene el historial de análisis del usuario
+    Obtiene el historial de análisis del usuario usando datos reales
     """
     user = get_current_user(authorization, db)
     
-    # TODO: Obtener datos reales de la base de datos
-    user_analyses = MOCK_USER_ANALYSES.get(user.id, [])
+    # Obtener sesiones del usuario
+    user_sessions = db.query(UserSession).filter(UserSession.id_usuario == user.id).all()
+    session_ids = [session.id for session in user_sessions]
+    
+    if not session_ids:
+        return AnalysisHistoryResponse(analyses=[], total=0)
+    
+    # Query base
+    query = db.query(Analysis, Emotion).join(
+        Emotion, Analysis.id_emocion == Emotion.id
+    ).filter(Analysis.id_sesion.in_(session_ids))
     
     # Filtrar por emoción si se especifica
-    if emotion_filter:
-        user_analyses = [a for a in user_analyses if a["emotion"] == emotion_filter]
+    if emotion_filter and emotion_filter != 'all':
+        query = query.filter(Emotion.nombre == emotion_filter)
+    
+    # Obtener resultados ordenados por fecha
+    results = query.order_by(Analysis.fecha_analisis.desc()).all()
     
     # Convertir a formato de respuesta
     analyses = []
-    for analysis in user_analyses:
+    for analysis, emotion in results:
         analyses.append(AnalysisHistory(
-            id=analysis["id"],
-            emotion=analysis["emotion"],
-            confidence=analysis["confidence"],
-            date=analysis["date"],
-            emotions_detected=analysis.get("emotions_detected", {})
+            id=str(analysis.id),
+            emotion=emotion.nombre,
+            confidence=analysis.confidence or 0.0,
+            date=analysis.fecha_analisis,
+            emotions_detected=analysis.emotions_detected or {}
         ))
-    
-    # Ordenar por fecha descendente
-    analyses.sort(key=lambda x: x.date, reverse=True)
     
     return AnalysisHistoryResponse(
         analyses=analyses,
@@ -195,66 +341,72 @@ def save_analysis_result(
     db: Session = Depends(get_db)
 ):
     """
-    Guarda el resultado de un análisis de emoción (con protección contra duplicados)
+    Guarda el resultado de un análisis de emoción en la base de datos real
     """
     user = get_current_user(authorization, db)
+    ensure_emotions_exist(db)
     
-    # TODO: Guardar en base de datos real
-    # Por ahora guardamos en memoria
-    if user.id not in MOCK_USER_ANALYSES:
-        MOCK_USER_ANALYSES[user.id] = []
-    
-    now = datetime.utcnow()
-    
-    # 🔒 PROTECCIÓN CONTRA DUPLICADOS
-    # Verificar si ya existe un análisis muy reciente (últimos 30 segundos)
-    recent_analyses = [
-        a for a in MOCK_USER_ANALYSES[user.id]
-        if isinstance(a.get("date"), datetime) and 
-           (now - a["date"]).total_seconds() < 30 and
-           a.get("emotion") == analysis_data.get("emotion") and
-           abs(a.get("confidence", 0) - analysis_data.get("confidence", 0)) < 0.01
-    ]
-    
-    if recent_analyses:
-        print(f"⚠️ Análisis duplicado detectado para usuario {user.id}, ignorando...")
-        return {"message": "Análisis ya fue guardado recientemente", "success": True}
-    
-    # Crear entrada de análisis con ID único basado en timestamp
-    analysis_entry = {
-        "id": f"analysis_{user.id}_{int(now.timestamp() * 1000)}",
-        "emotion": analysis_data.get("emotion"),
-        "confidence": analysis_data.get("confidence"),
-        "emotions_detected": analysis_data.get("emotions_detected", {}),
-        "date": now,
-        "day_of_week": now.weekday()
-    }
-    
-    MOCK_USER_ANALYSES[user.id].append(analysis_entry)
-    
-    print(f"✅ Análisis guardado para usuario {user.id}: {analysis_data.get('emotion')}")
-    
-    return {"message": "Análisis guardado exitosamente", "success": True}
-
-def calculate_streak(analyses: List[dict]) -> int:
-    """Calcula la racha de días consecutivos con análisis"""
-    if not analyses:
-        return 0
-    
-    # Ordenar por fecha
-    sorted_analyses = sorted(analyses, key=lambda x: x["date"], reverse=True)
-    
-    # Contar días únicos consecutivos
-    streak = 0
-    current_date = datetime.utcnow().date()
-    
-    for analysis in sorted_analyses:
-        analysis_date = analysis["date"].date() if isinstance(analysis["date"], datetime) else analysis["date"]
+    try:
+        # Obtener la sesión activa más reciente del usuario
+        latest_session = db.query(UserSession).filter(
+            UserSession.id_usuario == user.id,
+            UserSession.fecha_fin.is_(None)
+        ).order_by(UserSession.fecha_inicio.desc()).first()
         
-        if analysis_date == current_date:
-            streak += 1
-            current_date -= timedelta(days=1)
-        else:
-            break
-    
-    return streak
+        if not latest_session:
+            # Crear una nueva sesión si no hay ninguna activa
+            latest_session = UserSession(
+                id_usuario=user.id,
+                fecha_inicio=datetime.utcnow()
+            )
+            db.add(latest_session)
+            db.commit()
+            db.refresh(latest_session)
+        
+        # Obtener o crear la emoción
+        emotion_name = analysis_data.get("emotion")
+        emotion = db.query(Emotion).filter(Emotion.nombre == emotion_name).first()
+        
+        if not emotion:
+            emotion = Emotion(nombre=emotion_name)
+            db.add(emotion)
+            db.commit()
+            db.refresh(emotion)
+        
+        # Verificar si ya existe un análisis muy reciente (últimos 30 segundos)
+        now = datetime.utcnow()
+        recent_analysis = db.query(Analysis).filter(
+            and_(
+                Analysis.id_sesion == latest_session.id,
+                Analysis.id_emocion == emotion.id,
+                Analysis.fecha_analisis >= now - timedelta(seconds=30)
+            )
+        ).first()
+        
+        if recent_analysis:
+            print(f"⚠️ Análisis duplicado detectado para usuario {user.id}, ignorando...")
+            return {"message": "Análisis ya fue guardado recientemente", "success": True}
+        
+        # Crear nuevo registro de análisis
+        new_analysis = Analysis(
+            id_sesion=latest_session.id,
+            id_emocion=emotion.id,
+            fecha_analisis=now,
+            confidence=analysis_data.get("confidence", 0.0),
+            emotions_detected=analysis_data.get("emotions_detected", {})
+        )
+        
+        db.add(new_analysis)
+        db.commit()
+        
+        print(f"✅ Análisis guardado en BD para usuario {user.id}: {emotion_name}")
+        
+        return {"message": "Análisis guardado exitosamente", "success": True}
+        
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Error guardando análisis: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Error al guardar el análisis"
+        )
