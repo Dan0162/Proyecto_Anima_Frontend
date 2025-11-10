@@ -216,15 +216,22 @@ class TokenManager {
   }
 
   /**
-   * Clear all authentication tokens
+   * Clear authentication tokens.
+   * @param {boolean} preserveSpotify - if true, keep the Spotify token in storage (default: false)
    */
-  clearAllTokens() {
+  clearAllTokens(preserveSpotify = false) {
     try {
+      // Always remove access/refresh tokens and expiry
       localStorage.removeItem(this.ACCESS_TOKEN_KEY);
       localStorage.removeItem(this.REFRESH_TOKEN_KEY);
-      localStorage.removeItem(this.SPOTIFY_TOKEN_KEY);
       localStorage.removeItem(this.TOKEN_EXPIRY_KEY);
-      console.log('🧹 All tokens cleared');
+
+      if (!preserveSpotify) {
+        // Remove Spotify token only when not preserving it
+        localStorage.removeItem(this.SPOTIFY_TOKEN_KEY);
+      }
+
+      console.log('🧹 Authentication tokens cleared', preserveSpotify ? '(spotify preserved)' : '');
     } catch (error) {
       console.error('❌ Error clearing tokens:', error);
     }

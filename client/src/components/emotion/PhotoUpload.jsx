@@ -1,10 +1,9 @@
 import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import GlassCard from '../layout/GlassCard';
 import './PhotoUpload.css';
 
 const PhotoUpload = ({ onUpload, onCancel, spotifyConnected = true }) => {
-  const navigate = useNavigate();
+  // navigate removed - not used in this component
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [isDragging, setIsDragging] = useState(false);

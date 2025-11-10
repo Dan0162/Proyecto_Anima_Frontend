@@ -16,7 +16,8 @@ export default function RequireAuth({ children }) {
         // Special case: If we're in the middle of a Spotify OAuth callback,
         // be more lenient with auth validation to prevent redirect loops
         const urlParams = new URLSearchParams(window.location.search);
-        const isSpotifyCallbackRoute = location.pathname === '/home/spotify-callback';
+  // Support both legacy nested route and the new public callback route
+  const isSpotifyCallbackRoute = location.pathname === '/home/spotify-callback' || location.pathname === '/spotify-callback';
         const isSpotifyCallback = isSpotifyCallbackRoute && urlParams.has('state');
         
         // For Spotify callbacks, always allow through - don't check tokens

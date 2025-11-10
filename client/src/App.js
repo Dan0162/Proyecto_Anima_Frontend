@@ -45,9 +45,12 @@ function App() {
               <Route path="history" element={<HistoryPage />} />
               <Route path="recommendations" element={<RecommendationsPage />} />
               <Route path="dashboard" element={<DashboardPage />} />
-              <Route path="spotify-callback" element={<SpotifyCallback />} />
+              {/* spotify-callback moved to top-level so it isn't blocked by RequireAuth */}
               <Route path="analysis/:analysisId" element={<AnalysisDetailPage />} />
             </Route>
+              {/* Spotify OAuth returns here from the backend; keep this route public so the callback can be processed
+                  even when the user's app auth token is not present. The component will handle navigation after exchange. */}
+              <Route path="/spotify-callback" element={<SpotifyCallback />} />
           </Routes>
         </main>
       </div>

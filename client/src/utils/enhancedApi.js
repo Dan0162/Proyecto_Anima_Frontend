@@ -216,7 +216,8 @@ export const logoutApi = async () => {
     // Continue with local logout even if API call fails
   } finally {
     // Clear all tokens and session_id
-    tokenManager.clearAllTokens();
+    // Preserve Spotify token so user doesn't need to reconnect after a normal logout/login
+    tokenManager.clearAllTokens(true);
     localStorage.removeItem('session_id');
   }
 };

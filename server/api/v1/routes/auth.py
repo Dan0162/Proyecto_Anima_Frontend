@@ -54,7 +54,7 @@ def spotify_callback(
     """
     if error:
         # Usuario canceló o Spotify devolvió error → redirigir al frontend con el error
-        return RedirectResponse(url=f"http://127.0.0.1:3000/home/spotify-callback?error={error}&state={state}")
+        return RedirectResponse(url=f"http://127.0.0.1:3000/spotify-callback?error={error}&state={state}")
     
     if not code:
         raise HTTPException(status_code=400, detail="Código de autorización no recibido")
@@ -76,13 +76,12 @@ def spotify_callback(
         }
 
         # Redirect back to frontend which will read `state` and call the exchange endpoint
-        response = RedirectResponse(url=f"http://127.0.0.1:3000/home/spotify-callback?state={state}")
-        return response
+        return RedirectResponse(url=f"http://127.0.0.1:3000/spotify-callback?state={state}")
 
     except Exception as e:
         # Redirigir al frontend con un indicador de error genérico
         print(f"HTTP error: {e} - Path: {request.url}")
-        return RedirectResponse(url=f"http://127.0.0.1:3000/home/spotify-callback?error=token_exchange_failed&state={state}")
+        return RedirectResponse(url=f"http://127.0.0.1:3000/spotify-callback?error=token_exchange_failed&state={state}")
 
 
 @router.get("/spotify/status")

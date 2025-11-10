@@ -54,7 +54,8 @@ function Navbar() {
 
   const handleLogoff = () => {
     // Clear all tokens using tokenManager
-    tokenManager.clearAllTokens();
+    // Preserve the user's connected Spotify token so they don't need to reconnect on next login
+    tokenManager.clearAllTokens(true);
     setIsAuthenticated(false);
     navigate('/', { 
       state: { 

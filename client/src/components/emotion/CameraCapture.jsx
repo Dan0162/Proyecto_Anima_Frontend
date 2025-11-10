@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import GlassCard from '../layout/GlassCard';
 import './CameraCapture.css';
 
@@ -10,14 +10,76 @@ const CameraCapture = ({ onCapture, onCancel }) => {
   
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  // Keep a ref to the stream so callbacks don't need to depend on 'stream'
+  const streamRef = useRef(null);
 
   // Iniciar cámara al montar
+  const startCamera = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Detener stream anterior si existe (usar streamRef para evitar dependencias)
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
+
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { 
+          facingMode: 'user',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        },
+        audio: false
+      });
+
+      console.log('✅ Cámara iniciada correctamente');
+      setStream(mediaStream);
+      streamRef.current = mediaStream;
+      setIsLoading(false);
+    } catch (err) {
+      console.error('❌ Error accessing camera:', err);
+      setError('No se pudo acceder a la cámara. Por favor, verifica los permisos.');
+      setIsLoading(false);
+    }
+  }, []);
+
+  const stopCamera = useCallback(() => {
+    console.log('🛑 Deteniendo cámara inmediatamente');
+
+    const current = streamRef.current;
+    if (current) {
+      current.getTracks().forEach(track => {
+        try { track.stop(); } catch (e) { /* ignore */ }
+        console.log(`Track detenido: ${track.kind}`);
+      });
+      streamRef.current = null;
+    }
+
+    // Also clear state to keep UI consistent
+    setStream(null);
+
+    if (videoRef.current) {
+      try {
+        videoRef.current.srcObject = null;
+        videoRef.current.pause();
+        videoRef.current.load(); // Forzar la liberación del recurso
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, []);
+
   useEffect(() => {
+    // Start camera on mount
     startCamera();
     return () => {
+      // Ensure camera is stopped on unmount
       stopCamera();
     };
-  }, []);
+    // startCamera/stopCamera are stable (empty deps)
+  }, [startCamera, stopCamera]);
 
   // 🔧 CORRECCIÓN: Actualizar videoRef cuando el stream cambia
   useEffect(() => {
@@ -33,52 +95,7 @@ const CameraCapture = ({ onCapture, onCancel }) => {
     }
   }, [stream, capturedPhoto]);
 
-  const startCamera = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      
-      // Detener stream anterior si existe
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
-      
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { 
-          facingMode: 'user',
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        },
-        audio: false
-      });
-      
-      console.log('✅ Cámara iniciada correctamente');
-      setStream(mediaStream);
-      setIsLoading(false);
-    } catch (err) {
-      console.error('❌ Error accessing camera:', err);
-      setError('No se pudo acceder a la cámara. Por favor, verifica los permisos.');
-      setIsLoading(false);
-    }
-  };
-
-  const stopCamera = () => {
-    console.log('🛑 Deteniendo cámara inmediatamente');
-    
-    if (stream) {
-      stream.getTracks().forEach(track => {
-        track.stop();
-        console.log(`Track detenido: ${track.kind}`);
-      });
-      setStream(null);
-    }
-    
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-      videoRef.current.pause();
-      videoRef.current.load(); // Forzar la liberación del recurso
-    }
-  };
+  
 
   const capturePhoto = () => {
     if (!videoRef.current || !canvasRef.current) {

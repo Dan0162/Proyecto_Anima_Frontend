@@ -17,11 +17,7 @@ const AnalysisDetailPage = () => {
   const [playlistSaved, setPlaylistSaved] = useState(false);
 
   // Cargar detalles del análisis al montar
-  useEffect(() => {
-    loadAnalysisDetails();
-  }, [analysisId]);
-
-  const loadAnalysisDetails = async () => {
+  const loadAnalysisDetails = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -58,7 +54,11 @@ const AnalysisDetailPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [analysisId, navigate, flash]);
+
+  useEffect(() => {
+    loadAnalysisDetails();
+  }, [loadAnalysisDetails]);
 
   // 🔄 Función de fallback para generar recomendaciones si no hay guardadas
   const loadRecommendations = async (emotion) => {
