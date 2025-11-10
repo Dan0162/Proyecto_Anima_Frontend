@@ -1,16 +1,12 @@
 version: "3.9"
+
 services:
-  db:
-    image: postgres:16-alpine # Imagen ligera de Postgres
-    environment:
-      POSTGRES_USER: postgres # Usuario admin
-      POSTGRES_PASSWORD: postgres # Contraseña simple p/entorno DEV
-      POSTGRES_DB: anima_db # DB que se crea al iniciar
-      POSTGRES_HOST_AUTH_METHOD: trust # Autenticación relajada para DEV (local)
-      POSTGRES_INITDB_ARGS: "--auth-local=trust --auth-host=trust" # Conexiones host sin contraseña (solo DEV)
+  backend:
+    build: .
+    container_name: anima_backend
     ports:
-      - "5433:5432" # Exponer puerto local en 5433 para evitar conflictos
+      - "8000:8000"
+    env_file:
+      - .env
     volumes:
-      - db_data:/var/lib/postgresql/data # Persistencia de datos
-volumes:
-  db_data:
+      - .:/app
