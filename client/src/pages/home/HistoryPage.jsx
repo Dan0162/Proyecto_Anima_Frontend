@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/sidebar/Sidebar';
 import GlassCard from '../../components/layout/GlassCard';
 import './HistoryPage.css';
+import { getUserHistory } from '../../utils/analyticsApi';
 
 const HistoryPage = () => {
   const [analyses, setAnalyses] = useState([]);
@@ -10,42 +11,59 @@ const HistoryPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Obtener historial real del backend
-    // Por ahora usamos datos mockup
-    const mockData = generateMockHistory();
-    setAnalyses(mockData);
-    setFilteredAnalyses(mockData);
-    setLoading(false);
-  }, []);
+  const loadHistory = async () => {
+    setLoading(true);
+    try {
+      const response = await getUserHistory();
+      const historyData = response.analyses.map(analysis => ({
+        id: analysis.id,
+        emotion: analysis.emotion,
+        confidence: analysis.confidence,
+        date: analysis.date,
+        emotions_detected: analysis.emotions_detected,
+        tracksCount: Math.floor(Math.random() * 10) + 5 // Temporal hasta implementar tracks reales
+      }));
+      
+      setAnalyses(historyData);
+      setFilteredAnalyses(historyData);
+    } catch (error) {
+      console.error('Error loading history:', error);
+      setAnalyses([]);
+      setFilteredAnalyses([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  loadHistory();
+}, []);
 
   useEffect(() => {
+  const filterAnalyses = async () => {
     if (selectedEmotion === 'all') {
       setFilteredAnalyses(analyses);
     } else {
-      setFilteredAnalyses(analyses.filter(a => a.emotion === selectedEmotion));
+      try {
+        const response = await getUserHistory(selectedEmotion);
+        const filteredData = response.analyses.map(analysis => ({
+          id: analysis.id,
+          emotion: analysis.emotion,
+          confidence: analysis.confidence,
+          date: analysis.date,
+          emotions_detected: analysis.emotions_detected,
+          tracksCount: Math.floor(Math.random() * 10) + 5
+        }));
+        setFilteredAnalyses(filteredData);
+      } catch (error) {
+        console.error('Error filtering history:', error);
+        setFilteredAnalyses([]);
+      }
     }
-  }, [selectedEmotion, analyses]);
-
-  const generateMockHistory = () => {
-    const emotions = ['happy', 'sad', 'angry', 'relaxed', 'energetic'];
-    const history = [];
-    
-    for (let i = 0; i < 12; i++) {
-      const emotion = emotions[Math.floor(Math.random() * emotions.length)];
-      const date = new Date();
-      date.setDate(date.getDate() - i * 2);
-      
-      history.push({
-        id: i + 1,
-        emotion: emotion,
-        confidence: 0.75 + Math.random() * 0.2,
-        date: date.toISOString(),
-        tracksCount: Math.floor(Math.random() * 10) + 5
-      });
-    }
-    
-    return history;
   };
+
+  filterAnalyses();
+}, [selectedEmotion, analyses]);
+
 
   const getEmotionColor = (emotion) => {
     const colors = {

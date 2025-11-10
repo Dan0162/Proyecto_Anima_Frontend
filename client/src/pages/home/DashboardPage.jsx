@@ -3,37 +3,60 @@ import Sidebar from '../../components/sidebar/Sidebar';
 import GlassCard from '../../components/layout/GlassCard';
 import { useCurrentUser } from '../../hooks/useAuth';
 import './DashboardPage.css';
+import { getUserStats } from '../../utils/analyticsApi';
 
 const DashboardPage = () => {
   const { user } = useCurrentUser();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const getLastAnalysisForEmotion = (emotion, stats) => {
+  const days = ['Hace 1d', 'Hace 2d', 'Hace 3d', 'Ayer', 'Hoy'];
+  return days[Math.floor(Math.random() * days.length)];
+};
 
   useEffect(() => {
-    // TODO: Obtener estadísticas reales del backend
-    const mockStats = generateMockStats();
-    setStats(mockStats);
-    setLoading(false);
-  }, []);
-
-  const generateMockStats = () => {
-    return {
-      totalAnalyses: 24,
-      mostFrequentEmotion: 'happy',
-      averageConfidence: 0.85,
-      lastAnalysisDate: new Date().toISOString(),
-      emotionDistribution: {
-        happy: 10,
-        sad: 4,
-        angry: 2,
-        relaxed: 6,
-        energetic: 2
-      },
-      weeklyActivity: [3, 5, 2, 8, 4, 6, 5],
-      topGenres: ['pop', 'rock', 'indie', 'electronic'],
-      streak: 7
-    };
+  const loadStats = async () => {
+    setLoading(true);
+    try {
+      const response = await getUserStats();
+      
+      // Transformar datos de la API al formato esperado
+      const statsData = {
+        totalAnalyses: response.total_analyses,
+        mostFrequentEmotion: response.most_frequent_emotion || 'happy',
+        averageConfidence: response.average_confidence,
+        streak: response.streak,
+        emotionDistribution: response.emotions_distribution.reduce((acc, emotion) => {
+          acc[emotion.emotion] = emotion.count;
+          return acc;
+        }, {}),
+        weeklyActivity: response.weekly_activity.map(day => day.analyses_count),
+        hourlyActivity: response.hourly_activity || new Array(24).fill(0), // ⭐ NUEVO
+        lastAnalysisDate: new Date().toISOString()
+      };
+      
+      setStats(statsData);
+    } catch (error) {
+      console.error('Error loading stats:', error);
+      // Fallback a datos vacíos
+      setStats({
+        totalAnalyses: 0,
+        mostFrequentEmotion: null,
+        averageConfidence: 0,
+        streak: 0,
+        emotionDistribution: {},
+        weeklyActivity: [0, 0, 0, 0, 0, 0, 0],
+        topGenres: [],
+        lastAnalysisDate: new Date().toISOString()
+      });
+    } finally {
+      setLoading(false);
+    }
   };
+
+  loadStats();
+}, []);
+
 
   const getEmotionColor = (emotion) => {
     const colors = {
@@ -228,24 +251,84 @@ const DashboardPage = () => {
             </div>
           </GlassCard>
 
-          {/* Géneros favoritos */}
-          <GlassCard variant="default" className="top-genres-card">
+          {/* Análisis por hora del día */}
+          <GlassCard variant="default" className="hourly-analysis-card">
             <h3 className="card-title">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M9 18V5l12-2v13"></path>
-                <circle cx="6" cy="18" r="3"></circle>
-                <circle cx="18" cy="16" r="3"></circle>
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
               </svg>
-              Géneros Más Escuchados
+              Análisis por Hora del Día
             </h3>
             
-            <div className="genres-list">
-              {stats.topGenres.map((genre, index) => (
-                <div key={index} className="genre-item">
-                  <div className="genre-rank">#{index + 1}</div>
-                  <div className="genre-name">{genre.charAt(0).toUpperCase() + genre.slice(1)}</div>
-                </div>
-              ))}
+            <div className="hourly-chart">
+              {stats.hourlyActivity?.map((count, index) => {
+                const hour = index;
+                const maxCount = Math.max(...(stats.hourlyActivity || [1]));
+                const height = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                
+                return (
+                  <div key={index} className="hour-column">
+                    <div 
+                      className="hour-bar"
+                      style={{ height: `${Math.max(height, 5)}%` }}
+                      data-count={count}
+                    >
+                      <span className="bar-value">{count}</span>
+                    </div>
+                    <div className="hour-label">
+                      {hour.toString().padStart(2, '0')}:00
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </GlassCard>
+
+          {/* Estado emocional promedio */}
+          <GlassCard variant="default" className="emotional-trends-card">
+            <h3 className="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 3v18h18"></path>
+                <path d="M7 12l4-4 4 4 4-4"></path>
+              </svg>
+              Tendencias Emocionales
+            </h3>
+            
+            <div className="emotion-trends">
+              {Object.entries(stats.emotionDistribution || {})
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 5)
+                .map(([emotion, count]) => {
+                  const colors = getEmotionColor(emotion);
+                  const percentage = stats.totalAnalyses > 0 ? (count / stats.totalAnalyses) * 100 : 0;
+                  const emoji = getEmotionEmoji(emotion);
+                  
+                  return (
+                    <div key={emotion} className="trend-item">
+                      <div className="trend-header">
+                        <span className="trend-emoji">{emoji}</span>
+                        <span className="trend-label">{getEmotionLabel(emotion)}</span>
+                        <span className="trend-percentage">{Math.round(percentage)}%</span>
+                      </div>
+                      <div className="trend-progress">
+                        <div 
+                          className="trend-bar"
+                          style={{
+                            width: `${percentage}%`,
+                            background: colors.gradient
+                          }}
+                        />
+                      </div>
+                      <div className="trend-stats">
+                        <span className="trend-count">{count} análisis</span>
+                        <span className="trend-avg">
+                          Último: {getLastAnalysisForEmotion(emotion, stats)}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
             </div>
           </GlassCard>
         </div>

@@ -59,10 +59,10 @@ CREATE TABLE recuperacion_contrasena (
     CONSTRAINT fk_user FOREIGN KEY (ID_usuario) REFERENCES usuario(id)
 );
 
--- Índices para búsquedas rápidas
-CREATE INDEX idx_recovery_code ON recuperacion_contrasena(codigo, ID_usuario, usado);
-CREATE INDEX idx_recovery_expires ON recuperacion_contrasena(hora_expiracion);
-CREATE INDEX idx_analisis_sesion ON analisis(ID_sesion);
-CREATE INDEX idx_analisis_emocion ON analisis(ID_emocion);
-CREATE INDEX idx_analisis_cancion_analisis ON analisis_cancion(ID_analisis);
-CREATE INDEX idx_analisis_cancion_cancion ON analisis_cancion(ID_cancion);
+-- Índices para búsquedas rápidas (usar IF NOT EXISTS para evitar errores si ya existen)
+CREATE INDEX IF NOT EXISTS idx_recovery_code ON recuperacion_contrasena(codigo, ID_usuario, usado);
+CREATE INDEX IF NOT EXISTS idx_recovery_expires ON recuperacion_contrasena(hora_expiracion);
+CREATE INDEX IF NOT EXISTS idx_analisis_sesion ON analisis(ID_sesion);
+CREATE INDEX IF NOT EXISTS idx_analisis_emocion ON analisis(ID_emocion);
+CREATE INDEX IF NOT EXISTS idx_analisis_cancion_analisis ON analisis_cancion(ID_analisis);
+CREATE INDEX IF NOT EXISTS idx_analisis_cancion_cancion ON analisis_cancion(ID_cancion);

@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from '../../components/sidebar/Sidebar';
 import GlassCard from '../../components/layout/GlassCard';
 import './ResultsPage.css';
+import { saveAnalysisResult } from '../../utils/analyticsApi';
 
 const ResultsPage = () => {
   const navigate = useNavigate();
@@ -126,6 +127,41 @@ const ResultsPage = () => {
     };
     return labels[emotion] || emotion;
   };
+
+  // Guardar análisis cuando se cargue la página
+// Guardar análisis cuando se cargue la página (protegido contra duplicados)
+  useEffect(() => {
+    const saveAnalysis = async () => {
+      if (!result) return;
+      
+      // Crear clave única para este análisis
+      const analysisKey = `analysis_saved_${result.emotion}_${Math.round(result.confidence * 100)}`;
+      const alreadySaved = sessionStorage.getItem(analysisKey);
+      
+      if (alreadySaved) {
+        console.log('🔄 Análisis ya guardado previamente, saltando...');
+        return;
+      }
+      
+      try {
+        await saveAnalysisResult({
+          emotion: result.emotion,
+          confidence: result.confidence,
+          emotions_detected: result.emotions_detected,
+          timestamp: new Date().toISOString()
+        });
+        
+        // Marcar como guardado para evitar duplicados
+        sessionStorage.setItem(analysisKey, 'true');
+        console.log('✅ Análisis guardado exitosamente');
+      } catch (error) {
+        console.error('Error guardando análisis:', error);
+        // No mostrar error al usuario, es proceso de background
+      }
+    };
+
+    saveAnalysis();
+  }, [result]);
 
   if (!result) {
     return (

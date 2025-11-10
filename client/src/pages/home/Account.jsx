@@ -8,6 +8,7 @@ import { useCurrentUser } from '../../hooks/useAuth';
 import { useFlash } from '../../components/flash/FlashContext';
 import { updateUserProfileApi, changePasswordApi, logoutApi } from '../../utils/enhancedApi';
 import './Account.css';
+import { getUserProfileStats } from '../../utils/analyticsApi';
 
 export default function Account() {
   // Maneja cambios en los inputs del perfil
@@ -40,6 +41,11 @@ export default function Account() {
   });
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileErrors, setProfileErrors] = useState({});
+  const [profileStats, setProfileStats] = useState({
+  totalAnalyses: 0,
+  streak: 0,
+  mostFrequentEmotion: null
+});
   
   // Estados para cambio de contraseña
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
@@ -103,6 +109,8 @@ export default function Account() {
       }
     };
 
+    
+
     // Check immediately on mount
     checkStatus();
 
@@ -114,6 +122,23 @@ export default function Account() {
       if (intervalId) clearInterval(intervalId);
     };
   }, []);
+
+  // Cargar estadísticas del perfil
+    useEffect(() => {
+      const loadProfileStats = async () => {
+        try {
+          const stats = await getUserProfileStats();
+          setProfileStats(stats);
+        } catch (error) {
+          console.error('Error loading profile stats:', error);
+          // Keep default values on error
+        }
+      };
+      
+      if (user) {
+        loadProfileStats();
+      }
+    }, [user]);
 
   const validateProfile = () => {
     const errors = {};
@@ -343,11 +368,11 @@ export default function Account() {
 
             <div className="profile-stats">
               <div className="profile-stat">
-                <div className="stat-value">24</div>
+                <div className="stat-value">{profileStats.totalAnalyses}</div>
                 <div className="stat-label">Análisis</div>
               </div>
               <div className="profile-stat">
-                <div className="stat-value">7</div>
+                <div className="stat-value">{profileStats.streak}</div>
                 <div className="stat-label">Días activo</div>
               </div>
             </div>
