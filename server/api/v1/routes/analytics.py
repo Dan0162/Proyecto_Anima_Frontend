@@ -48,6 +48,14 @@ class AnalysisHistoryResponse(BaseModel):
     analyses: List[AnalysisHistory]
     total: int
 
+class AnalysisDetail(BaseModel):
+    id: int
+    emotion: str
+    confidence: float
+    date: datetime
+    emotions_detected: Dict[str, float]
+    session_id: int
+
 def get_current_user(authorization: str, db: Session):
     """Helper para obtener usuario actual"""
     try:
@@ -161,6 +169,54 @@ def get_user_stats(
         hourly_activity=hourly_counts,
         weekly_emotions=weekly_emotions,
         positive_negative_balance=positive_negative_balance
+    )
+
+@router.get("/analysis/{analysis_id}", response_model=AnalysisDetail)
+def get_analysis_details(
+    analysis_id: int,
+    authorization: str = Header(..., alias="Authorization"),
+    db: Session = Depends(get_db)
+):
+    """
+    Obtiene los detalles de un análisis específico
+    """
+    user = get_current_user(authorization, db)
+    
+    # Obtener sesiones del usuario
+    user_sessions = db.query(UserSession).filter(UserSession.id_usuario == user.id).all()
+    session_ids = [session.id for session in user_sessions]
+    
+    if not session_ids:
+        raise HTTPException(
+            status_code=404,
+            detail="No se encontraron sesiones para este usuario"
+        )
+    
+    # Obtener el análisis específico
+    analysis_result = db.query(Analysis, Emotion).join(
+        Emotion, Analysis.id_emocion == Emotion.id
+    ).filter(
+        and_(
+            Analysis.id == analysis_id,
+            Analysis.id_sesion.in_(session_ids)
+        )
+    ).first()
+    
+    if not analysis_result:
+        raise HTTPException(
+            status_code=404,
+            detail="Análisis no encontrado"
+        )
+    
+    analysis, emotion = analysis_result
+    
+    return AnalysisDetail(
+        id=analysis.id,
+        emotion=emotion.nombre,
+        confidence=analysis.confidence or 0.0,
+        date=analysis.fecha_analisis,
+        emotions_detected=analysis.emotions_detected or {},
+        session_id=analysis.id_sesion
     )
 
 def create_empty_stats():

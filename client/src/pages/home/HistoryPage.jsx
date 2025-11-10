@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/sidebar/Sidebar';
 import GlassCard from '../../components/layout/GlassCard';
 import './HistoryPage.css';
@@ -9,6 +10,7 @@ const HistoryPage = () => {
   const [filteredAnalyses, setFilteredAnalyses] = useState([]);
   const [selectedEmotion, setSelectedEmotion] = useState('all');
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
   const loadHistory = async () => {
@@ -113,6 +115,10 @@ const HistoryPage = () => {
       month: 'short', 
       year: 'numeric' 
     });
+  };
+
+  const handleViewDetails = (analysisId) => {
+    navigate(`/home/analysis/${analysisId}`);
   };
 
   const emotionFilters = [
@@ -235,6 +241,7 @@ const HistoryPage = () => {
 
                   <button 
                     className="view-details-btn"
+                    onClick={() => handleViewDetails(analysis.id)}
                     style={{
                       background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primary}CC 100%)`,
                       borderColor: colors.border

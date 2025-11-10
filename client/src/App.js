@@ -19,6 +19,7 @@ import HistoryPage from './pages/home/HistoryPage';
 import DashboardPage from './pages/home/DashboardPage';
 import RecommendationsPage from './pages/home/RecommendationsPage';
 import SpotifyCallback from './pages/home/SpotifyCallback';
+import AnalysisDetailPage from './pages/home/AnalysisDetailPage';
 
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
               <Route path="recommendations" element={<RecommendationsPage />} />
               <Route path="dashboard" element={<DashboardPage />} />
               <Route path="spotify-callback" element={<SpotifyCallback />} />
+              <Route path="analysis/:analysisId" element={<AnalysisDetailPage />} />
             </Route>
           </Routes>
         </main>
