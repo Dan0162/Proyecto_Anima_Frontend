@@ -5,6 +5,8 @@ from server.schemas.auth import UserLogin, TokenResponse
 from server.db.session import SessionLocal
 from sqlalchemy.orm import Session
 from server.db.models.user import User
+from server.db.models.session import Session as UserSession
+from datetime import datetime
 import re
 
 
@@ -52,7 +54,25 @@ def login_user(db: Session, user: UserLogin) -> TokenResponse:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Correo o contraseña invalida"
         )
-    access_token = create_access_token(data={"sub": db_user.email})
-    return TokenResponse(access_token=access_token)  # ← ¡Este return es esencial!
+    # Create a new session record
+    new_session = UserSession(ID_usuario=db_user.id, fecha_inicio=datetime.utcnow())
+    db.add(new_session)
+    db.commit()
+    db.refresh(new_session)
+    session_id = new_session.id
+    access_token = create_access_token(data={"sub": db_user.email, "session_id": session_id})
+    return TokenResponse(access_token=access_token, session_id=session_id)
+
+
+def logout_user(db: Session, session_id: int) -> bool:
+    session_record = db.query(UserSession).filter(UserSession.id == session_id).first()
+    if not session_record:
+        raise HTTPException(status_code=404, detail="Session not found")
+    if session_record.fecha_fin is not None:
+        # Already logged out
+        return False
+    session_record.fecha_fin = datetime.utcnow()
+    db.commit()
+    return True
 
 

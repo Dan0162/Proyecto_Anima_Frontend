@@ -263,3 +263,12 @@ def get_current_user(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error al obtener información del usuario"
         )
+
+@router.post("/logout", status_code=200)
+def logout(session_id: int, db: Session = Depends(get_db)):
+    """
+    Ends the session by setting fecha_fin for the given session_id.
+    """
+    from server.controllers.auth_controller import logout_user
+    success = logout_user(db, session_id)
+    return {"success": success}
