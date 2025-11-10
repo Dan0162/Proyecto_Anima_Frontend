@@ -5,31 +5,24 @@ from server.core.config import settings
 import random
 import string
 
+
 def generate_verification_code() -> str:
     """Genera un código de 6 dígitos"""
     return ''.join(random.choices(string.digits, k=6))
 
+
 def send_verification_email(recipient_email: str, code: str) -> bool:
-    """
-    Envía email con código de verificación
-    
-    Args:
-        recipient_email: Email del destinatario
-        code: Código de verificación de 6 dígitos
-    
-    Returns:
-        True si se envió exitosamente, False en caso contrario
-    """
+    """Envía email con código de verificación"""
     try:
         sender_email = settings.EMAIL_SENDER
         sender_password = settings.EMAIL_PASSWORD
-        
+
         # Crear mensaje
         msg = MIMEMultipart('alternative')
         msg['Subject'] = 'Recuperación de contraseña - Ánima'
         msg['From'] = f"Ánima <{sender_email}>"
         msg['To'] = recipient_email
-        
+
         # HTML del email con la paleta de Ánima
         html = f"""
         <!DOCTYPE html>
@@ -115,25 +108,20 @@ def send_verification_email(recipient_email: str, code: str) -> bool:
                     <h1>Recuperación de contraseña</h1>
                     <p class="subtitle">Ánima - Música que refleja cómo te sentís</p>
                 </div>
-                
                 <p class="info">
                     Hola,<br><br>
                     Recibimos una solicitud para restablecer tu contraseña. Usa el siguiente código de verificación:
                 </p>
-                
                 <div class="code-container">
                     <div class="code">{code}</div>
                 </div>
-                
                 <div class="warning">
                     <strong>⚠️ Importante:</strong> Este código expira en 15 minutos y solo puede usarse una vez.
                 </div>
-                
                 <p class="info">
                     Si no solicitaste este cambio, puedes ignorar este correo de forma segura.
                     Tu contraseña no cambiará a menos que ingreses el código de verificación.
                 </p>
-                
                 <div class="footer">
                     <p>Este es un correo automático, por favor no respondas.</p>
                     <p>© 2025 Ánima - Todos los derechos reservados</p>
@@ -142,68 +130,57 @@ def send_verification_email(recipient_email: str, code: str) -> bool:
         </body>
         </html>
         """
-        
+
         # Versión texto plano como alternativa
         text = f"""
         Recuperación de contraseña - Ánima
-        
+
         Hola,
-        
+
         Recibimos una solicitud para restablecer tu contraseña.
-        
+
         Tu código de verificación es: {code}
-        
+
         Este código expira en 15 minutos y solo puede usarse una vez.
-        
+
         Si no solicitaste este cambio, puedes ignorar este correo de forma segura.
-        
+
         © 2025 Ánima
         """
-        
+
         # Adjuntar ambas versiones
         part1 = MIMEText(text, 'plain')
         part2 = MIMEText(html, 'html')
-        
         msg.attach(part1)
         msg.attach(part2)
-        
+
         # Enviar email usando SMTP de Gmail
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
             server.login(sender_email, sender_password)
             server.send_message(msg)
-        
+
         print(f"✅ Email enviado exitosamente a {recipient_email}")
         return True
-        
+
     except Exception as e:
         print(f"❌ Error enviando email: {e}")
         return False
-    
+
+
 def send_contact_email(name: str, email: str, subject: str, message: str) -> bool:
-    """
-    Envía un email de contacto al equipo de soporte
-    
-    Args:
-        name: Nombre del remitente
-        email: Email del remitente
-        subject: Asunto del mensaje
-        message: Contenido del mensaje
-    
-    Returns:
-        True si se envió exitosamente, False en caso contrario
-    """
+    """Envía un email de contacto al equipo de soporte"""
     try:
         sender_email = settings.EMAIL_SENDER
         sender_password = settings.EMAIL_PASSWORD
         support_email = "equipo.soporte.anima@gmail.com"
-        
+
         # Crear mensaje
         msg = MIMEMultipart('alternative')
         msg['Subject'] = f'Contacto Ánima: {subject}'
         msg['From'] = f"Ánima Contacto <{sender_email}>"
         msg['To'] = support_email
         msg['Reply-To'] = email
-        
+
         # HTML del email
         html = f"""
         <!DOCTYPE html>
@@ -286,7 +263,6 @@ def send_contact_email(name: str, email: str, subject: str, message: str) -> boo
                     <div class="logo">🎵</div>
                     <h1>Nuevo mensaje de contacto</h1>
                 </div>
-                
                 <div class="info-box">
                     <div class="info-row">
                         <span class="info-label">De:</span>
@@ -301,12 +277,10 @@ def send_contact_email(name: str, email: str, subject: str, message: str) -> boo
                         <span class="info-value">{subject}</span>
                     </div>
                 </div>
-                
                 <div class="message-box">
                     <strong style="color: #4a5568; display: block; margin-bottom: 10px;">Mensaje:</strong>
                     <div class="message-content">{message}</div>
                 </div>
-                
                 <div class="footer">
                     <p>Este mensaje fue enviado desde el formulario de contacto de Ánima</p>
                     <p>© 2025 Ánima - Todos los derechos reservados</p>
@@ -315,38 +289,37 @@ def send_contact_email(name: str, email: str, subject: str, message: str) -> boo
         </body>
         </html>
         """
-        
+
         # Versión texto plano
         text = f"""
         Nuevo mensaje de contacto - Ánima
-        
+
         De: {name}
         Email: {email}
         Asunto: {subject}
-        
+
         Mensaje:
         {message}
-        
+
         ---
         Este mensaje fue enviado desde el formulario de contacto de Ánima
         © 2025 Ánima
         """
-        
+
         # Adjuntar ambas versiones
         part1 = MIMEText(text, 'plain')
         part2 = MIMEText(html, 'html')
-        
         msg.attach(part1)
         msg.attach(part2)
-        
+
         # Enviar email
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
             server.login(sender_email, sender_password)
             server.send_message(msg)
-        
+
         print(f"✅ Email de contacto enviado desde {name} ({email})")
         return True
-        
+
     except Exception as e:
         print(f"❌ Error enviando email de contacto: {e}")
         return False

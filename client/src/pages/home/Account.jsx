@@ -11,6 +11,23 @@ import './Account.css';
 import { useTheme } from '../../hooks/useTheme';
 
 export default function Account() {
+  // Maneja cambios en los inputs del perfil
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Maneja cambios en los inputs de la contraseña
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
   const location = useLocation();
   const flash = useFlash();
   const navigate = useNavigate();
@@ -24,6 +41,7 @@ export default function Account() {
     email: ''
   });
   const [profileLoading, setProfileLoading] = useState(false);
+  const [profileErrors, setProfileErrors] = useState({});
   
   // Estados para cambio de contraseña
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
@@ -84,48 +102,51 @@ export default function Account() {
     checkStatus();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handlePasswordChange = (e) => {
-    const { name, value } = e.target;
-    setPasswordData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    // Limpiar errores al escribir
-    if (passwordErrors[name]) {
-      setPasswordErrors(prev => ({ ...prev, [name]: '' }));
+  const validateProfile = () => {
+    const errors = {};
+    if (!formData.nombre || formData.nombre.trim().length === 0) {
+      errors.nombre = 'El nombre es obligatorio';
     }
+    if (!formData.email || formData.email.trim().length === 0) {
+      errors.email = 'El correo es obligatorio';
+    } else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(formData.email)) {
+      errors.email = 'Correo electrónico inválido';
+    }
+    setProfileErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSave = async () => {
+    if (!validateProfile()) return;
     setProfileLoading(true);
-    
+    setProfileErrors({});
     try {
+      const prevEmail = user?.email;
       const response = await updateUserProfileApi({
         nombre: formData.nombre,
         email: formData.email
       });
-      
       if (flash?.show) {
         flash.show('Perfil actualizado exitosamente', 'success', 3000);
       }
-      
       setIsEditing(false);
-      
-      // Si el email cambió, actualizar el token podría ser necesario
-      // Por ahora solo actualizamos el estado local
-      
+      // Si el email cambió, forzar logout y redirigir a login
+      if (prevEmail && prevEmail !== formData.email) {
+        localStorage.removeItem('access_token');
+        setTimeout(() => {
+          navigate('/signin', {
+            state: {
+              flash: 'Tu correo ha sido actualizado. Por favor, inicia sesión nuevamente.',
+              flashType: 'success'
+            }
+          });
+        }, 1000);
+        return;
+      }
+      // Si no cambió el email, recargar usuario si hook lo permite
+      if (typeof window !== 'undefined') window.location.reload();
     } catch (error) {
       console.error('Error actualizando perfil:', error);
-      
       if (error.message.includes('Sesión expirada')) {
         if (flash?.show) {
           flash.show('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'error', 4000);
@@ -133,9 +154,12 @@ export default function Account() {
         setTimeout(() => navigate('/signin'), 2000);
         return;
       }
-      
       if (flash?.show) {
         flash.show(error.message || 'Error al actualizar el perfil', 'error', 4000);
+      }
+      // Show backend errors inline
+      if (error.message && error.message.includes('email')) {
+        setProfileErrors(prev => ({ ...prev, email: error.message }));
       }
     } finally {
       setProfileLoading(false);
@@ -340,8 +364,8 @@ export default function Account() {
                 onChange={handleChange}
                 disabled={!isEditing}
                 className={isEditing ? 'editing' : ''}
+                error={profileErrors.nombre}
               />
-              
               <Input
                 label="Correo Electrónico"
                 type="email"
@@ -350,6 +374,7 @@ export default function Account() {
                 onChange={handleChange}
                 disabled={!isEditing}
                 className={isEditing ? 'editing' : ''}
+                error={profileErrors.email}
               />
 
               {isEditing && (

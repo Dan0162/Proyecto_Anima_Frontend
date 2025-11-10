@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from server.db.models.user import User
 from server.db.models.password_recovery import PasswordRecovery
 from server.services.email import send_verification_email, generate_verification_code
-from server.core.security import hash_password
+from server.core.security import hash_password, verify_password
 from server.schemas.password_recovery import (
     RequestPasswordRecovery,
     VerifyRecoveryCode,
@@ -121,14 +121,21 @@ def reset_password(db: Session, data: ResetPassword) -> PasswordRecoveryResponse
             detail="Código inválido o expirado"
         )
     
+    # Verificar que la nueva contraseña no sea igual a la anterior
+    if verify_password(data.new_password, user.password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La nueva contraseña no puede ser igual a la anterior"
+        )
+
     # Actualizar contraseña
     user.password = hash_password(data.new_password)
-    
+
     # Marcar código como usado
     recovery.is_used = True
-    
+
     db.commit()
-    
+
     return PasswordRecoveryResponse(
         message="Contraseña actualizada exitosamente",
         success=True

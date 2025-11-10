@@ -3,6 +3,8 @@ DROP TABLE IF EXISTS password_recovery CASCADE;
 DROP TABLE IF EXISTS emocion CASCADE;
 DROP TABLE IF EXISTS sesion CASCADE;
 DROP TABLE IF EXISTS cancion CASCADE;
+DROP TABLE IF EXISTS analisis CASCADE;
+DROP TABLE IF EXISTS analisis_cancion CASCADE;
 
 CREATE TABLE usuario (
     id SERIAL PRIMARY KEY,
@@ -13,7 +15,6 @@ CREATE TABLE usuario (
 
 CREATE TABLE emocion (
     id SERIAL PRIMARY KEY,
-    ID_usuario INTEGER NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
     nombre VARCHAR(50) NOT NULL,
     Fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -21,8 +22,16 @@ CREATE TABLE emocion (
 CREATE TABLE sesion(
     id SERIAL PRIMARY KEY,
     ID_usuario INTEGER NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
+    ID_emocion INTEGER REFERENCES emocion(id) ON DELETE SET NULL,
     Fecha_inicio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     Fecha_fin TIMESTAMP
+);
+
+CREATE TABLE analisis (
+    id SERIAL PRIMARY KEY,
+    ID_sesion INTEGER NOT NULL REFERENCES sesion(id) ON DELETE CASCADE,
+    ID_emocion INTEGER NOT NULL REFERENCES emocion(id) ON DELETE CASCADE,
+    Fecha_analisis TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE cancion (
@@ -31,6 +40,15 @@ CREATE TABLE cancion (
     titulo VARCHAR(100) NOT NULL,
     artista VARCHAR(100),
     album VARCHAR(100)
+);
+
+CREATE TABLE analisis_cancion (
+    ID_analisis INTEGER NOT NULL REFERENCES analisis(id) ON DELETE CASCADE,
+    ID_cancion INTEGER NOT NULL REFERENCES cancion(id) ON DELETE CASCADE,
+    orden_reproduccion INTEGER,
+    duracion_escuchada INTEGER,
+    fecha_reproduccion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (ID_analisis, ID_cancion)
 );
 
 -- Tabla para códigos de recuperación de contraseña
@@ -44,6 +62,10 @@ CREATE TABLE password_recovery (
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES usuario(id)
 );
 
--- Índice para búsquedas rápidas
+-- Índices para búsquedas rápidas
 CREATE INDEX idx_recovery_code ON password_recovery(code, user_id, is_used);
 CREATE INDEX idx_recovery_expires ON password_recovery(expires_at);
+CREATE INDEX idx_analisis_sesion ON analisis(ID_sesion);
+CREATE INDEX idx_analisis_emocion ON analisis(ID_emocion);
+CREATE INDEX idx_analisis_cancion_analisis ON analisis_cancion(ID_analisis);
+CREATE INDEX idx_analisis_cancion_cancion ON analisis_cancion(ID_cancion);

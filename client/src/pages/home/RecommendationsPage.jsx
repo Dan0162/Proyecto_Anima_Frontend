@@ -1,14 +1,32 @@
-import React, { useState, useEffect, useCallback } from 'react';
+
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/sidebar/Sidebar';
 import GlassCard from '../../components/layout/GlassCard';
 import './RecommendationsPage.css';
 import { useFlash } from '../../components/flash/FlashContext';
 
+// Preload album cover images for tracks
+const preloadImages = async (tracks) => {
+  const imagePromises = tracks
+    .map(track => track.album?.images?.[0]?.url)
+    .filter(Boolean)
+    .map(src => new Promise((resolve) => {
+      const img = new window.Image();
+      img.src = src;
+      img.onload = resolve;
+      img.onerror = resolve; // avoid blocking
+    }));
+  await Promise.all(imagePromises);
+};
+
 const RecommendationsPage = () => {
   const [selectedEmotion, setSelectedEmotion] = useState('happy');
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(10);
+  const [activeEmbedIndex, setActiveEmbedIndex] = useState(null);
+  const gridRef = useRef(null);
 
   const navigate = useNavigate();
   const flash = useFlash();
@@ -23,6 +41,8 @@ const RecommendationsPage = () => {
 
   const fetchRecommendations = useCallback(async () => {
     setLoading(true);
+    const MIN_LOADING_TIME = 2000; // ms
+    const start = Date.now();
     try {
       const protectedUrl = `http://127.0.0.1:8000/recommend?emotion=${selectedEmotion}`;
       const jwt = localStorage.getItem('spotify_jwt');
@@ -30,37 +50,54 @@ const RecommendationsPage = () => {
       if (jwt) {
         response = await fetch(protectedUrl, { headers: { 'Authorization': `Bearer ${jwt}` } });
       } else {
-        // No token -> treat as unauthorized and fall back to mockup
         response = { ok: false, status: 401 };
       }
 
       if (!response.ok) {
-        // If unauthorized, redirect to landing/homepage to force re-connect
         if (response.status === 401) {
-          // Clear any invalid spotify_jwt and show an informational banner
           localStorage.removeItem('spotify_jwt');
           try { flash?.show('Conecta tu cuenta de Spotify para ver esta página y obtener recomendaciones personalizadas.', 'info', 6000); } catch(_) {}
           return;
         }
-        const fallbackUrl = `http://127.0.0.1:8000/recommend/mockup?emotion=${selectedEmotion}`;
-        response = await fetch(fallbackUrl);
       }
 
       if (response.ok) {
         const data = await response.json();
-        setRecommendations(data.tracks || []);
-        console.log('✅ Recomendaciones cargadas:', data.tracks?.length || 0);
+        const tracks = data.tracks ? data.tracks.slice(0, 30) : [];
+        await preloadImages(tracks);
+        setRecommendations(tracks);
+        setVisibleCount(10);
+        setActiveEmbedIndex(null); // Reset embed when recommendations change
+        console.log('✅ Recomendaciones cargadas:', tracks.length);
       }
     } catch (error) {
       console.error('❌ Error:', error);
     } finally {
-      setLoading(false);
+      const elapsed = Date.now() - start;
+      if (elapsed < MIN_LOADING_TIME) {
+        setTimeout(() => setLoading(false), MIN_LOADING_TIME - elapsed);
+      } else {
+        setLoading(false);
+      }
     }
-  }, [selectedEmotion, navigate]);
+  }, [selectedEmotion, navigate, flash]);
 
   useEffect(() => {
     fetchRecommendations();
   }, [fetchRecommendations]);
+
+  // Lazy load more songs on scroll
+  useEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    const handleScroll = () => {
+      if (grid.scrollTop + grid.clientHeight >= grid.scrollHeight - 10) {
+        setVisibleCount((prev) => Math.min(prev + 10, 30, recommendations.length));
+      }
+    };
+    grid.addEventListener('scroll', handleScroll);
+    return () => grid.removeEventListener('scroll', handleScroll);
+  }, [recommendations]);
 
   const getEmotionColor = (emotion) => {
     const colors = {
@@ -178,22 +215,40 @@ const RecommendationsPage = () => {
               <p>Cargando recomendaciones...</p>
             </div>
           ) : recommendations.length > 0 ? (
-            <div className="tracks-grid">
-              {recommendations.slice(0, 12).map((track, index) => (
+            <div
+              className="tracks-grid"
+              ref={gridRef}
+              style={{ maxHeight: '60vh', overflowY: 'auto' }}
+            >
+              {recommendations.slice(0, visibleCount).map((track, index) => (
                 <div 
                   key={index}
                   className="track-item"
-                  onClick={() => window.open(track.external_urls?.spotify, '_blank')}
                 >
                   <div className="track-cover-container">
-                    {track.album?.images?.[0]?.url ? (
+                    {activeEmbedIndex === index ? (
+                      // Spotify embed only for active song
+                      <iframe
+                        key={track.uri || index}
+                        loading="lazy"
+                        src={`https://open.spotify.com/embed/track/${track.uri?.split(":").pop()}`}
+                        width="100%"
+                        height="80"
+                        frameBorder="0"
+                        allow="encrypted-media"
+                        title={track.name}
+                        style={{ borderRadius: '8px', minHeight: 80, background: '#181818' }}
+                      ></iframe>
+                    ) : track.album?.images?.[0]?.url ? (
                       <img 
                         src={track.album.images[0].url} 
                         alt={track.name}
                         className="track-cover"
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => setActiveEmbedIndex(index)}
                       />
                     ) : (
-                      <div className="track-cover-placeholder">
+                      <div className="track-cover-placeholder" onClick={() => setActiveEmbedIndex(index)} style={{ cursor: 'pointer' }}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M9 18V5l12-2v13"></path>
                           <circle cx="6" cy="18" r="3"></circle>
@@ -201,23 +256,40 @@ const RecommendationsPage = () => {
                         </svg>
                       </div>
                     )}
-                    <div 
-                      className="track-play-overlay"
-                      style={{ background: currentColors.gradient }}
-                    >
-                      <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8 5v14l11-7z"/>
-                      </svg>
-                    </div>
+                    {activeEmbedIndex !== index && (
+                      <div 
+                        className="track-play-overlay"
+                        style={{ background: currentColors.gradient, cursor: 'pointer' }}
+                        onClick={() => setActiveEmbedIndex(index)}
+                      >
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M8 5v14l11-7z"/>
+                        </svg>
+                      </div>
+                    )}
                   </div>
                   <div className="track-details">
                     <div className="track-title">{track.name}</div>
                     <div className="track-artist">
                       {track.artists?.map(a => a.name).join(', ') || 'Artista Desconocido'}
                     </div>
+                    <div style={{ marginTop: 4 }}>
+                      <button
+                        className="spotify-link-btn"
+                        style={{ background: currentColors.gradient, color: '#fff', border: 'none', borderRadius: 4, padding: '2px 8px', cursor: 'pointer', fontSize: 12 }}
+                        onClick={() => window.open(track.external_urls?.spotify, '_blank')}
+                      >
+                        Ver en Spotify
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
+              {visibleCount < recommendations.length && (
+                <div className="loading-more" style={{ textAlign: 'center', padding: '1rem', color: currentColors.primary }}>
+                  Cargando más canciones...
+                </div>
+              )}
             </div>
           ) : (
             <div className="no-recommendations">

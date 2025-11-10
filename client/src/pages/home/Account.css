@@ -71,10 +71,11 @@
   padding: 2.5rem 2rem;
   text-align: center;
   border: 2px solid rgba(255, 255, 255, 0.25);
-  position: sticky;
-  top: 2rem;
+  position: relative; /* ✅ Cambiado de sticky a relative */
+  top: auto;          /* ✅ Elimina cualquier desplazamiento */
   align-self: start;
 }
+
 
 .profile-avatar {
   width: 120px;
