@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/sidebar/Sidebar';
 import GlassCard from '../../components/layout/GlassCard';
@@ -16,42 +16,42 @@ const AnalysisDetailPage = () => {
   const [savingPlaylist, setSavingPlaylist] = useState(false);
   const [playlistSaved, setPlaylistSaved] = useState(false);
 
-  // Cargar detalles del análisis al montar
+  // Cargar detalles del análisis al montar o cuando cambia el ID
   useEffect(() => {
-    loadAnalysisDetails();
-  }, [analysisId]);
+    const fetchDetails = async () => {
+      try {
+        setLoading(true);
 
-  const loadAnalysisDetails = async () => {
-    try {
-      setLoading(true);
-      
-      // Obtener detalles del análisis
-      const analysisResponse = await fetch(`http://127.0.0.1:8000/v1/analytics/analysis/${analysisId}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        // Obtener detalles del análisis
+        const analysisResponse = await fetch(`http://127.0.0.1:8000/v1/analytics/analysis/${analysisId}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+          }
+        });
+
+        if (!analysisResponse.ok) {
+          throw new Error('Error al cargar detalles del análisis');
         }
-      });
 
-      if (!analysisResponse.ok) {
-        throw new Error('Error al cargar detalles del análisis');
+        const analysisData = await analysisResponse.json();
+        setAnalysis(analysisData);
+
+        // Obtener recomendaciones basadas en la emoción del análisis
+        await loadRecommendations(analysisData.emotion);
+
+      } catch (error) {
+        console.error('Error cargando análisis:', error);
+        if (flash?.show) {
+          flash.show('Error al cargar los detalles del análisis', 'error');
+        }
+        navigate('/home/history');
+      } finally {
+        setLoading(false);
       }
+    };
 
-      const analysisData = await analysisResponse.json();
-      setAnalysis(analysisData);
-
-      // Obtener recomendaciones basadas en la emoción del análisis
-      await loadRecommendations(analysisData.emotion);
-      
-    } catch (error) {
-      console.error('Error cargando análisis:', error);
-      if (flash?.show) {
-        flash.show('Error al cargar los detalles del análisis', 'error');
-      }
-      navigate('/home/history');
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchDetails();
+  }, [analysisId, flash, navigate]);
 
   const loadRecommendations = async (emotion) => {
     try {
