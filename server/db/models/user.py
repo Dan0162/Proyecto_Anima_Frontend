@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import relationship
 from server.db.base import Base
 
 class User(Base):
@@ -8,3 +9,5 @@ class User(Base):
     nombre = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     password = Column('contrasena', String, nullable=False)
+
+    sessions = relationship("Session", back_populates="user")

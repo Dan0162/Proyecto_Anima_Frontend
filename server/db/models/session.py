@@ -5,7 +5,7 @@ from server.db.base import Base
 class Session(Base):
     __tablename__ = "sesion"
     id = Column(Integer, primary_key=True, index=True)
-    ID_usuario = Column(Integer, ForeignKey("usuario.id", ondelete="CASCADE"), nullable=False)
+    id_usuario = Column(Integer, ForeignKey("usuario.id", ondelete="CASCADE"), nullable=False)
     fecha_inicio = Column(TIMESTAMP)
     fecha_fin = Column(TIMESTAMP, nullable=True)
 

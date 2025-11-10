@@ -280,6 +280,7 @@ export default function Account() {
   const handleLogout = async () => {
     try {
       await logoutApi();
+      // session_id is cleared in logoutApi
       navigate('/signin', {
         state: {
           flash: 'Sesión cerrada correctamente',
@@ -291,7 +292,7 @@ export default function Account() {
       // Navigate anyway even if API call fails
       navigate('/signin');
     }
-  };
+  }
 
   const handleConnectSpotify = () => {
     const state = Math.random().toString(36).substring(7);

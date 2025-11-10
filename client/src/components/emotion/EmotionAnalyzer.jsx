@@ -17,11 +17,21 @@ const EmotionAnalyzer = () => {
   const flash = useFlash();
   const navigate = useNavigate();
   
-  // Obtener el usuario autenticado actual
   const { user } = useCurrentUser();
-  
-  // Mostrar el nombre del usuario o un placeholder mientras carga
-  const displayName = user?.nombre || 'Usuario';
+
+  // Valor inicial inmediato desde localStorage
+  const [displayName, setDisplayName] = useState(() => {
+    return localStorage.getItem('user_name') || 'Usuario';
+  });
+
+  // cuando User se actualice desde el backend, sincroniza el valor
+  useEffect(() => {
+    if (user?.nombre) {
+      setDisplayName(user.nombre);
+      localStorage.setItem('user_name', user.nombre); // opcional: actualizar caché
+    }
+  }, [user]);
+
 
   const handleAnalyzeImage = useCallback(async (photoData) => {
     setIsAnalyzing(true);

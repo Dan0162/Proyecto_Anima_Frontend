@@ -127,6 +127,7 @@ export const handleApiError = (error) => {
 /**
  * Login and store tokens
  */
+
 export const loginApi = async (formData) => {
   try {
     const url = `${getBaseUrl()}/v1/auth/login`;
@@ -142,16 +143,23 @@ export const loginApi = async (formData) => {
     }
 
     const data = await response.json();
-    
+
     // Store tokens using token manager
     if (data.access_token) {
       tokenManager.setAccessToken(data.access_token, data.expires_in || 3600);
     }
-    
     if (data.refresh_token) {
       tokenManager.setRefreshToken(data.refresh_token);
     }
-    
+
+    // Store session_id and user_name in localStorage for later use
+    if (data.session_id) {
+      localStorage.setItem('session_id', data.session_id);
+    }
+    if (data.user_name) {
+      localStorage.setItem('user_name', data.user_name);
+    }
+
     return data;
   } catch (error) {
     if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
@@ -190,17 +198,26 @@ export const registerApi = async (formData) => {
 /**
  * Logout user
  */
+
 export const logoutApi = async () => {
   try {
-    // Optionally call backend logout endpoint to invalidate tokens
-    const url = `${getBaseUrl()}/v1/auth/logout`;
-    await authenticatedFetch(url, { method: 'POST' });
+    // Get session_id from localStorage
+    const session_id = localStorage.getItem('session_id');
+    if (session_id) {
+      const url = `${getBaseUrl()}/v1/auth/logout`;
+      await authenticatedFetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: Number(session_id) })
+      });
+    }
   } catch (error) {
     console.error('Logout API call failed:', error);
     // Continue with local logout even if API call fails
   } finally {
-    // Clear all tokens
+    // Clear all tokens and session_id
     tokenManager.clearAllTokens();
+    localStorage.removeItem('session_id');
   }
 };
 

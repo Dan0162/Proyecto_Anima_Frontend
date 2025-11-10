@@ -8,3 +8,4 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     session_id: int | None = None
+    user_name: str | None = None

@@ -55,24 +55,27 @@ def login_user(db: Session, user: UserLogin) -> TokenResponse:
             detail="Correo o contraseña invalida"
         )
     # Create a new session record
-    new_session = UserSession(ID_usuario=db_user.id, fecha_inicio=datetime.utcnow())
+    new_session = UserSession(id_usuario=db_user.id, fecha_inicio=datetime.utcnow())
     db.add(new_session)
     db.commit()
     db.refresh(new_session)
     session_id = new_session.id
     access_token = create_access_token(data={"sub": db_user.email, "session_id": session_id})
-    return TokenResponse(access_token=access_token, session_id=session_id)
+    return TokenResponse(access_token=access_token, session_id=session_id, user_name=db_user.nombre)
 
 
 def logout_user(db: Session, session_id: int) -> bool:
     session_record = db.query(UserSession).filter(UserSession.id == session_id).first()
+    print(f"[LOGOUT] Called for session_id={session_id}, found={bool(session_record)}")
     if not session_record:
+        print("[LOGOUT] Session not found!")
         raise HTTPException(status_code=404, detail="Session not found")
     if session_record.fecha_fin is not None:
-        # Already logged out
+        print(f"[LOGOUT] Session {session_id} already finished at {session_record.fecha_fin}")
         return False
     session_record.fecha_fin = datetime.utcnow()
     db.commit()
+    print(f"[LOGOUT] Session {session_id} updated with fecha_fin={session_record.fecha_fin}")
     return True
 
 

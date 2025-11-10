@@ -1,7 +1,9 @@
+
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LOGO_SRC } from '../../constants/assets';
 import { useTheme } from '../../hooks/useTheme';
+import { logoutApi } from '../../utils/enhancedApi';
 import './HomeNavbar.css';
 
 const HomeNavbar = () => {
@@ -9,8 +11,8 @@ const HomeNavbar = () => {
   const navigate = useNavigate();
   const { isDarkMode, toggleTheme } = useTheme();
 
-  const handleLogout = () => {
-    localStorage.removeItem('access_token');
+  const handleLogout = async () => {
+    await logoutApi();
     navigate('/signin', {
       state: {
         flash: 'Sesión cerrada correctamente',
