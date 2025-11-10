@@ -30,7 +30,7 @@ def init_database():
 
 def init_db_from_sql():
     """
-    Ejecuta el archivo server/schema.sql para inicializar la base de datos.
+    Ejecuta el archivo  server/schema.sql para inicializar la base de datos.
     """
     global engine
     if engine is None:
