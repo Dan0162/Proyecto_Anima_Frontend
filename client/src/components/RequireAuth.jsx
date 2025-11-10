@@ -16,19 +16,21 @@ export default function RequireAuth({ children }) {
         // Special case: If we're in the middle of a Spotify OAuth callback,
         // be more lenient with auth validation to prevent redirect loops
         const urlParams = new URLSearchParams(window.location.search);
-        const isSpotifyCallback = urlParams.has('state') && (urlParams.has('code') || urlParams.has('error'));
+        const isSpotifyCallbackRoute = location.pathname === '/home/spotify-callback';
+        const isSpotifyCallback = isSpotifyCallbackRoute && urlParams.has('state');
+        
+        // For Spotify callbacks, always allow through - don't check tokens
+        if (isSpotifyCallback) {
+          console.log('🎵 Spotify callback detected, allowing through without auth check');
+          setIsAuthenticated(true);
+          setIsChecking(false);
+          return;
+        }
         
         // Check if user has valid token
         const authenticated = tokenManager.isAuthenticated();
         
         if (authenticated) {
-          // For Spotify callbacks, skip backend validation to avoid race conditions
-          if (isSpotifyCallback) {
-            console.log('🎵 Spotify callback detected, skipping token validation');
-            setIsAuthenticated(true);
-            setIsChecking(false);
-            return;
-          }
           
           // Optionally verify token with backend
           try {
@@ -50,7 +52,7 @@ export default function RequireAuth({ children }) {
     };
 
     checkAuth();
-  }, []);
+  }, [location]);
 
   // Show loading state while checking authentication
   if (isChecking) {
