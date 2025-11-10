@@ -195,7 +195,7 @@ def save_analysis_result(
     db: Session = Depends(get_db)
 ):
     """
-    Guarda el resultado de un análisis de emoción
+    Guarda el resultado de un análisis de emoción (con protección contra duplicados)
     """
     user = get_current_user(authorization, db)
     
@@ -204,17 +204,35 @@ def save_analysis_result(
     if user.id not in MOCK_USER_ANALYSES:
         MOCK_USER_ANALYSES[user.id] = []
     
-    # Crear entrada de análisis
+    now = datetime.utcnow()
+    
+    # 🔒 PROTECCIÓN CONTRA DUPLICADOS
+    # Verificar si ya existe un análisis muy reciente (últimos 30 segundos)
+    recent_analyses = [
+        a for a in MOCK_USER_ANALYSES[user.id]
+        if isinstance(a.get("date"), datetime) and 
+           (now - a["date"]).total_seconds() < 30 and
+           a.get("emotion") == analysis_data.get("emotion") and
+           abs(a.get("confidence", 0) - analysis_data.get("confidence", 0)) < 0.01
+    ]
+    
+    if recent_analyses:
+        print(f"⚠️ Análisis duplicado detectado para usuario {user.id}, ignorando...")
+        return {"message": "Análisis ya fue guardado recientemente", "success": True}
+    
+    # Crear entrada de análisis con ID único basado en timestamp
     analysis_entry = {
-        "id": f"analysis_{len(MOCK_USER_ANALYSES[user.id]) + 1}",
+        "id": f"analysis_{user.id}_{int(now.timestamp() * 1000)}",
         "emotion": analysis_data.get("emotion"),
         "confidence": analysis_data.get("confidence"),
         "emotions_detected": analysis_data.get("emotions_detected", {}),
-        "date": datetime.utcnow(),
-        "day_of_week": datetime.utcnow().weekday()
+        "date": now,
+        "day_of_week": now.weekday()
     }
     
     MOCK_USER_ANALYSES[user.id].append(analysis_entry)
+    
+    print(f"✅ Análisis guardado para usuario {user.id}: {analysis_data.get('emotion')}")
     
     return {"message": "Análisis guardado exitosamente", "success": True}
 

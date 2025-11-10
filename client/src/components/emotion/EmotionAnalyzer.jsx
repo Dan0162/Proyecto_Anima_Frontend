@@ -5,8 +5,10 @@ import CameraCapture from './CameraCapture';
 import PhotoUpload from './PhotoUpload';
 import { LOGO_SRC } from '../../constants/assets';
 import { analyzeEmotionBase64 } from '../../utils/enhancedApi';
+import { saveAnalysisResult } from '../../utils/analyticsApi';
 import { useFlash } from '../flash/FlashContext';
 import { useCurrentUser } from '../../hooks/useAuth';
+import analysisSaveManager from '../../utils/analysisSaveManager'; // Nueva utilidad
 import './EmotionAnalyzer.css';
 
 const EmotionAnalyzer = () => {
@@ -14,27 +16,27 @@ const EmotionAnalyzer = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [spotifyConnected, setSpotifyConnected] = useState(false);
   
+  // 🆕 Ref para evitar múltiples guardados
+  const analysisProcessingRef = useRef(false);
+  
   const flash = useFlash();
   const navigate = useNavigate();
   
+  // Obtener el usuario autenticado actual
   const { user } = useCurrentUser();
-
-  // Valor inicial inmediato desde localStorage
-  const [displayName, setDisplayName] = useState(() => {
-    return localStorage.getItem('user_name') || 'Usuario';
-  });
-
-  // cuando User se actualice desde el backend, sincroniza el valor
-  useEffect(() => {
-    if (user?.nombre) {
-      setDisplayName(user.nombre);
-      localStorage.setItem('user_name', user.nombre); // opcional: actualizar caché
-    }
-  }, [user]);
-
+  
+  // Mostrar el nombre del usuario o un placeholder mientras carga
+  const displayName = user?.nombre || 'Usuario';
 
   const handleAnalyzeImage = useCallback(async (photoData) => {
+    // 🔒 Prevenir múltiples análisis concurrentes
+    if (analysisProcessingRef.current || isAnalyzing) {
+      console.log('⚠️ Análisis ya en progreso, ignorando...');
+      return;
+    }
+
     setIsAnalyzing(true);
+    analysisProcessingRef.current = true;
     
     try {
       // Check Spotify connection (OPTIONAL - only affects recommendations)
@@ -64,6 +66,21 @@ const EmotionAnalyzer = () => {
         console.log('🎯 Porcentajes de emociones:', result.emotions_detected);
       }
 
+      // 🆕 Guardar análisis usando el manager seguro
+      try {
+        await analysisSaveManager.saveAnalysisSafe(
+          {
+            emotion: result.emotion,
+            confidence: result.confidence,
+            emotions_detected: result.emotions_detected
+          },
+          saveAnalysisResult
+        );
+      } catch (saveError) {
+        console.error('❌ Error guardando análisis en historial:', saveError);
+        // No bloqueamos el flujo si falla el guardado
+      }
+
       // Show success message
       if (flash?.show) {
         const message = hasSpotify 
@@ -77,7 +94,8 @@ const EmotionAnalyzer = () => {
         state: { 
           result: result, 
           photo: photoData,
-          hasSpotify: hasSpotify
+          hasSpotify: hasSpotify,
+          alreadySaved: true // 🆕 Indicar que ya fue guardado
         } 
       });
       
@@ -103,6 +121,7 @@ const EmotionAnalyzer = () => {
       }
     } finally {
       setIsAnalyzing(false);
+      analysisProcessingRef.current = false;
       setMode(null);
     }
   }, [flash, navigate]);
@@ -231,7 +250,7 @@ const EmotionAnalyzer = () => {
                   <line x1="12" y1="8" x2="12.01" y2="8"></line>
                 </svg>
                 <p>
-                  � <strong>Conecta tu cuenta de Spotify</strong> para desbloquear el análisis de emociones y recibir recomendaciones musicales personalizadas.
+                  ℹ <strong>Conecta tu cuenta de Spotify</strong> para desbloquear el análisis de emociones y recibir recomendaciones musicales personalizadas.
                 </p>
               </div>
               <button
