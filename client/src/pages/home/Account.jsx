@@ -63,12 +63,18 @@ export default function Account() {
   useEffect(() => {
     try {
       if (location && location.state && location.state.flash && flash && flash.show) {
-        flash.show(location.state.flash, 'success', 4000);
+        const flashType = location.state.flashType || 'success';
+        flash.show(location.state.flash, flashType, 4000);
+        // Clear the flash from location state to prevent re-show on refresh
+        const cleanState = { ...location.state };
+        delete cleanState.flash;
+        delete cleanState.flashType;
+        navigate(location.pathname, { state: cleanState, replace: true });
       }
     } catch (e) {
       // ignore
     }
-  }, [location, flash]);
+  }, [location, flash, navigate]);
 
   useEffect(() => {
     if (user) {
@@ -112,7 +118,13 @@ export default function Account() {
     
 
     // Check immediately on mount
-    checkStatus();
+    // If we just returned from Spotify callback with state
+    if (location?.state?.spotifyConnected) {
+      setSpotifyConnected(true);
+      checkStatus();
+    } else {
+      checkStatus();
+    }
 
     // Check every 30 seconds to detect external disconnections
     intervalId = setInterval(checkStatus, 30000);
@@ -121,7 +133,7 @@ export default function Account() {
       mounted = false;
       if (intervalId) clearInterval(intervalId);
     };
-  }, []);
+  }, [location?.state?.spotifyConnected]);
 
   // Cargar estadísticas del perfil
     useEffect(() => {

@@ -26,20 +26,33 @@ function Navbar() {
 
   // Verificar autenticación basada en el token
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
+      // If we're processing Spotify callback, don't interfere with auth state
+      if (location.pathname === '/spotify-callback') {
+        return;
+      }
+
       const token = tokenManager.getAccessToken();
       const isExpired = tokenManager.isTokenExpired();
-      
-      // If token exists but is expired, clear it
+
+      // If token exists but is expired, try to refresh before clearing
       if (token && isExpired) {
-        console.log('🔒 Token expired, clearing authentication');
-        tokenManager.clearAllTokens();
-        setIsAuthenticated(false);
-      } else {
-        setIsAuthenticated(!!token);
+        try {
+          console.log('⚠️ Token expired or expiring soon, attempting refresh from navbar...');
+          await tokenManager.refreshAccessToken();
+          setIsAuthenticated(true);
+          return;
+        } catch (e) {
+          console.warn('🔒 Token refresh failed in navbar:', e?.message || e);
+          // Token manager may have already cleared tokens on specific errors
+          setIsAuthenticated(false);
+          return;
+        }
       }
+
+      setIsAuthenticated(!!token && !isExpired);
     };
-    
+
     // Initial check
     checkAuth();
     
@@ -50,7 +63,7 @@ function Navbar() {
 
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+  }, [location.pathname]);
 
   const handleLogoff = () => {
     // Clear all tokens using tokenManager

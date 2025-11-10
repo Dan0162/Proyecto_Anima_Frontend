@@ -35,7 +35,8 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Error cargando usuario:', error);
       // Si hay error, limpiar tokens y estado
-      tokenManager.clearAllTokens();
+      // Preserva spotify_jwt para no forzar reconexión de Spotify
+      tokenManager.clearAllTokens(true);
       setUser(null);
       setIsAuthenticated(false);
     } finally {
@@ -102,7 +103,7 @@ export const useCurrentUser = () => {
         setError(err.message);
         // Si el token es inválido, limpiarlo
         if (err.message.includes('Sesión expirada') || err.message.includes('NO_TOKEN')) {
-          tokenManager.clearAllTokens();
+          tokenManager.clearAllTokens(true);
         }
       } finally {
         setLoading(false);

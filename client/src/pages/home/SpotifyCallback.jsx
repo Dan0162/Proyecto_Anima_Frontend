@@ -33,7 +33,10 @@ const SpotifyCallback = () => {
       // Redirect to account page
       const dest = sessionStorage.getItem('return_to') || '/home/account';
       sessionStorage.removeItem('return_to');
-      navigate(dest, { replace: true });
+      // Small delay to ensure flash is displayed and storage writes commit
+      setTimeout(() => {
+        navigate(dest, { replace: true });
+      }, 100);
       return;
     }
 
@@ -56,6 +59,7 @@ const SpotifyCallback = () => {
 
           // Store the jwt for later API calls (frontend will send it as Authorization)
           localStorage.setItem('spotify_jwt', token);
+          console.log('✅ Spotify JWT stored successfully');
 
           if (show) {
             show('✅ Conectado a Spotify exitosamente', 'success', 4000);
@@ -72,8 +76,17 @@ const SpotifyCallback = () => {
             }
           } catch (_) {}
           
-          // Navigate immediately
-          navigate(dest, { replace: true });
+          // Add a small delay to ensure flash message is shown and storage is committed
+          setTimeout(() => {
+            navigate(dest, { 
+              replace: true,
+              state: { 
+                flash: '✅ Conectado a Spotify exitosamente',
+                flashType: 'success',
+                spotifyConnected: true
+              }
+            });
+          }, 100);
 
         } catch (err) {
           localStorage.removeItem('spotify_state');
@@ -84,7 +97,9 @@ const SpotifyCallback = () => {
           // Redirect to account page on error
           const dest = sessionStorage.getItem('return_to') || '/home/account';
           sessionStorage.removeItem('return_to');
-          navigate(dest, { replace: true });
+          setTimeout(() => {
+            navigate(dest, { replace: true });
+          }, 100);
         }
       })();
 
@@ -96,7 +111,9 @@ const SpotifyCallback = () => {
       processedRef.current = true;
       const dest = sessionStorage.getItem('return_to') || '/home/account';
       sessionStorage.removeItem('return_to');
-      navigate(dest, { replace: true });
+      setTimeout(() => {
+        navigate(dest, { replace: true });
+      }, 100);
     }
   }, [navigate, flash]);
 

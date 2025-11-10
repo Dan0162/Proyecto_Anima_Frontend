@@ -1,13 +1,40 @@
 import { render, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Navbar from '../navbar';
+import { ThemeProvider } from '../../contexts/ThemeContext';
 
 // Mock LOGO_SRC to avoid missing import during test
 jest.mock('../../constants/assets', () => ({ LOGO_SRC: '/logo.png' }));
 
+const renderWithProviders = (ui, { route = '/' } = {}) => {
+  return render(
+    <MemoryRouter initialEntries={[route]}>
+      <ThemeProvider>
+        {ui}
+      </ThemeProvider>
+    </MemoryRouter>
+  );
+};
+
+// Polyfill matchMedia for ThemeProvider
+beforeAll(() => {
+  if (!window.matchMedia) {
+    window.matchMedia = (query) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    });
+  }
+});
+
 describe('Navbar mobile interactions', () => {
   test('clicking backdrop closes menu', () => {
-  const { container, getByLabelText } = render(<MemoryRouter><Navbar /></MemoryRouter>);
+  const { container, getByLabelText } = renderWithProviders(<Navbar />);
     const burger = getByLabelText(/toggle navigation/i);
 
     // open menu
@@ -21,7 +48,7 @@ describe('Navbar mobile interactions', () => {
   });
 
   test('pressing Escape closes menu', () => {
-  const { container, getByLabelText } = render(<MemoryRouter><Navbar /></MemoryRouter>);
+  const { container, getByLabelText } = renderWithProviders(<Navbar />);
     const burger = getByLabelText(/toggle navigation/i);
 
     // open menu

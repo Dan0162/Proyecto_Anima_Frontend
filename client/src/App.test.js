@@ -1,9 +1,32 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import App from './App';
+import { ThemeProvider } from './contexts/ThemeContext';
 
-test('renders homepage heading', () => {
-  render(<MemoryRouter><App /></MemoryRouter>);
-  const heading = screen.getByText(/welcome to the landing page/i);
+// jsdom doesn't implement matchMedia; provide a minimal mock before tests run
+beforeAll(() => {
+  if (!window.matchMedia) {
+    window.matchMedia = (query) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => {}, // deprecated
+      removeListener: () => {}, // deprecated
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false
+    });
+  }
+});
+
+test('renders landing hero title', () => {
+  render(
+    <MemoryRouter>
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
+    </MemoryRouter>
+  );
+  const heading = screen.getByText(/Descubre tus emociones/i);
   expect(heading).toBeInTheDocument();
 });
