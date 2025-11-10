@@ -27,9 +27,9 @@ def request_password_recovery(db: Session, data: RequestPasswordRecovery) -> Pas
         )
     
     # Invalidar códigos anteriores no usados de este usuario
-    db.query(PasswordRecovery).filter(
-        PasswordRecovery.user_id == user.id,
-        PasswordRecovery.is_used == False
+        db.query(PasswordRecovery).filter(
+            PasswordRecovery.user_id == user.id,
+            PasswordRecovery.is_used == False
     ).update({"is_used": True})
     
     # Generar nuevo código
