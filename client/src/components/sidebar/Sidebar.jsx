@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useCurrentUser } from '../../hooks/useAuth';
+import { logoutApi } from '../../utils/enhancedApi';
 import './Sidebar.css';
 
 const Sidebar = () => {
@@ -16,11 +17,15 @@ const Sidebar = () => {
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
-  const handleLogout = () => {
-    // Limpiar localStorage y redirigir al login
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user_name'); // Por si acaso también existe esto
-    navigate('/signin');
+  const handleLogout = async () => {
+    try {
+      await logoutApi();
+      navigate('/signin');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Navigate anyway even if API call fails
+      navigate('/signin');
+    }
   };
 
   const menuItems = [

@@ -6,7 +6,7 @@ import Input from '../../components/ui/Input';
 import PasswordInput from '../../components/ui/PasswordInput';
 import { useCurrentUser } from '../../hooks/useAuth';
 import { useFlash } from '../../components/flash/FlashContext';
-import { updateUserProfileApi, changePasswordApi } from '../../utils/api';
+import { updateUserProfileApi, changePasswordApi, logoutApi } from '../../utils/enhancedApi';
 import './Account.css';
 import { useTheme } from '../../hooks/useTheme';
 
@@ -215,14 +215,20 @@ export default function Account() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    navigate('/signin', {
-      state: {
-        flash: 'Sesión cerrada correctamente',
-        flashType: 'success'
-      }
-    });
+  const handleLogout = async () => {
+    try {
+      await logoutApi();
+      navigate('/signin', {
+        state: {
+          flash: 'Sesión cerrada correctamente',
+          flashType: 'success'
+        }
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Navigate anyway even if API call fails
+      navigate('/signin');
+    }
   };
 
   const handleConnectSpotify = () => {

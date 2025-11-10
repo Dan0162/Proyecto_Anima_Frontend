@@ -4,7 +4,7 @@ import GlassCard from '../layout/GlassCard';
 import CameraCapture from './CameraCapture';
 import PhotoUpload from './PhotoUpload';
 import { LOGO_SRC } from '../../constants/assets';
-import { analyzeEmotionBase64 } from '../../utils/api';
+import { analyzeEmotionBase64 } from '../../utils/enhancedApi';
 import { useFlash } from '../flash/FlashContext';
 import { useCurrentUser } from '../../hooks/useAuth';
 import './EmotionAnalyzer.css';

@@ -4,7 +4,7 @@ import SignUpForm from '../../components/auth/SignUpForm';
 import './AuthPage.css';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useApi } from '../../hooks/useApi';
-import { registerApi } from '../../utils/api';
+import { registerApi } from '../../utils/enhancedApi';
 import { useFlash } from '../../components/flash/FlashContext';
 import GlassCard from '../../components/layout/GlassCard';
 

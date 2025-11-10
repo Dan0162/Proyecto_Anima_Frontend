@@ -1,5 +1,6 @@
 import { useState, useEffect, createContext, useContext } from 'react';
-import { getCurrentUserApi, clearCurrentUserCache } from '../utils/api';
+import { getCurrentUserApi, clearCurrentUserCache, logoutApi } from '../utils/enhancedApi';
+import tokenManager from '../utils/tokenManager';
 
 // Crear contexto de autenticación
 const AuthContext = createContext();
@@ -22,7 +23,7 @@ export const AuthProvider = ({ children }) => {
   // Función para cargar el usuario actual
   const loadUser = async () => {
     try {
-      const token = localStorage.getItem('access_token');
+      const token = tokenManager.getAccessToken();
       if (!token) {
         setLoading(false);
         return;
@@ -33,8 +34,8 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
     } catch (error) {
       console.error('Error cargando usuario:', error);
-      // Si hay error, limpiar token y estado
-      localStorage.removeItem('access_token');
+      // Si hay error, limpiar tokens y estado
+      tokenManager.clearAllTokens();
       setUser(null);
       setIsAuthenticated(false);
     } finally {
@@ -44,15 +45,19 @@ export const AuthProvider = ({ children }) => {
 
   // Función para hacer login
   const login = (userData, token) => {
-    localStorage.setItem('access_token', token);
+    tokenManager.setAccessToken(token);
     clearCurrentUserCache();
     setUser(userData);
     setIsAuthenticated(true);
   };
 
   // Función para hacer logout
-  const logout = () => {
-    localStorage.removeItem('access_token');
+  const logout = async () => {
+    try {
+      await logoutApi();
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
     clearCurrentUserCache();
     setUser(null);
     setIsAuthenticated(false);
@@ -84,7 +89,7 @@ export const useCurrentUser = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const token = localStorage.getItem('access_token');
+        const token = tokenManager.getAccessToken();
         if (!token) {
           setLoading(false);
           return;
@@ -96,8 +101,8 @@ export const useCurrentUser = () => {
         console.error('Error obteniendo usuario:', err);
         setError(err.message);
         // Si el token es inválido, limpiarlo
-        if (err.message.includes('Sesión expirada')) {
-          localStorage.removeItem('access_token');
+        if (err.message.includes('Sesión expirada') || err.message.includes('NO_TOKEN')) {
+          tokenManager.clearAllTokens();
         }
       } finally {
         setLoading(false);
