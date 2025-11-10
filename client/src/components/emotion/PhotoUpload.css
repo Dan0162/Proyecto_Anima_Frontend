@@ -396,3 +396,32 @@
     min-height: 240px;
   }
 }
+
+/* ============================================
+   DARK MODE
+   ============================================ */
+
+body.dark-mode .upload-title,
+body.dark-mode .dropzone-title {
+  color: var(--text-primary);
+}
+
+body.dark-mode .dropzone-subtitle,
+body.dark-mode .dropzone-hint,
+body.dark-mode .file-name {
+  color: var(--text-secondary);
+}
+
+body.dark-mode .upload-dropzone {
+  background: rgba(30, 30, 50, 0.3);
+  border-color: rgba(51, 153, 255, 0.4);
+}
+
+body.dark-mode .upload-dropzone:hover {
+  background: rgba(30, 30, 50, 0.4);
+  border-color: rgba(51, 153, 255, 0.5);
+}
+
+body.dark-mode .file-size {
+  color: var(--text-secondary);
+}

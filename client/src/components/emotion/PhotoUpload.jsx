@@ -12,6 +12,9 @@ const PhotoUpload = ({ onUpload, onCancel, spotifyConnected = true }) => {
   
   const fileInputRef = useRef(null);
 
+  // Note: spotifyConnected prop is no longer used to block functionality
+  // It's kept for backward compatibility but doesn't affect behavior
+
   const validateFile = (file) => {
     // Validar tipo de archivo
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
@@ -72,16 +75,6 @@ const PhotoUpload = ({ onUpload, onCancel, spotifyConnected = true }) => {
   };
 
   const openFileDialog = () => {
-    if (!spotifyConnected) {
-      // Redirect to Spotify connect and persist intent
-      try {
-        sessionStorage.setItem('return_to', '/home/analyze');
-      } catch (_) {}
-      const state = Math.random().toString(36).substring(7);
-      try { localStorage.setItem('spotify_state', state); } catch (_) {}
-      window.location.href = `http://127.0.0.1:8000/v1/auth/spotify?state=${state}`;
-      return;
-    }
     fileInputRef.current?.click();
   };
 
@@ -96,40 +89,8 @@ const PhotoUpload = ({ onUpload, onCancel, spotifyConnected = true }) => {
 
   const confirmUpload = async () => {
     if (!previewUrl) return;
-    try {
-      // Check Spotify connection status using server-issued JWT
-      const jwt = localStorage.getItem('spotify_jwt');
-      let connected = false;
-      if (!jwt) {
-        // Not connected
-        connected = false;
-      } else {
-        const res = await fetch('http://127.0.0.1:8000/v1/auth/spotify/status', {
-          headers: {
-            'Authorization': `Bearer ${jwt}`
-          }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          connected = !!data.connected;
-        }
-      }
-      if (!connected) {
-        // Persist pending analyze data and send user to connect prompt
-        try {
-          sessionStorage.setItem('pending_analyze_photo', previewUrl);
-          sessionStorage.setItem('return_to', '/home/analyze');
-          sessionStorage.setItem('connect_reason', 'analyze');
-        } catch (_) {}
-        navigate('/home/spotify-connect');
-        return;
-      }
-      // If connected, proceed with upload/analyze
-      onUpload(previewUrl);
-    } catch (e) {
-      // Fail safe: continue upload
-      onUpload(previewUrl);
-    }
+    // Simply proceed with upload - Spotify check moved to parent component
+    onUpload(previewUrl);
   };
 
   return (
@@ -167,10 +128,10 @@ const PhotoUpload = ({ onUpload, onCancel, spotifyConnected = true }) => {
           ) : (
             // Drop Zone
             <div
-              className={`upload-dropzone glass ${isDragging ? 'dragging' : ''} ${!spotifyConnected ? 'disabled' : ''}`}
-              onDragOver={spotifyConnected ? handleDragOver : (e) => { e.preventDefault(); }}
+              className={`upload-dropzone glass ${isDragging ? 'dragging' : ''}`}
+              onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
-              onDrop={spotifyConnected ? handleDrop : (e) => { e.preventDefault(); }}
+              onDrop={handleDrop}
               onClick={openFileDialog}
             >
               <div className="dropzone-icon">
@@ -248,9 +209,8 @@ const PhotoUpload = ({ onUpload, onCancel, spotifyConnected = true }) => {
                 Cambiar foto
               </button>
               <button 
-                className={`upload-button primary glass-lilac ${!spotifyConnected ? 'disabled' : ''}`}
+                className="upload-button primary glass-lilac"
                 onClick={confirmUpload}
-                aria-disabled={!spotifyConnected}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="20 6 9 17 4 12"></polyline>
@@ -260,9 +220,8 @@ const PhotoUpload = ({ onUpload, onCancel, spotifyConnected = true }) => {
             </>
           ) : (
             <button 
-              className={`upload-button browse glass-pink ${!spotifyConnected ? 'disabled' : ''}`}
+              className="upload-button browse glass-pink"
               onClick={openFileDialog}
-              aria-disabled={!spotifyConnected}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>

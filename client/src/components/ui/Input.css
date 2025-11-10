@@ -75,3 +75,35 @@
   cursor: not-allowed;
   opacity: 0.7;
 }
+/* ============================================
+   DARK MODE
+   ============================================ */
+
+body.dark-mode .input-label {
+  color: var(--text-primary);
+}
+
+body.dark-mode .input {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(155, 156, 245, 0.3);
+  color: var(--text-primary);
+}
+
+body.dark-mode .input:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--lilac-dark);
+  box-shadow: 0 0 0 3px rgba(155, 156, 245, 0.2);
+}
+
+body.dark-mode .input--error {
+  border-color: #ff9999;
+}
+
+body.dark-mode .input-error {
+  color: #ffb3b3;
+}
+
+body.dark-mode .input:disabled {
+  background-color: rgba(255, 255, 255, 0.02);
+  color: var(--text-secondary);
+}

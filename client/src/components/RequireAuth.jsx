@@ -13,10 +13,23 @@ export default function RequireAuth({ children }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        // Special case: If we're in the middle of a Spotify OAuth callback,
+        // be more lenient with auth validation to prevent redirect loops
+        const urlParams = new URLSearchParams(window.location.search);
+        const isSpotifyCallback = urlParams.has('state') && (urlParams.has('code') || urlParams.has('error'));
+        
         // Check if user has valid token
         const authenticated = tokenManager.isAuthenticated();
         
         if (authenticated) {
+          // For Spotify callbacks, skip backend validation to avoid race conditions
+          if (isSpotifyCallback) {
+            console.log('🎵 Spotify callback detected, skipping token validation');
+            setIsAuthenticated(true);
+            setIsChecking(false);
+            return;
+          }
+          
           // Optionally verify token with backend
           try {
             await tokenManager.getValidAccessToken();

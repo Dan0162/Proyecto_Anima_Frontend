@@ -328,3 +328,34 @@ body.dark-mode .sidebar-item:hover {
 body.dark-mode .sidebar-item.active {
   color: #ffffff;
 }
+/* ============================================
+   THEME TOGGLE ACCESSIBILITY
+   ============================================ */
+
+/* Focus styles for keyboard navigation */
+.sidebar-item.theme-toggle:focus {
+  outline: 2px solid var(--lilac-dark);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(155, 156, 245, 0.3);
+}
+
+body.dark-mode .sidebar-item.theme-toggle:focus {
+  outline-color: var(--lilac-dark);
+  box-shadow: 0 0 0 4px rgba(155, 156, 245, 0.4);
+}
+
+/* Ensure focus is visible for keyboard users */
+.sidebar-item.theme-toggle:focus-visible {
+  outline: 2px solid var(--lilac-dark);
+  outline-offset: 2px;
+}
+
+/* Hover effect for theme toggle */
+.sidebar-item.theme-toggle:hover {
+  background: rgba(155, 156, 245, 0.2);
+  transform: translateX(4px);
+}
+
+body.dark-mode .sidebar-item.theme-toggle:hover {
+  background: rgba(155, 156, 245, 0.25);
+}

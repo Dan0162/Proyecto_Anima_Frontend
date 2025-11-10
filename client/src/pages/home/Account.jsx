@@ -8,7 +8,6 @@ import { useCurrentUser } from '../../hooks/useAuth';
 import { useFlash } from '../../components/flash/FlashContext';
 import { updateUserProfileApi, changePasswordApi, logoutApi } from '../../utils/enhancedApi';
 import './Account.css';
-import { useTheme } from '../../hooks/useTheme';
 
 export default function Account() {
   // Maneja cambios en los inputs del perfil
@@ -32,7 +31,6 @@ export default function Account() {
   const flash = useFlash();
   const navigate = useNavigate();
   const { user, loading: userLoading } = useCurrentUser();
-  const { isDarkMode, toggleTheme } = useTheme();
   
   // Estados para edición de perfil
   const [isEditing, setIsEditing] = useState(false);
@@ -75,13 +73,16 @@ export default function Account() {
     }
   }, [user]);
 
-  // Fetch Spotify connection status
+  // Fetch Spotify connection status - check periodically to detect external changes
   useEffect(() => {
+    let mounted = true;
+    let intervalId;
+
     const checkStatus = async () => {
       try {
         const jwt = localStorage.getItem('spotify_jwt');
         if (!jwt) {
-          setSpotifyConnected(false);
+          if (mounted) setSpotifyConnected(false);
           return;
         }
         const res = await fetch('http://127.0.0.1:8000/v1/auth/spotify/status', {
@@ -89,17 +90,29 @@ export default function Account() {
         });
         if (res.ok) {
           const data = await res.json();
-          setSpotifyConnected(!!data.connected);
+          if (mounted) setSpotifyConnected(!!data.connected);
         } else if (res.status === 401) {
           // Invalid token: remove and force re-connect
-          localStorage.removeItem('spotify_jwt');
-          setSpotifyConnected(false);
+          if (mounted) {
+            localStorage.removeItem('spotify_jwt');
+            setSpotifyConnected(false);
+          }
         }
       } catch (e) {
         // ignore
       }
     };
+
+    // Check immediately on mount
     checkStatus();
+
+    // Check every 30 seconds to detect external disconnections
+    intervalId = setInterval(checkStatus, 30000);
+
+    return () => {
+      mounted = false;
+      if (intervalId) clearInterval(intervalId);
+    };
   }, []);
 
   const validateProfile = () => {
@@ -258,6 +271,14 @@ export default function Account() {
   const handleConnectSpotify = () => {
     const state = Math.random().toString(36).substring(7);
     localStorage.setItem('spotify_state', state);
+    
+    // Save current location to return here after Spotify auth
+    try {
+      sessionStorage.setItem('return_to', '/home/account');
+    } catch (e) {
+      console.warn('Could not save return path:', e);
+    }
+    
     window.location.href = `http://127.0.0.1:8000/v1/auth/spotify?state=${state}`;
   };
 
@@ -395,38 +416,6 @@ export default function Account() {
                   </button>
                 </div>
               )}
-            </div>
-          </GlassCard>
-
-          {/* Tarjeta de configuración */}
-          <GlassCard variant="blue" className="settings-card">
-            <h3 className="card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M12 1v6m0 6v6m10.66-9.5l-5.2 3m-5.2 3l-5.2 3M1.34 14.5l5.2-3m5.2-3l5.2-3"></path>
-              </svg>
-              Preferencias
-            </h3>
-
-            <div className="settings-list">
-              {/* ÚNICA OPCIÓN: Modo Oscuro */}
-              <div className="setting-item">
-                <div className="setting-info">
-                  <div className="setting-name">
-                    {isDarkMode ? '🌙 Modo Oscuro' : '☀️ Modo Claro'}
-                  </div>
-                  <div className="setting-desc">
-                  {isDarkMode 
-                    ? 'Tema oscuro activado para reducir fatiga visual' 
-                    : 'Activa el tema oscuro'
-                  }
-                  </div>
-                  <label className="toggle-switch">
-                    <input type="checkbox" checked={isDarkMode} onChange={toggleTheme} />
-                    <span className="toggle-slider"></span>
-                  </label>
-                </div>
-              </div>
             </div>
           </GlassCard>
 

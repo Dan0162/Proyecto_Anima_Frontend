@@ -126,3 +126,34 @@
   width: 18px;
   height: 18px;
 }
+/* ============================================
+   DARK MODE
+   ============================================ */
+
+body.dark-mode .auth-form {
+  background: linear-gradient(135deg,
+    rgba(30, 30, 50, 0.4) 0%,
+    rgba(20, 20, 40, 0.3) 100%);
+  border-color: rgba(155, 156, 245, 0.3);
+}
+
+body.dark-mode .auth-title {
+  color: var(--text-primary);
+}
+
+body.dark-mode .auth-subtitle {
+  color: var(--text-secondary);
+}
+
+body.dark-mode .form-error {
+  background-color: rgba(229, 62, 62, 0.2);
+  color: #ffb3b3;
+}
+
+body.dark-mode .auth-alternate {
+  color: var(--text-secondary);
+}
+
+body.dark-mode .auth-alternate a {
+  color: var(--lilac-dark);
+}

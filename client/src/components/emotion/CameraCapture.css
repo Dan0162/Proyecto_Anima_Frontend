@@ -287,3 +287,25 @@
     height: 240px;
   }
 }
+
+/* ============================================
+   DARK MODE
+   ============================================ */
+
+body.dark-mode .camera-title,
+body.dark-mode .loading-container p {
+  color: var(--text-primary);
+}
+
+body.dark-mode .camera-instructions {
+  background: rgba(30, 30, 50, 0.5);
+  color: var(--text-secondary);
+}
+
+body.dark-mode .camera-error p {
+  color: #ffb3b3;
+}
+
+body.dark-mode .face-guide {
+  border-color: rgba(155, 156, 245, 0.6);
+}

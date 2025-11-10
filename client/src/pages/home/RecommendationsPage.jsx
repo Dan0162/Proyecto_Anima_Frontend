@@ -26,6 +26,7 @@ const RecommendationsPage = () => {
   const [visibleCount, setVisibleCount] = useState(10);
   const [activeEmbedIndex, setActiveEmbedIndex] = useState(null);
   const gridRef = useRef(null);
+  const hasShownFlashRef = useRef(false);
 
   const flash = useFlash();
 
@@ -38,23 +39,35 @@ const RecommendationsPage = () => {
   ];
 
   const fetchRecommendations = useCallback(async () => {
+    const jwt = localStorage.getItem('spotify_jwt');
+    if (!jwt) {
+      // No Spotify token - don't attempt to fetch
+      setLoading(false);
+      if (!hasShownFlashRef.current) {
+        hasShownFlashRef.current = true;
+        try { 
+          flash?.show('Conecta tu cuenta de Spotify para ver esta página y obtener recomendaciones personalizadas.', 'info', 6000); 
+        } catch(_) {}
+      }
+      return;
+    }
+
     setLoading(true);
     const MIN_LOADING_TIME = 2000; // ms
     const start = Date.now();
     try {
       const protectedUrl = `http://127.0.0.1:8000/recommend?emotion=${selectedEmotion}`;
-      const jwt = localStorage.getItem('spotify_jwt');
-      let response;
-      if (jwt) {
-        response = await fetch(protectedUrl, { headers: { 'Authorization': `Bearer ${jwt}` } });
-      } else {
-        response = { ok: false, status: 401 };
-      }
+      const response = await fetch(protectedUrl, { headers: { 'Authorization': `Bearer ${jwt}` } });
 
       if (!response.ok) {
         if (response.status === 401) {
           localStorage.removeItem('spotify_jwt');
-          try { flash?.show('Conecta tu cuenta de Spotify para ver esta página y obtener recomendaciones personalizadas.', 'info', 6000); } catch(_) {}
+          if (!hasShownFlashRef.current) {
+            hasShownFlashRef.current = true;
+            try { 
+              flash?.show('Conecta tu cuenta de Spotify para ver esta página y obtener recomendaciones personalizadas.', 'info', 6000); 
+            } catch(_) {}
+          }
           return;
         }
       }
@@ -78,7 +91,7 @@ const RecommendationsPage = () => {
         setLoading(false);
       }
     }
-  }, [selectedEmotion, flash]); // navigate is stable, doesn't need to be in deps
+  }, [selectedEmotion, flash]);
 
   useEffect(() => {
     fetchRecommendations();

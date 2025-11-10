@@ -373,3 +373,56 @@
     font-size: 1.125rem;
   }
 }
+/* ============================================
+   DARK MODE
+   ============================================ */
+
+body.dark-mode .landing-title,
+body.dark-mode .feature-title,
+body.dark-mode .section-title {
+  color: var(--text-primary);
+}
+
+body.dark-mode .landing-subtitle,
+body.dark-mode .feature-description,
+body.dark-mode .stat-label,
+body.dark-mode .step-item p {
+  color: var(--text-secondary);
+}
+
+body.dark-mode .landing-highlight {
+  background: linear-gradient(135deg, 
+    var(--lilac-dark) 0%, 
+    var(--pink-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+body.dark-mode .feature-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(155, 156, 245, 0.3);
+}
+
+body.dark-mode .feature-card:hover {
+  background: rgba(155, 156, 245, 0.15);
+  border-color: rgba(155, 156, 245, 0.4);
+}
+
+body.dark-mode .feature-icon {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .feature-icon svg {
+  color: var(--text-primary);
+}
+
+body.dark-mode .step-item h3 {
+  color: var(--text-primary);
+}
+
+body.dark-mode .step-number {
+  background: linear-gradient(135deg, 
+    var(--lilac-dark) 0%, 
+    var(--pink-dark) 100%);
+}

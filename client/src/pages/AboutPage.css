@@ -154,3 +154,23 @@
     grid-template-columns: 1fr;
   }
 }
+/* ============================================
+   DARK MODE
+   ============================================ */
+
+body.dark-mode .about-title,
+body.dark-mode .about-section h2,
+body.dark-mode .about-values h2,
+body.dark-mode .value-item h3 {
+  color: var(--text-primary);
+}
+
+body.dark-mode .about-subtitle,
+body.dark-mode .about-section p,
+body.dark-mode .value-item p {
+  color: var(--text-secondary);
+}
+
+body.dark-mode .section-icon svg {
+  color: var(--text-primary);
+}

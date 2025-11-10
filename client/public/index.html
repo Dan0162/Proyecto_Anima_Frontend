@@ -25,6 +25,19 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>Anima</title>
+    <!-- Apply dark mode immediately on page load to prevent flash -->
+    <script>
+      (function() {
+        try {
+          const darkMode = localStorage.getItem('darkMode');
+          if (darkMode === 'true') {
+            document.body.classList.add('dark-mode');
+          }
+        } catch (e) {
+          console.warn('Could not restore theme:', e);
+        }
+      })();
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

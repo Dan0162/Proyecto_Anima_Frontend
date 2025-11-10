@@ -63,7 +63,7 @@ const CameraCapture = ({ onCapture, onCancel }) => {
   };
 
   const stopCamera = () => {
-    console.log('🛑 Deteniendo cámara');
+    console.log('🛑 Deteniendo cámara inmediatamente');
     
     if (stream) {
       stream.getTracks().forEach(track => {
@@ -76,6 +76,7 @@ const CameraCapture = ({ onCapture, onCancel }) => {
     if (videoRef.current) {
       videoRef.current.srcObject = null;
       videoRef.current.pause();
+      videoRef.current.load(); // Forzar la liberación del recurso
     }
   };
 
@@ -127,7 +128,10 @@ const CameraCapture = ({ onCapture, onCancel }) => {
 
   const confirmPhoto = () => {
     if (capturedPhoto) {
-      console.log('✅ Foto confirmada');
+      console.log('✅ Foto confirmada - Deteniendo cámara inmediatamente');
+      // Detener la cámara ANTES de llamar al callback
+      stopCamera();
+      // Llamar al callback después de detener
       onCapture(capturedPhoto);
     }
   };

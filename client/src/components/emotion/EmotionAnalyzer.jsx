@@ -27,45 +27,23 @@ const EmotionAnalyzer = () => {
     setIsAnalyzing(true);
     
     try {
-      // Ensure Spotify is connected before analyzing
+      // Check Spotify connection (OPTIONAL - only affects recommendations)
+      let hasSpotify = false;
       try {
-        // Prefer Authorization header with server-signed spotify_jwt
         const jwt = localStorage.getItem('spotify_jwt');
-        if (!jwt) {
-          sessionStorage.setItem('pending_analyze_photo', photoData);
-          sessionStorage.setItem('return_to', '/home/analyze');
-          sessionStorage.setItem('connect_reason', 'analyze');
-          setIsAnalyzing(false);
-          setMode(null);
-          navigate('/home/spotify-connect');
-          return;
-        }
-
-        const res = await fetch('http://127.0.0.1:8000/v1/auth/spotify/status', {
-          headers: { 'Authorization': `Bearer ${jwt}` }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (!data.connected) {
-            sessionStorage.setItem('pending_analyze_photo', photoData);
-            sessionStorage.setItem('return_to', '/home/analyze');
-            sessionStorage.setItem('connect_reason', 'analyze');
-            setIsAnalyzing(false);
-            setMode(null);
-            navigate('/home/spotify-connect');
-            return;
+        if (jwt) {
+          const res = await fetch('http://127.0.0.1:8000/v1/auth/spotify/status', {
+            headers: { 'Authorization': `Bearer ${jwt}` }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            hasSpotify = !!data.connected;
           }
-        } else {
-          // If token invalid, force reconnect
-          sessionStorage.setItem('pending_analyze_photo', photoData);
-          sessionStorage.setItem('return_to', '/home/analyze');
-          sessionStorage.setItem('connect_reason', 'analyze');
-          setIsAnalyzing(false);
-          setMode(null);
-          navigate('/home/spotify-connect');
-          return;
         }
-      } catch (_) {}
+      } catch (_) {
+        // Spotify check failed, but continue without it
+        console.log('ℹ️ Spotify no disponible - continuando sin recomendaciones musicales');
+      }
 
       console.log('Enviando imagen al backend para análisis...');
       
@@ -75,21 +53,23 @@ const EmotionAnalyzer = () => {
       if (result && result.emotions_detected) {
         console.log('🎯 Porcentajes de emociones:', result.emotions_detected);
       }
-  // analysis result handled via navigation state (no local state required)
-      
-      if (flash?.show) {  
-        flash.show('¡Análisis completado con éxito!', 'success', 3000);
+
+      // Show success message
+      if (flash?.show) {
+        const message = hasSpotify 
+          ? '¡Análisis completado con éxito!' 
+          : '¡Análisis completado! Conecta Spotify para obtener recomendaciones musicales.';
+        flash.show(message, 'success', 3000);
       }
       
-      // ⭐ NUEVA LÍNEA: Navegar a página de resultados
+      // Navigate to results page
       navigate('/home/results', { 
         state: { 
           result: result, 
-          photo: photoData 
+          photo: photoData,
+          hasSpotify: hasSpotify
         } 
       });
-      // TODO: Navegar a página de resultados
-      // navigate('/home/results', { state: { result, photo: photoData } });
       
     } catch (error) {
       console.error('❌ Error al analizar imagen:', error);
@@ -135,10 +115,12 @@ const EmotionAnalyzer = () => {
     } catch (_) {}
   }, [handleAnalyzeImage]);
 
-  // Check Spotify connection status for enabling camera
+  // Check Spotify connection status - runs periodically to detect external disconnections
   useEffect(() => {
     let mounted = true;
-    (async () => {
+    let intervalId;
+
+    const checkSpotifyStatus = async () => {
       try {
         const jwt = localStorage.getItem('spotify_jwt');
         if (!jwt) {
@@ -152,13 +134,27 @@ const EmotionAnalyzer = () => {
           const data = await res.json();
           if (mounted) setSpotifyConnected(!!data.connected);
         } else {
-          if (mounted) setSpotifyConnected(false);
+          // Token invalid or expired
+          if (mounted) {
+            setSpotifyConnected(false);
+            localStorage.removeItem('spotify_jwt');
+          }
         }
       } catch (e) {
         if (mounted) setSpotifyConnected(false);
       }
-    })();
-    return () => { mounted = false; };
+    };
+
+    // Check immediately on mount
+    checkSpotifyStatus();
+
+    // Check every 30 seconds to detect external disconnections
+    intervalId = setInterval(checkSpotifyStatus, 30000);
+
+    return () => {
+      mounted = false;
+      if (intervalId) clearInterval(intervalId);
+    };
   }, []);
 
   const handleCameraCapture = (photoData) => {
@@ -215,21 +211,37 @@ const EmotionAnalyzer = () => {
             </p>
           </div>
 
-          {/* Banner prompting Spotify connect when not connected */}
+          {/* Mensaje informativo de Spotify (NO bloqueante) */}
           {!spotifyConnected && (
-            <div className="spotify-connect-banner">
-              <div className="banner-text">Conéctate a Spotify para obtener recomendaciones personalizadas y habilitar el uso de la cámara.</div>
-              <div>
-                <button
-                  className="connect-spotify-btn"
-                  onClick={() => {
-                    const state = Math.random().toString(36).substring(7);
-                    try { localStorage.setItem('spotify_state', state); } catch (_) {}
-                    // Redirect to backend to start OAuth flow
-                    window.location.href = `http://127.0.0.1:8000/v1/auth/spotify?state=${state}`;
-                  }}
-                >Conectar a Spotify</button>
+            <div className="spotify-info-message">
+              <div className="message-content">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <p>
+                  � <strong>Conecta tu cuenta de Spotify</strong> para desbloquear el análisis de emociones y recibir recomendaciones musicales personalizadas.
+                </p>
               </div>
+              <button
+                className="connect-spotify-btn"
+                onClick={() => {
+                  const state = Math.random().toString(36).substring(7);
+                  try {
+                    localStorage.setItem('spotify_state', state);
+                    sessionStorage.setItem('return_to', '/home/analyze');
+                  } catch (e) {
+                    console.warn('Could not save state:', e);
+                  }
+                  window.location.href = `http://127.0.0.1:8000/v1/auth/spotify?state=${state}`;
+                }}
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                  <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+                </svg>
+                Conectar
+              </button>
             </div>
           )}
 
@@ -238,16 +250,8 @@ const EmotionAnalyzer = () => {
             <GlassCard 
               variant="default"
               className={`option-card ${!spotifyConnected ? 'disabled' : ''}`}
-              onClick={() => spotifyConnected ? setMode('camera') : (() => {
-                // Save intention and redirect to connect
-                try {
-                  sessionStorage.setItem('return_to', '/home/analyze');
-                } catch (_) {}
-                const state = Math.random().toString(36).substring(7);
-                try { localStorage.setItem('spotify_state', state); } catch (_) {}
-                window.location.href = `http://127.0.0.1:8000/v1/auth/spotify?state=${state}`;
-              })()}
-              role={!spotifyConnected ? 'button' : undefined}
+              onClick={() => spotifyConnected && setMode('camera')}
+              role="button"
               aria-disabled={!spotifyConnected}
             >
               <div className="option-icon">
@@ -260,22 +264,22 @@ const EmotionAnalyzer = () => {
               <p className="option-description">
                 Usa tu cámara para capturar cómo te sientes ahora
               </p>
-              {!spotifyConnected && <div className="disabled-overlay">Conecta Spotify para usar</div>}
+              {!spotifyConnected && (
+                <div className="disabled-overlay">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                  Conecta Spotify
+                </div>
+              )}
             </GlassCard>
 
             <GlassCard 
               variant="default"
               className={`option-card ${!spotifyConnected ? 'disabled' : ''}`}
-              onClick={() => spotifyConnected ? setMode('upload') : (() => {
-                // Save intention and redirect to connect
-                try {
-                  sessionStorage.setItem('return_to', '/home/analyze');
-                } catch (_) {}
-                const state = Math.random().toString(36).substring(7);
-                try { localStorage.setItem('spotify_state', state); } catch (_) {}
-                window.location.href = `http://127.0.0.1:8000/v1/auth/spotify?state=${state}`;
-              })()}
-              role={!spotifyConnected ? 'button' : undefined}
+              onClick={() => spotifyConnected && setMode('upload')}
+              role="button"
               aria-disabled={!spotifyConnected}
             >
               <div className="option-icon">
@@ -289,7 +293,15 @@ const EmotionAnalyzer = () => {
               <p className="option-description">
                 Selecciona una imagen desde tu dispositivo
               </p>
-              {!spotifyConnected && <div className="disabled-overlay">Conecta Spotify para usar</div>}
+              {!spotifyConnected && (
+                <div className="disabled-overlay">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                  Conecta Spotify
+                </div>
+              )}
             </GlassCard>
           </div>
         </div>

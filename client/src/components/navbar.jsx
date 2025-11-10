@@ -4,10 +4,19 @@ import Button from './Button';
 import { LOGO_SRC } from '../constants/assets';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useFlash } from './flash/FlashContext'; // Importar useFlash
+import { useTheme } from '../contexts/ThemeContext';
+import tokenManager from '../utils/tokenManager';
 
 function Navbar() {
   const [open, setOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Initialize auth state immediately from localStorage to prevent flash
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    const token = tokenManager.getAccessToken();
+    const isExpired = tokenManager.isTokenExpired();
+    // Only consider authenticated if token exists AND is not expired
+    return !!(token && !isExpired);
+  });
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const toggle = () => setOpen((s) => !s);
 
@@ -17,24 +26,35 @@ function Navbar() {
 
   // Verificar autenticación basada en el token
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    setIsAuthenticated(!!token);
+    const checkAuth = () => {
+      const token = tokenManager.getAccessToken();
+      const isExpired = tokenManager.isTokenExpired();
+      
+      // If token exists but is expired, clear it
+      if (token && isExpired) {
+        console.log('🔒 Token expired, clearing authentication');
+        tokenManager.clearAllTokens();
+        setIsAuthenticated(false);
+      } else {
+        setIsAuthenticated(!!token);
+      }
+    };
+    
+    // Initial check
+    checkAuth();
     
     // Escuchar cambios en el localStorage (por si se cierra sesión en otra pestaña)
     const handleStorageChange = () => {
-      const newToken = localStorage.getItem('access_token');
-      setIsAuthenticated(!!newToken);
+      checkAuth();
     };
 
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  const isAuthenticatedArea = location && location.pathname && location.pathname.startsWith('/home');
-
   const handleLogoff = () => {
-    // remove token and redirect to signin
-    localStorage.removeItem('access_token');
+    // Clear all tokens using tokenManager
+    tokenManager.clearAllTokens();
     setIsAuthenticated(false);
     navigate('/', { 
       state: { 
@@ -129,12 +149,51 @@ function Navbar() {
             {isAuthenticated ? (
               <>
                 <li><Button to="/home/account" className="account">Perfil</Button></li>
+                <li>
+                  <button 
+                    className="btn theme-toggle-btn"
+                    onClick={toggleTheme}
+                    aria-label={isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+                    title={isDarkMode ? 'Modo Claro' : 'Modo Oscuro'}
+                    role="switch"
+                    aria-checked={isDarkMode}
+                  >
+                    {isDarkMode ? (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                        <circle cx="12" cy="12" r="5"/>
+                        <line x1="12" y1="1" x2="12" y2="3"/>
+                        <line x1="12" y1="21" x2="12" y2="23"/>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                        <line x1="1" y1="12" x2="3" y2="12"/>
+                        <line x1="21" y1="12" x2="23" y2="12"/>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                      </svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                      </svg>
+                    )}
+                  </button>
+                </li>
                 <li><button className="btn logoff" onClick={handleLogoff}>Cerrar sesión</button></li>
               </>
             ) : (
               <>
                 <li><Button to="/signin" className="signin">Iniciar Sesión</Button></li>
                 <li><Button to="/signup" className="signup">Registrarse</Button></li>
+                <li>
+                  <button 
+                    className="btn theme-toggle-btn"
+                    onClick={toggleTheme}
+                    aria-label={isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+                    role="switch"
+                    aria-checked={isDarkMode}
+                  >
+                    <span aria-hidden="true">{isDarkMode ? '☀️' : '🌙'}</span>
+                  </button>
+                </li>
               </>
             )}
           </ul>
@@ -167,12 +226,30 @@ function Navbar() {
           {isAuthenticated ? (
             <>
               <Button to="/home/account" className="account" onClick={() => setOpen(false)}>Perfil</Button>
+              <button 
+                className="btn theme-toggle-mobile"
+                onClick={() => { toggleTheme(); setOpen(false); }}
+                aria-label={isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+                role="switch"
+                aria-checked={isDarkMode}
+              >
+                {isDarkMode ? '☀️ Modo Claro' : '🌙 Modo Oscuro'}
+              </button>
               <button className="btn logoff" onClick={() => { setOpen(false); handleLogoff(); }}>Cerrar sesión</button>
             </>
           ) : (
             <>
               <Button to="/signin" className="signin" onClick={() => setOpen(false)}>Iniciar Sesión</Button>
               <Button to="/signup" className="signup" onClick={() => setOpen(false)}>Registrarse</Button>
+              <button 
+                className="btn theme-toggle-mobile"
+                onClick={() => { toggleTheme(); setOpen(false); }}
+                aria-label={isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+                role="switch"
+                aria-checked={isDarkMode}
+              >
+                {isDarkMode ? '☀️ Modo Claro' : '🌙 Modo Oscuro'}
+              </button>
             </>
           )}
         </div>

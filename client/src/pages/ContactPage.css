@@ -171,3 +171,27 @@
     flex-direction: column;
   }
 }
+/* ============================================
+   DARK MODE
+   ============================================ */
+
+body.dark-mode .contact-title,
+body.dark-mode .card-title,
+body.dark-mode .info-card h3 {
+  color: var(--text-primary);
+}
+
+body.dark-mode .contact-subtitle,
+body.dark-mode .info-card p {
+  color: var(--text-secondary);
+}
+
+body.dark-mode .form-label {
+  color: var(--text-primary);
+}
+
+body.dark-mode .textarea {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(155, 156, 245, 0.3);
+  color: var(--text-primary);
+}
