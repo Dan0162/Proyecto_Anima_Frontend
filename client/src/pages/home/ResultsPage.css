@@ -79,7 +79,6 @@
   color: #fff;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 .action-button.new-analysis::before {
@@ -353,6 +352,19 @@
   margin-bottom: 2rem;
 }
 
+/* 🆕 Header de playlist con botón - similar a AnalysisDetailPage */
+.playlist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  gap: 2rem;
+}
+
+.playlist-title-section {
+  flex: 1;
+}
+
 .section-title {
   font-size: 2rem;
   font-weight: 700;
@@ -361,8 +373,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  justify-content: center;
-  text-align: center;
+  text-align: left;
 }
 
 .music-subtitle {
@@ -375,6 +386,91 @@
 .music-subtitle strong {
   color: var(--black);
   font-weight: 700;
+}
+
+/* 🆕 Botón para guardar playlist - copiado de AnalysisDetailPage */
+.save-playlist-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.75rem;
+  border-radius: 12px;
+  border: 2px solid;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  white-space: nowrap;
+  min-width: 200px;
+  justify-content: center;
+}
+
+.save-playlist-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.save-playlist-btn:hover::before {
+  left: 100%;
+}
+
+.save-playlist-btn:hover:not(:disabled) {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.save-playlist-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.save-playlist-btn.saved {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+}
+
+.save-playlist-btn svg {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s ease;
+}
+
+.save-playlist-btn:hover:not(:disabled) svg {
+  transform: scale(1.15);
+}
+
+/* Spinner del botón */
+.btn-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .tracks-list {
@@ -427,8 +523,6 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
-
-
 /* Estados de carga y error */
 .loading-state,
 .no-music {
@@ -447,12 +541,6 @@
   border: 5px solid rgba(0, 0, 0, 0.1);
   border-radius: 50%;
   animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .loading-state p,
@@ -531,6 +619,15 @@
   .results-title {
     font-size: 2rem;
   }
+
+  .playlist-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .save-playlist-btn {
+    width: 100%;
+  }
 }
 
 @media (max-width: 576px) {
@@ -576,6 +673,11 @@
   .action-button.new-analysis {
     padding: 0.875rem 1.5rem;
     font-size: 1rem;
+  }
+
+  .save-playlist-btn {
+    padding: 0.875rem 1.25rem;
+    font-size: 0.9rem;
   }
 }
 

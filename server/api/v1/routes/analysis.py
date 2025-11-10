@@ -4,6 +4,7 @@ from typing import Dict
 import random
 import base64
 import io
+import requests
 from PIL import Image
 from server.services.aws_rekognition_service import rekognition_service
 from server.core.config import settings
@@ -25,6 +26,7 @@ class EmotionAnalysisResponse(BaseModel):
     emotions_detected: Dict[str, float]
     timestamp: str
     message: str
+    recommendations: list = []  # Agregar recomendaciones a la respuesta
 
 # 🎭 Datos mockup de emociones
 MOCK_EMOTIONS = {
@@ -108,6 +110,55 @@ def validate_image_base64(image_data: str) -> bool:
         print(f"❌ Error validando imagen: {e}")
         return False
 
+def get_music_recommendations(authorization: str, emotion: str) -> list:
+    """
+    Obtiene recomendaciones musicales para la emoción detectada
+    """
+    try:
+        # Extraer token de Spotify si está disponible
+        jwt = None
+        if authorization and authorization.startswith("Bearer "):
+            token = authorization.split(" ")[1]
+            try:
+                payload = verify_token(token)
+                spotify_info = payload.get('spotify')
+                if spotify_info and spotify_info.get('access_token'):
+                    jwt = authorization  # Usar el JWT completo
+            except:
+                pass
+        
+        # Intentar obtener recomendaciones con Spotify
+        if jwt:
+            try:
+                response = requests.get(
+                    f"http://127.0.0.1:8000/recommend?emotion={emotion}",
+                    headers={"Authorization": jwt},
+                    timeout=10
+                )
+                if response.ok:
+                    data = response.json()
+                    return data.get('tracks', [])
+            except:
+                pass
+        
+        # Fallback a recomendaciones mockup
+        try:
+            response = requests.get(
+                f"http://127.0.0.1:8000/recommend/mockup?emotion={emotion}",
+                timeout=10
+            )
+            if response.ok:
+                data = response.json()
+                return data.get('tracks', [])
+        except:
+            pass
+        
+        return []
+        
+    except Exception as e:
+        print(f"❌ Error obteniendo recomendaciones: {e}")
+        return []
+
 @router.post("/analyze-base64", response_model=EmotionAnalysisResponse, status_code=status.HTTP_200_OK)
 async def analyze_emotion_base64(
     request: ImageBase64Request,
@@ -166,7 +217,7 @@ async def analyze_emotion_base64(
             'FEAR': 'sad'
         }
 
-        from datetime import datetime
+        emotion_data = None
 
         if use_aws:
             try:
@@ -220,7 +271,6 @@ async def analyze_emotion_base64(
                 }
 
                 print(f"✅ Análisis Rekognition: {app_top} ({emotion_data['confidence']*100:.1f}%)")
-                return EmotionAnalysisResponse(**emotion_data)
 
             except (BotoCoreError, ClientError) as be:
                 print(f"❌ AWS Rekognition error: {be}")
@@ -229,12 +279,20 @@ async def analyze_emotion_base64(
                 print(f"❌ Rekognition processing error: {e}")
                 # Fallthrough to mockup
 
-        # If we reach here, use mockup behavior (previous implementation)
-        emotion_key = random.choice(list(MOCK_EMOTIONS.keys()))
-        emotion_data = MOCK_EMOTIONS[emotion_key].copy()
-        emotion_data["timestamp"] = datetime.utcnow().isoformat()
-        emotion_data["message"] = f"Análisis completado exitosamente (modo mockup)"
-        print(f"✅ Análisis mockup: {emotion_key} ({emotion_data['confidence']*100:.1f}%)")
+        # If we reach here and don't have emotion_data, use mockup behavior
+        if not emotion_data:
+            emotion_key = random.choice(list(MOCK_EMOTIONS.keys()))
+            emotion_data = MOCK_EMOTIONS[emotion_key].copy()
+            emotion_data["timestamp"] = datetime.utcnow().isoformat()
+            emotion_data["message"] = f"Análisis completado exitosamente (modo mockup)"
+            print(f"✅ Análisis mockup: {emotion_key} ({emotion_data['confidence']*100:.1f}%)")
+        
+        # 🆕 Obtener recomendaciones musicales
+        recommendations = get_music_recommendations(authorization, emotion_data['emotion'])
+        emotion_data['recommendations'] = recommendations
+        
+        print(f"🎵 Recomendaciones obtenidas: {len(recommendations)} tracks")
+        
         return EmotionAnalysisResponse(**emotion_data)
         
     except HTTPException:
@@ -290,11 +348,15 @@ async def analyze_emotion_file(
         emotion_data = MOCK_EMOTIONS[emotion_key].copy()
         
         # Agregar timestamp
-        from datetime import datetime
         emotion_data["timestamp"] = datetime.utcnow().isoformat()
         emotion_data["message"] = f"Análisis completado exitosamente (modo mockup)"
         
+        # 🆕 Obtener recomendaciones musicales
+        recommendations = get_music_recommendations(authorization, emotion_data['emotion'])
+        emotion_data['recommendations'] = recommendations
+        
         print(f"✅ Análisis mockup (file): {emotion_key} ({emotion_data['confidence']*100:.1f}%)")
+        print(f"🎵 Recomendaciones obtenidas: {len(recommendations)} tracks")
         
         return EmotionAnalysisResponse(**emotion_data)
         

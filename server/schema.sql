@@ -32,7 +32,8 @@ CREATE TABLE analisis (
     ID_emocion INTEGER NOT NULL REFERENCES emocion(id) ON DELETE CASCADE,
     fecha_analisis TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     confidence FLOAT DEFAULT 0.0,
-    emotions_detected JSONB
+    emotions_detected JSONB,
+    recommendations JSONB
 );
 
 CREATE TABLE cancion (

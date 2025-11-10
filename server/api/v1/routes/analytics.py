@@ -55,6 +55,7 @@ class AnalysisDetail(BaseModel):
     date: datetime
     emotions_detected: Dict[str, float]
     session_id: int
+    recommendations: List[Dict] = []  # 🆕 Agregar recomendaciones
 
 def get_current_user(authorization: str, db: Session):
     """Helper para obtener usuario actual"""
@@ -178,7 +179,7 @@ def get_analysis_details(
     db: Session = Depends(get_db)
 ):
     """
-    Obtiene los detalles de un análisis específico
+    Obtiene los detalles de un análisis específico con sus recomendaciones guardadas
     """
     user = get_current_user(authorization, db)
     
@@ -210,13 +211,17 @@ def get_analysis_details(
     
     analysis, emotion = analysis_result
     
+    # 🆕 Obtener recomendaciones guardadas o generar nuevas si no existen
+    recommendations = analysis.recommendations or []
+    
     return AnalysisDetail(
         id=analysis.id,
         emotion=emotion.nombre,
         confidence=analysis.confidence or 0.0,
         date=analysis.fecha_analisis,
         emotions_detected=analysis.emotions_detected or {},
-        session_id=analysis.id_sesion
+        session_id=analysis.id_sesion,
+        recommendations=recommendations
     )
 
 def create_empty_stats():
@@ -398,6 +403,7 @@ def save_analysis_result(
 ):
     """
     Guarda el resultado de un análisis de emoción en la base de datos real
+    🆕 Ahora incluye las recomendaciones musicales
     """
     user = get_current_user(authorization, db)
     ensure_emotions_exist(db)
@@ -443,19 +449,21 @@ def save_analysis_result(
             print(f"⚠️ Análisis duplicado detectado para usuario {user.id}, ignorando...")
             return {"message": "Análisis ya fue guardado recientemente", "success": True}
         
-        # Crear nuevo registro de análisis
+        # 🆕 Crear nuevo registro de análisis con recomendaciones
         new_analysis = Analysis(
             id_sesion=latest_session.id,
             id_emocion=emotion.id,
             fecha_analisis=now,
             confidence=analysis_data.get("confidence", 0.0),
-            emotions_detected=analysis_data.get("emotions_detected", {})
+            emotions_detected=analysis_data.get("emotions_detected", {}),
+            recommendations=analysis_data.get("recommendations", [])  # 🆕 Guardar recomendaciones
         )
         
         db.add(new_analysis)
         db.commit()
         
         print(f"✅ Análisis guardado en BD para usuario {user.id}: {emotion_name}")
+        print(f"🎵 Recomendaciones guardadas: {len(analysis_data.get('recommendations', []))}")
         
         return {"message": "Análisis guardado exitosamente", "success": True}
         

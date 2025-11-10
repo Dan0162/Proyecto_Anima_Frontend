@@ -5,7 +5,7 @@
 import tokenManager from './tokenManager';
 
 // Fetch with timeout
-export const fetchWithTimeout = async (url, options = {}, timeout = 8000) => {
+export const fetchWithTimeout = async (url, options = {}, timeout = 20000) => {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
 
@@ -37,9 +37,9 @@ const getBaseUrl = () => {
  * @param {boolean} requiresAuth - Whether this endpoint requires authentication
  * @param {number} retries - Number of retry attempts for token refresh
  */
-export const authenticatedFetch = async (url, options = {}, requiresAuth = true, retries = 1) => {
+export const authenticatedFetch = async (url, options = {}, requiresAuth = true, retries = 1, timeout = 20000) => {
   if (!requiresAuth) {
-    return fetchWithTimeout(url, options);
+    return fetchWithTimeout(url, options, timeout);
   }
 
   try {
@@ -55,7 +55,7 @@ export const authenticatedFetch = async (url, options = {}, requiresAuth = true,
       }
     };
 
-    const response = await fetchWithTimeout(url, authOptions);
+  const response = await fetchWithTimeout(url, authOptions, timeout);
 
     // If we get 401, token might have expired between check and request
     if (response.status === 401 && retries > 0) {

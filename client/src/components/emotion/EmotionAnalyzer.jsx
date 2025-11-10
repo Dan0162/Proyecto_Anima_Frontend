@@ -74,14 +74,18 @@ const EmotionAnalyzer = () => {
       if (result && result.emotions_detected) {
         console.log('🎯 Porcentajes de emociones:', result.emotions_detected);
       }
+      if (result && result.recommendations) {
+        console.log('🎵 Recomendaciones obtenidas:', result.recommendations.length);
+      }
 
-      // 🆕 Guardar análisis usando el manager seguro
+      // 🆕 Guardar análisis usando el manager seguro - INCLUYENDO recomendaciones
       try {
         await analysisSaveManager.saveAnalysisSafe(
           {
             emotion: result.emotion,
             confidence: result.confidence,
-            emotions_detected: result.emotions_detected
+            emotions_detected: result.emotions_detected,
+            recommendations: result.recommendations || []  // 🆕 Incluir recomendaciones
           },
           saveAnalysisResult
         );
@@ -104,7 +108,8 @@ const EmotionAnalyzer = () => {
           result: result, 
           photo: photoData,
           hasSpotify: hasSpotify,
-          alreadySaved: true // 🆕 Indicar que ya fue guardado
+          alreadySaved: true, // 🆕 Indicar que ya fue guardado
+          recommendations: result.recommendations || [] // 🆕 Pasar recomendaciones
         } 
       });
       

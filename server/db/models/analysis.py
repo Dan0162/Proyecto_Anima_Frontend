@@ -23,6 +23,7 @@ class Analysis(Base):
     # Campos adicionales para guardar más información del análisis
     confidence = Column(Float, default=0.0)
     emotions_detected = Column(JSON)  # Para guardar el dict completo de emociones
+    recommendations = Column(JSON)    # Para guardar las recomendaciones musicales
     
     session = relationship("Session", foreign_keys=[id_sesion])
     emotion = relationship("Emotion", back_populates="analyses")

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/sidebar/Sidebar';
 import GlassCard from '../../components/layout/GlassCard';
@@ -16,43 +16,51 @@ const AnalysisDetailPage = () => {
   const [savingPlaylist, setSavingPlaylist] = useState(false);
   const [playlistSaved, setPlaylistSaved] = useState(false);
 
-  // Cargar detalles del análisis al montar o cuando cambia el ID
+  // Cargar detalles del análisis al montar
   useEffect(() => {
-    const fetchDetails = async () => {
-      try {
-        setLoading(true);
+    loadAnalysisDetails();
+  }, [analysisId]);
 
-        // Obtener detalles del análisis
-        const analysisResponse = await fetch(`http://127.0.0.1:8000/v1/analytics/analysis/${analysisId}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-          }
-        });
-
-        if (!analysisResponse.ok) {
-          throw new Error('Error al cargar detalles del análisis');
+  const loadAnalysisDetails = async () => {
+    try {
+      setLoading(true);
+      
+      // Obtener detalles del análisis CON recomendaciones guardadas
+      const analysisResponse = await fetch(`http://127.0.0.1:8000/v1/analytics/analysis/${analysisId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
         }
+      });
 
-        const analysisData = await analysisResponse.json();
-        setAnalysis(analysisData);
-
-        // Obtener recomendaciones basadas en la emoción del análisis
-        await loadRecommendations(analysisData.emotion);
-
-      } catch (error) {
-        console.error('Error cargando análisis:', error);
-        if (flash?.show) {
-          flash.show('Error al cargar los detalles del análisis', 'error');
-        }
-        navigate('/home/history');
-      } finally {
-        setLoading(false);
+      if (!analysisResponse.ok) {
+        throw new Error('Error al cargar detalles del análisis');
       }
-    };
 
-    fetchDetails();
-  }, [analysisId, flash, navigate]);
+      const analysisData = await analysisResponse.json();
+      setAnalysis(analysisData);
 
+      // 🆕 Usar recomendaciones guardadas si están disponibles
+      if (analysisData.recommendations && analysisData.recommendations.length > 0) {
+        console.log('✅ Usando recomendaciones guardadas:', analysisData.recommendations.length);
+        setRecommendations(analysisData.recommendations);
+      } else {
+        // 🔄 Fallback: generar recomendaciones si no hay guardadas (retrocompatibilidad)
+        console.log('⚠️ No hay recomendaciones guardadas, generando nuevas...');
+        await loadRecommendations(analysisData.emotion);
+      }
+      
+    } catch (error) {
+      console.error('Error cargando análisis:', error);
+      if (flash?.show) {
+        flash.show('Error al cargar los detalles del análisis', 'error');
+      }
+      navigate('/home/history');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔄 Función de fallback para generar recomendaciones si no hay guardadas
   const loadRecommendations = async (emotion) => {
     try {
       const jwt = localStorage.getItem('spotify_jwt');
@@ -72,6 +80,7 @@ const AnalysisDetailPage = () => {
       if (response.ok) {
         const data = await response.json();
         setRecommendations(data.tracks || []);
+        console.log('🔄 Recomendaciones generadas como fallback:', data.tracks?.length || 0);
       }
     } catch (error) {
       console.error('Error cargando recomendaciones:', error);
@@ -351,7 +360,12 @@ const AnalysisDetailPage = () => {
                     🎵 Playlist Recomendada
                   </h2>
                   <p className="playlist-subtitle">
-                    Canciones seleccionadas para tu estado de ánimo: <strong>{getEmotionLabel(analysis.emotion)}</strong>
+                    {/* 🆕 Indicar si son recomendaciones guardadas o generadas */}
+                    {analysis.recommendations && analysis.recommendations.length > 0 
+                      ? `Canciones originalmente recomendadas para: ` 
+                      : `Canciones seleccionadas para tu estado de ánimo: `
+                    }
+                    <strong>{getEmotionLabel(analysis.emotion)}</strong>
                   </p>
                 </div>
                 

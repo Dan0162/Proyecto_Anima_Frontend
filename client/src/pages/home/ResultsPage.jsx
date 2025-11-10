@@ -2,16 +2,38 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from '../../components/sidebar/Sidebar';
 import GlassCard from '../../components/layout/GlassCard';
+import { useFlash } from '../../components/flash/FlashContext';
 import './ResultsPage.css';
-import { saveAnalysisResult } from '../../utils/analyticsApi';
 
 const ResultsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const flash = useFlash();
+  
   const [loading, setLoading] = useState(false);
   const [recommendations, setRecommendations] = useState([]);
+  const [savingPlaylist, setSavingPlaylist] = useState(false);
+  const [playlistSaved, setPlaylistSaved] = useState(false);
   
-  const { result, photo } = location.state || {};
+  const { result, photo, recommendations: analysisRecommendations } = location.state || {};
+
+  // 🆕 Usar recomendaciones del análisis o hacer fallback si no las hay
+  useEffect(() => {
+    if (!result || !photo) {
+      navigate('/home/analyze');
+      return;
+    }
+
+    // Usar recomendaciones del análisis si están disponibles
+    if (analysisRecommendations && analysisRecommendations.length > 0) {
+      console.log('✅ Usando recomendaciones del análisis:', analysisRecommendations.length);
+      setRecommendations(analysisRecommendations);
+    } else {
+      // Fallback: hacer fetch de recomendaciones si no vienen del análisis
+      console.log('⚠️ No hay recomendaciones en el análisis, haciendo fetch...');
+      fetchRecommendations();
+    }
+  }, [result, photo, analysisRecommendations, navigate]);
 
   const fetchRecommendations = useCallback(async () => {
     setLoading(true);
@@ -56,13 +78,59 @@ const ResultsPage = () => {
     }
   }, [result?.emotion, navigate]);
 
-  useEffect(() => {
-    if (!result || !photo) {
-      navigate('/home/analyze');
-      return;
+  // 🆕 Función para guardar playlist en Spotify (copiada de AnalysisDetailPage)
+  const handleSavePlaylist = async () => {
+    if (!result || !recommendations.length) return;
+
+    try {
+      setSavingPlaylist(true);
+      
+      const jwt = localStorage.getItem('spotify_jwt');
+      if (!jwt) {
+        if (flash?.show) {
+          flash.show('Conecta tu cuenta de Spotify para guardar playlists', 'error');
+        }
+        return;
+      }
+
+      // Crear playlist en Spotify
+      const playlistData = {
+        analysis_id: 0, // Temporal para análisis recién creado
+        emotion: result.emotion,
+        confidence: result.confidence,
+        tracks: recommendations.slice(0, 20).map(track => track.uri).filter(Boolean)
+      };
+
+      const response = await fetch('http://127.0.0.1:8000/v1/spotify/create-playlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${jwt}`
+        },
+        body: JSON.stringify(playlistData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Error al crear playlist');
+      }
+
+      const playlistResult = await response.json();
+      
+      setPlaylistSaved(true);
+      if (flash?.show) {
+        flash.show(`✅ Playlist "${playlistResult.playlist_name}" creada exitosamente en Spotify`, 'success', 5000);
+      }
+      
+    } catch (error) {
+      console.error('Error guardando playlist:', error);
+      if (flash?.show) {
+        flash.show(error.message || 'Error al guardar playlist en Spotify', 'error');
+      }
+    } finally {
+      setSavingPlaylist(false);
     }
-    fetchRecommendations();
-  }, [result, photo, navigate, fetchRecommendations]);
+  };
 
   // 🎨 Obtener color según emoción
   const getEmotionColor = (emotion) => {
@@ -127,41 +195,6 @@ const ResultsPage = () => {
     };
     return labels[emotion] || emotion;
   };
-
-  // Guardar análisis cuando se cargue la página
-// Guardar análisis cuando se cargue la página (protegido contra duplicados)
-  useEffect(() => {
-    const saveAnalysis = async () => {
-      if (!result) return;
-      
-      // Crear clave única para este análisis
-      const analysisKey = `analysis_saved_${result.emotion}_${Math.round(result.confidence * 100)}`;
-      const alreadySaved = sessionStorage.getItem(analysisKey);
-      
-      if (alreadySaved) {
-        console.log('🔄 Análisis ya guardado previamente, saltando...');
-        return;
-      }
-      
-      try {
-        await saveAnalysisResult({
-          emotion: result.emotion,
-          confidence: result.confidence,
-          emotions_detected: result.emotions_detected,
-          timestamp: new Date().toISOString()
-        });
-        
-        // Marcar como guardado para evitar duplicados
-        sessionStorage.setItem(analysisKey, 'true');
-        console.log('✅ Análisis guardado exitosamente');
-      } catch (error) {
-        console.error('Error guardando análisis:', error);
-        // No mostrar error al usuario, es proceso de background
-      }
-    };
-
-    saveAnalysis();
-  }, [result]);
 
   if (!result) {
     return (
@@ -294,12 +327,52 @@ const ResultsPage = () => {
               }}
             >
               <div className="music-header">
-                <h2 className="section-title">
-                  🎵 Recomendaciones Musicales
-                </h2>
-                <p className="music-subtitle">
-                  Canciones seleccionadas para tu estado de ánimo: <strong>{getEmotionLabel(result.emotion)}</strong>
-                </p>
+                <div className="playlist-header">
+                  <div className="playlist-title-section">
+                    <h2 className="section-title">
+                      🎵 Recomendaciones Musicales
+                    </h2>
+                    <p className="music-subtitle">
+                      Canciones seleccionadas para tu estado de ánimo: <strong>{getEmotionLabel(result.emotion)}</strong>
+                    </p>
+                  </div>
+                  
+                  {/* 🆕 Botón para guardar playlist en Spotify */}
+                  {recommendations.length > 0 && (
+                    <button
+                      className={`save-playlist-btn ${playlistSaved ? 'saved' : ''}`}
+                      onClick={handleSavePlaylist}
+                      disabled={savingPlaylist || playlistSaved}
+                      style={{
+                        background: playlistSaved 
+                          ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)'
+                          : emotionColors.gradient,
+                        borderColor: emotionColors.glassBorder
+                      }}
+                    >
+                      {savingPlaylist ? (
+                        <>
+                          <div className="btn-spinner"></div>
+                          Guardando...
+                        </>
+                      ) : playlistSaved ? (
+                        <>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                          </svg>
+                          Guardado en Spotify
+                        </>
+                      ) : (
+                        <>
+                          <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+                          </svg>
+                          Guardar en Spotify
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
               </div>
               
               {loading ? (
