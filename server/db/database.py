@@ -28,18 +28,3 @@ def init_database():
         raise RuntimeError(f"❌ Error al conectar con la base de datos: {e}")
 
 
-def init_db_from_sql():
-    """
-    Ejecuta el archivo  server/schema.sql para inicializar la base de datos.
-    """
-    global engine
-    if engine is None:
-        init_database()  # Crear engine si no existe
-
-    sql_file_path = os.path.join(os.path.dirname(__file__), "..", "schema.sql")
-    with engine.connect() as connection:
-        with open(sql_file_path, "r", encoding="utf-8") as file:
-            sql_script = file.read()
-            connection.execute(text(sql_script))
-            connection.commit()
-    print("📜 Base de datos inicializada correctamente desde schema.sql")
