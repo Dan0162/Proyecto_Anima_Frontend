@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import GlassCard from '../layout/GlassCard';
 import CameraCapture from './CameraCapture';
@@ -23,52 +23,7 @@ const EmotionAnalyzer = () => {
   // Mostrar el nombre del usuario o un placeholder mientras carga
   const displayName = user?.nombre || 'Usuario';
 
-  // Resume flow after Spotify connect if a pending photo exists
-  const resumedRef = useRef(false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (resumedRef.current) return;
-    try {
-      const reason = sessionStorage.getItem('connect_reason');
-      const pending = sessionStorage.getItem('pending_analyze_photo');
-      if (reason === 'analyze' && pending) {
-        resumedRef.current = true;
-        // Clear markers before proceeding to avoid repeats
-        sessionStorage.removeItem('connect_reason');
-        sessionStorage.removeItem('return_to');
-        sessionStorage.removeItem('pending_analyze_photo');
-        handleAnalyzeImage(pending);
-      }
-    } catch (_) {}
-  }, []);
-
-  // Check Spotify connection status for enabling camera
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const jwt = localStorage.getItem('spotify_jwt');
-        if (!jwt) {
-          if (mounted) setSpotifyConnected(false);
-          return;
-        }
-        const res = await fetch('http://127.0.0.1:8000/v1/auth/spotify/status', {
-          headers: { 'Authorization': `Bearer ${jwt}` }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (mounted) setSpotifyConnected(!!data.connected);
-        } else {
-          if (mounted) setSpotifyConnected(false);
-        }
-      } catch (e) {
-        if (mounted) setSpotifyConnected(false);
-      }
-    })();
-    return () => { mounted = false; };
-  }, []);
-
-  const handleAnalyzeImage = async (photoData) => {
+  const handleAnalyzeImage = useCallback(async (photoData) => {
     setIsAnalyzing(true);
     
     try {
@@ -160,7 +115,51 @@ const EmotionAnalyzer = () => {
       setIsAnalyzing(false);
       setMode(null);
     }
-  };
+  }, [flash, navigate]);
+
+  // Resume flow after Spotify connect if a pending photo exists
+  const resumedRef = useRef(false);
+  useEffect(() => {
+    if (resumedRef.current) return;
+    try {
+      const reason = sessionStorage.getItem('connect_reason');
+      const pending = sessionStorage.getItem('pending_analyze_photo');
+      if (reason === 'analyze' && pending) {
+        resumedRef.current = true;
+        // Clear markers before proceeding to avoid repeats
+        sessionStorage.removeItem('connect_reason');
+        sessionStorage.removeItem('return_to');
+        sessionStorage.removeItem('pending_analyze_photo');
+        handleAnalyzeImage(pending);
+      }
+    } catch (_) {}
+  }, [handleAnalyzeImage]);
+
+  // Check Spotify connection status for enabling camera
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const jwt = localStorage.getItem('spotify_jwt');
+        if (!jwt) {
+          if (mounted) setSpotifyConnected(false);
+          return;
+        }
+        const res = await fetch('http://127.0.0.1:8000/v1/auth/spotify/status', {
+          headers: { 'Authorization': `Bearer ${jwt}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (mounted) setSpotifyConnected(!!data.connected);
+        } else {
+          if (mounted) setSpotifyConnected(false);
+        }
+      } catch (e) {
+        if (mounted) setSpotifyConnected(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
 
   const handleCameraCapture = (photoData) => {
     console.log('📸 Foto capturada desde cámara');

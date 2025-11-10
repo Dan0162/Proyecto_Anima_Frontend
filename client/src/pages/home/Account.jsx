@@ -122,7 +122,7 @@ export default function Account() {
     setProfileErrors({});
     try {
       const prevEmail = user?.email;
-      const response = await updateUserProfileApi({
+      await updateUserProfileApi({
         nombre: formData.nombre,
         email: formData.email
       });

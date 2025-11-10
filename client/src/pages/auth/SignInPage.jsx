@@ -41,7 +41,7 @@ const SignInPage = () => {
   const handleSignIn = async (formData) => {
     try {
       // loginApi now automatically stores tokens using tokenManager
-      const data = await callApi(() => loginApi(formData));
+      await callApi(() => loginApi(formData));
 
       if (flash?.show) {
         flash.show(`¡Bienvenido de vuelta!`, 'success', 3000);
@@ -54,15 +54,7 @@ const SignInPage = () => {
       
     } catch (err) {
       console.error('Sign in error:', err);
-      
-      let errorMessage = err.message;
-      if (err.message.includes('Failed to fetch')) {
-        errorMessage = 'No se puede conectar con el servidor. Por favor, intenta más tarde.';
-      } else if (err.message.includes('401')) {
-        errorMessage = 'Usuario o contraseña incorrectos';
-      } else if (err.message.includes('500')) {
-        errorMessage = 'Error interno del servidor. Por favor, intenta más tarde.';
-      }
+      // Error is already handled by useApi hook
     }
   };
 

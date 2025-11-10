@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/sidebar/Sidebar';
 import GlassCard from '../../components/layout/GlassCard';
 import './RecommendationsPage.css';
@@ -28,7 +27,6 @@ const RecommendationsPage = () => {
   const [activeEmbedIndex, setActiveEmbedIndex] = useState(null);
   const gridRef = useRef(null);
 
-  const navigate = useNavigate();
   const flash = useFlash();
 
   const emotions = [
@@ -80,7 +78,7 @@ const RecommendationsPage = () => {
         setLoading(false);
       }
     }
-  }, [selectedEmotion, navigate, flash]);
+  }, [selectedEmotion, flash]); // navigate is stable, doesn't need to be in deps
 
   useEffect(() => {
     fetchRecommendations();

@@ -10,7 +10,7 @@ const Sidebar = () => {
   const navigate = useNavigate();
   
   // Obtener el usuario autenticado actual
-  const { user, loading: userLoading, error: userError } = useCurrentUser();
+  const { user } = useCurrentUser();
   
   // Mostrar el nombre del usuario o un placeholder mientras carga
   const displayName = user?.nombre || 'Usuario';
