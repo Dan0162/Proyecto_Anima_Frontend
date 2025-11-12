@@ -226,6 +226,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  /* make the column stretch to the chart height so percentage heights inside work */
+  height: 100%;
+  justify-content: flex-end; /* push bar toward bottom */
   gap: 0.75rem;
 }
 
@@ -287,6 +290,9 @@
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
+  /* ensure full height so percentage heights of .hour-bar work */
+  height: 100%;
+  justify-content: flex-end;
 }
 
 .hour-bar {

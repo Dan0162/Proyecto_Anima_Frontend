@@ -79,6 +79,46 @@ const DashboardPage = () => {
     return labels[emotion] || emotion;
   };
 
+  // Normalize weekly activity: support different shapes from the API
+  const getWeeklyData = (weekly_activity) => {
+    const raw = Array.isArray(weekly_activity) ? weekly_activity : [];
+    return raw.map(item => {
+      if (typeof item === 'number') return { day: '', count: item };
+      const count = item?.analyses_count ?? item?.count ?? item?.value ?? 0;
+      const day = item?.day ?? item?.label ?? '';
+      return { day, count };
+    });
+  };
+
+  // Normalize hourly activity: return array of 24 {hour, count}
+  const getHourlyData = (hourly_activity) => {
+    if (!hourly_activity) return Array.from({ length: 24 }, (_, i) => ({ hour: i, count: 0 }));
+
+    // Case 1: array of 24 numbers
+    if (Array.isArray(hourly_activity) && hourly_activity.length === 24 && typeof hourly_activity[0] === 'number') {
+      return hourly_activity.map((c, i) => ({ hour: i, count: Number(c) || 0 }));
+    }
+
+    // Case 2: array of objects [{hour, count}, ...]
+    if (Array.isArray(hourly_activity) && hourly_activity.length > 0 && typeof hourly_activity[0] === 'object') {
+      const map = {};
+      hourly_activity.forEach(it => {
+        const hour = Number(it?.hour ?? it?.h ?? it?.hora ?? 0);
+        const count = Number(it?.count ?? it?.value ?? it?.analyses_count ?? 0) || 0;
+        if (Number.isFinite(hour) && hour >= 0 && hour < 24) map[hour] = (map[hour] || 0) + count;
+      });
+      return Array.from({ length: 24 }, (_, i) => ({ hour: i, count: map[i] || 0 }));
+    }
+
+    // Case 3: object/map { '0': 2, '1': 0, ... }
+    if (typeof hourly_activity === 'object') {
+      return Array.from({ length: 24 }, (_, i) => ({ hour: i, count: Number(hourly_activity[i]) || 0 }));
+    }
+
+    // Fallback
+    return Array.from({ length: 24 }, (_, i) => ({ hour: i, count: 0 }));
+  };
+
   const formatWeekLabel = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -237,23 +277,32 @@ const DashboardPage = () => {
             </h3>
             
             <div className="weekly-chart">
-              {stats.weekly_activity.map((dayData, index) => {
-                const maxCount = Math.max(...stats.weekly_activity.map(d => d.analyses_count));
-                const height = maxCount > 0 ? (dayData.analyses_count / maxCount) * 100 : 0;
-                
-                return (
-                  <div key={index} className="day-column">
-                    <div 
-                      className="day-bar"
-                      style={{ height: `${Math.max(height, 5)}%` }}
-                      data-count={dayData.analyses_count}
-                    >
-                      <span className="bar-value">{dayData.analyses_count}</span>
+              {(() => {
+                const weekly = getWeeklyData(stats.weekly_activity);
+                const counts = weekly.map(d => d.count || 0);
+                const maxCount = counts.length > 0 ? Math.max(...counts) : 0;
+
+                return weekly.map((dayData, index) => {
+                  const count = dayData.count || 0;
+                  const height = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                  // If count is zero, give a slightly larger default so the "0" fits inside the bar
+                  const displayPct = count === 0 ? 12 : Math.max(height, 5);
+
+                  return (
+                    <div key={index} className="day-column">
+                      <div 
+                        className="day-bar"
+                        style={{ height: `${displayPct}%` }}
+                        data-count={count}
+                        title={`${count} análisis`}
+                      >
+                        <span className="bar-value">{count}</span>
+                      </div>
+                      <div className="day-label">{dayData.day || `Día ${index + 1}`}</div>
                     </div>
-                    <div className="day-label">{dayData.day}</div>
-                  </div>
-                );
-              })}
+                  );
+                });
+              })()}
             </div>
           </GlassCard>
 
@@ -268,29 +317,35 @@ const DashboardPage = () => {
             </h3>
             
             <div className="hourly-chart">
-              {stats.hourly_activity.map((count, index) => {
-                const utcHour = index;
-                const utcDate = new Date(Date.UTC(2000, 0, 1, utcHour, 0, 0));
-                const localHour = utcDate.getHours();
+              {(() => {
+                const hourly = getHourlyData(stats.hourly_activity);
+                const counts = hourly.map(h => h.count || 0);
+                const maxCount = counts.length > 0 ? Math.max(...counts) : 0;
 
-                const maxCount = Math.max(...stats.hourly_activity);
-                const height = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                return hourly.map((hourData, index) => {
+                  const count = hourData.count || 0;
+                  const hour = hourData.hour ?? index;
+                  const height = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                  // show a slightly larger default for zero values so the "0" label fits
+                  const displayPct = count === 0 ? 12 : Math.max(height, 5);
 
-                return (
-                  <div key={index} className="hour-column">
-                    <div 
-                      className="hour-bar"
-                      style={{ height: `${Math.max(height, 5)}%` }}
-                      data-count={count}
-                    >
-                      {count > 0 && <span className="bar-value">{count}</span>}
+                  return (
+                    <div key={index} className="hour-column">
+                      <div 
+                        className="hour-bar"
+                        style={{ height: `${displayPct}%` }}
+                        data-count={count}
+                        title={`${count} análisis a las ${hour.toString().padStart(2,'0')}:00`}
+                      >
+                        <span className="bar-value">{count}</span>
+                      </div>
+                      <div className="hour-label">
+                        {hour.toString().padStart(2, '0')}:00
+                      </div>
                     </div>
-                    <div className="hour-label">
-                      {localHour.toString().padStart(2, '0')}:00
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                });
+              })()}
             </div>
           </GlassCard>
 
