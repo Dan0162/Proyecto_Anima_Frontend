@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: ishaimaster/proyecto_anima_backend:latest  # 👈 agrega esta línea
     container_name: anima_backend
     ports:
       - "8000:8000"
