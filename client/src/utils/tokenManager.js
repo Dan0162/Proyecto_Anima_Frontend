@@ -1,6 +1,8 @@
 /**
- * Centralized JWT Token Management System
- * Handles token storage, refresh, and validation
+ * Sistema de gestión de tokens de autenticación
+ * - Almacena tokens en localStorage
+ * - Verifica expiración y renueva tokens automáticamente
+ * Maneja almacenamiento, renovación y validación de tokens
  */
 
 class TokenManager {
@@ -10,13 +12,13 @@ class TokenManager {
     this.SPOTIFY_TOKEN_KEY = 'spotify_jwt';
     this.TOKEN_EXPIRY_KEY = 'token_expiry';
     
-    // Refresh token 5 minutes before expiry
+    // Renovar token 5 minutos antes de que expire
     this.REFRESH_BUFFER_MS = 5 * 60 * 1000;
     
-    // Lock to prevent concurrent refresh attempts
+    // Bloqueo para evitar intentos concurrentes de renovación
     this.refreshPromise = null;
     
-    // Base URL for API calls
+    // URL base para llamadas a la API
     this.baseUrl = this.getBaseUrl();
   }
 
@@ -26,7 +28,7 @@ class TokenManager {
   }
 
   /**
-   * Store access token with expiry information
+   * Almacena token de acceso con información de expiración
    */
   setAccessToken(token, expiresIn = 3600) {
     try {
@@ -43,7 +45,7 @@ class TokenManager {
   }
 
   /**
-   * Get current access token
+   * Obtiene token de acceso actual
    */
   getAccessToken() {
     try {
@@ -55,7 +57,7 @@ class TokenManager {
   }
 
   /**
-   * Store refresh token (if your backend supports it)
+   * Almacena el token de refresh 
    */
   setRefreshToken(token) {
     try {
@@ -66,7 +68,7 @@ class TokenManager {
   }
 
   /**
-   * Get refresh token
+   * Obtiene el token para refrescar el acceso
    */
   getRefreshToken() {
     try {
@@ -78,7 +80,7 @@ class TokenManager {
   }
 
   /**
-   * Store Spotify JWT separately
+   * Almacena JWT de Spotify por separado
    */
   setSpotifyToken(token) {
     try {
@@ -89,7 +91,7 @@ class TokenManager {
   }
 
   /**
-   * Get Spotify JWT
+   * Obtiene JWT de Spotify
    */
   getSpotifyToken() {
     try {
@@ -101,7 +103,7 @@ class TokenManager {
   }
 
   /**
-   * Check if access token is expired or about to expire
+   * Verifica si el token de acceso ha expirado o está a punto de expirar
    */
   isTokenExpired() {
     try {
@@ -111,7 +113,7 @@ class TokenManager {
       const expiry = parseInt(expiryStr, 10);
       const now = Date.now();
       
-      // Consider token expired if it's within the refresh buffer
+      // Considera el token expirado si está dentro del buffer de renovación
       return now >= (expiry - this.REFRESH_BUFFER_MS);
     } catch (error) {
       console.error('❌ Error checking token expiry:', error);
@@ -128,10 +130,10 @@ class TokenManager {
   }
 
   /**
-   * Refresh the access token using refresh token
+   * Refresca el token de acceso usando el token de refresh
    */
   async refreshAccessToken() {
-    // If there's already a refresh in progress, wait for it
+    // Si ya hay una actualización en progreso, espera a que termine
     if (this.refreshPromise) {
       console.log('⏳ Waiting for existing token refresh...');
       return this.refreshPromise;
@@ -157,7 +159,7 @@ class TokenManager {
 
         if (!response.ok) {
           if (response.status === 401) {
-            // Refresh token is invalid, user needs to log in again
+            // El token de refresh no es válido, el usuario debe iniciar sesión nuevamente
             this.clearAllTokens();
             throw new Error('REFRESH_TOKEN_EXPIRED');
           }
@@ -166,7 +168,7 @@ class TokenManager {
 
         const data = await response.json();
         
-        // Store new tokens
+        // Almacena nuevos tokens
         if (data.access_token) {
           this.setAccessToken(data.access_token, data.expires_in || 3600);
         }
@@ -182,7 +184,7 @@ class TokenManager {
         console.error('❌ Token refresh failed:', error);
         
         if (error.message === 'REFRESH_TOKEN_EXPIRED') {
-          // Clear tokens and redirect to login
+          // Limpia los tokens y redirige al inicio de sesión
           this.clearAllTokens();
           window.location.href = '/signin';
         }
@@ -197,7 +199,7 @@ class TokenManager {
   }
 
   /**
-   * Get valid access token (refresh if needed)
+   * Obtiene token de acceso válido (refresca si es necesario)
    */
   async getValidAccessToken() {
     const token = this.getAccessToken();
@@ -206,7 +208,7 @@ class TokenManager {
       throw new Error('NO_TOKEN');
     }
 
-    // If token is expired or about to expire, refresh it
+   // Si el token ha expirado o está a punto de expirar, refrescarlo
     if (this.isTokenExpired()) {
       console.log('⚠️ Token expired or expiring soon, refreshing...');
       return await this.refreshAccessToken();
@@ -216,18 +218,18 @@ class TokenManager {
   }
 
   /**
-   * Clear authentication tokens.
-   * @param {boolean} preserveSpotify - if true, keep the Spotify token in storage (default: false)
+   * Limpia todos los tokens de autenticación almacenados
+   * @param {boolean} preserveSpotify - si es true, mantiene el token de Spotify en el almacenamiento (por defecto: false)
    */
   clearAllTokens(preserveSpotify = false) {
     try {
-      // Always remove access/refresh tokens and expiry
+      // Siempre elimina los tokens de acceso/refresco y la expiración
       localStorage.removeItem(this.ACCESS_TOKEN_KEY);
       localStorage.removeItem(this.REFRESH_TOKEN_KEY);
       localStorage.removeItem(this.TOKEN_EXPIRY_KEY);
 
       if (!preserveSpotify) {
-        // Remove Spotify token only when not preserving it
+        // Elimina el token de Spotify solo cuando no se está preservando
         localStorage.removeItem(this.SPOTIFY_TOKEN_KEY);
       }
 
@@ -238,7 +240,7 @@ class TokenManager {
   }
 
   /**
-   * Decode JWT token (client-side, for information only - never trust for security)
+   * Decodifica token JWT (lado cliente, solo para información - nunca confiar para seguridad)
    */
   decodeToken(token) {
     try {
@@ -257,7 +259,7 @@ class TokenManager {
   }
 
   /**
-   * Get token expiry from JWT payload
+   * Obtiene la expiración del token desde el payload JWT
    */
   getTokenExpiry(token) {
     const decoded = this.decodeToken(token);
