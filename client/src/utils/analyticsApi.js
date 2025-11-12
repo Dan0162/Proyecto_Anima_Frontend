@@ -15,7 +15,9 @@ const getBaseUrl = () => {
 export const getUserStats = async () => {
   try {
     const url = `${getBaseUrl()}/v1/analytics/stats`;
-    const response = await authenticatedFetch(url, { method: 'GET' });
+    // Send client's IANA timezone so server can compute weekly activity in user's local days
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || null;
+    const response = await authenticatedFetch(url, { method: 'GET', headers: { 'X-Client-Timezone': tz } });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));

@@ -363,9 +363,12 @@ export const analyzeEmotionFile = async (imageFile) => {
     formData.append('image', imageFile);
 
     const url = `${getBaseUrl()}/v1/analysis/analyze`;
+    // Include client's timezone as header so server can localize timestamps if needed
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || null;
     const response = await authenticatedFetch(url, {
       method: 'POST',
-      body: formData
+      body: formData,
+      headers: tz ? { 'X-Client-Timezone': tz } : {}
     }, true, 1);
 
     if (!response.ok) {

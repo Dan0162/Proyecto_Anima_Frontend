@@ -7,6 +7,10 @@ from server.db.models.session import Session as UserSession
 from server.db.models.analysis import Analysis, Emotion
 from sqlalchemy import func, desc, extract, and_
 from datetime import datetime, timedelta, timezone
+try:
+    from zoneinfo import ZoneInfo
+except Exception:
+    ZoneInfo = None
 from jose import JWTError
 from pydantic import BaseModel
 from typing import Dict, List, Optional
@@ -94,7 +98,8 @@ def ensure_emotions_exist(db: Session):
 @router.get("/stats", response_model=UserStats)
 def get_user_stats(
     authorization: str = Header(..., alias="Authorization"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    timezone_header: Optional[str] = Header(None, alias="X-Client-Timezone")
 ):
     """
     Obtiene estadísticas del usuario para el dashboard usando datos reales
@@ -149,16 +154,16 @@ def get_user_stats(
         ))
     
     # Actividad semanal (últimos 7 días)
-    weekly_activity = calculate_weekly_activity(db, session_ids)
+    weekly_activity = calculate_weekly_activity(db, session_ids, timezone_header)
     
     # Emociones por semana (últimas 8 semanas)
-    weekly_emotions = calculate_weekly_emotions(db, session_ids)
+    weekly_emotions = calculate_weekly_emotions(db, session_ids, timezone_header)
     
     # Balance positivo vs negativo
     positive_negative_balance = calculate_positive_negative_balance(emotion_counts)
     
     # Calcular racha
-    streak = calculate_streak(db, session_ids)
+    streak = calculate_streak(db, session_ids, timezone_header)
     
     return UserStats(
         total_analyses=total_analyses,
@@ -243,67 +248,112 @@ def create_empty_stats():
         positive_negative_balance={"positive": 0, "negative": 0}
     )
 
-def calculate_weekly_activity(db: Session, session_ids: List[int]) -> List[WeeklyActivity]:
-    """Calcular actividad de los últimos 7 días"""
-    # Use UTC-aware now for consistent date calculations
-    today = datetime.now(timezone.utc).date()
-    week_start = today - timedelta(days=today.weekday())  # Lunes de esta semana
-    
-    daily_counts = {}
+def calculate_weekly_activity(db: Session, session_ids: List[int], timezone_name: Optional[str] = None) -> List[WeeklyActivity]:
+    """Calcular actividad de los últimos 7 días teniendo en cuenta la zona horaria del usuario.
+
+    Strategy:
+    - Determinar 'today' en la zona del usuario (si se provee).
+    - Calcular inicio y fin de semana en la zona del usuario a las 00:00.
+    - Convertir esos límites a UTC y consultar la BD en ese rango.
+    - Para cada análisis obtenido, convertir la fecha a la zona del usuario y agrupar por día local.
+    """
+    # Determinar zona del usuario
+    if timezone_name and ZoneInfo is not None:
+        try:
+            user_tz = ZoneInfo(timezone_name)
+        except Exception:
+            user_tz = timezone.utc
+    else:
+        user_tz = timezone.utc
+
+    # 'today' en zona del usuario
+    now_local = datetime.now(timezone.utc).astimezone(user_tz)
+    today_local = now_local.date()
+    week_start_local = today_local - timedelta(days=today_local.weekday())  # Lunes local
+    week_end_local = week_start_local + timedelta(days=6)
+
     days = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
-    
-    # Inicializar contadores
-    for i, day in enumerate(days):
-        daily_counts[i] = 0
-    
-    # Obtener análisis de la semana actual
-    week_end = week_start + timedelta(days=6)
+    daily_counts = {i: 0 for i in range(7)}
+
+    # Convertir límites locales a UTC para la consulta: 00:00 local -> UTC
+    week_start_local_dt = datetime.combine(week_start_local, datetime.min.time()).replace(tzinfo=user_tz)
+    week_end_local_dt = datetime.combine(week_end_local, datetime.max.time()).replace(tzinfo=user_tz)
+
+    # Convertir a UTC y luego a naive UTC si la BD almacena timestamps sin tzinfo
+    week_start_utc = week_start_local_dt.astimezone(timezone.utc).replace(tzinfo=None)
+    week_end_utc = week_end_local_dt.astimezone(timezone.utc).replace(tzinfo=None)
+
     analyses = db.query(Analysis).filter(
         and_(
             Analysis.id_sesion.in_(session_ids),
-            Analysis.fecha_analisis >= week_start,
-            Analysis.fecha_analisis <= week_end + timedelta(days=1)
+            Analysis.fecha_analisis >= week_start_utc,
+            Analysis.fecha_analisis <= week_end_utc
         )
     ).all()
-    
-    # Contar por día de la semana
+
     for analysis in analyses:
-        weekday = analysis.fecha_analisis.weekday()  # 0=Lunes, 6=Domingo
+        dt = analysis.fecha_analisis
+        if dt is None:
+            continue
+        # Asumir UTC si no tiene tzinfo
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        # Convertir a zona local
+        try:
+            dt_local = dt.astimezone(user_tz)
+        except Exception:
+            dt_local = dt.astimezone(timezone.utc)
+
+        weekday = dt_local.weekday()  # 0=Lunes
         if 0 <= weekday <= 6:
             daily_counts[weekday] += 1
-    
+
     return [WeeklyActivity(day=days[i], analyses_count=daily_counts[i]) for i in range(7)]
 
-def calculate_weekly_emotions(db: Session, session_ids: List[int]) -> List[WeeklyEmotionData]:
-    """Calcular emociones por semana (últimas 8 semanas)"""
-    today = datetime.now(timezone.utc).date()
+def calculate_weekly_emotions(db: Session, session_ids: List[int], timezone_name: Optional[str] = None) -> List[WeeklyEmotionData]:
+    """Calcular emociones por semana (últimas 8 semanas) respetando zona del usuario."""
+    if timezone_name and ZoneInfo is not None:
+        try:
+            user_tz = ZoneInfo(timezone_name)
+        except Exception:
+            user_tz = timezone.utc
+    else:
+        user_tz = timezone.utc
+
+    today_local = datetime.now(timezone.utc).astimezone(user_tz).date()
     weeks_data = []
-    
+
     for week_offset in range(7, -1, -1):  # Últimas 8 semanas
-        week_start = today - timedelta(days=today.weekday() + (week_offset * 7))
-        week_end = week_start + timedelta(days=6)
-        
-        # Obtener análisis de esta semana
+        week_start_local = today_local - timedelta(days=today_local.weekday() + (week_offset * 7))
+        week_end_local = week_start_local + timedelta(days=6)
+
+        # Convertir límites locales a UTC para consulta
+        week_start_local_dt = datetime.combine(week_start_local, datetime.min.time()).replace(tzinfo=user_tz)
+        week_end_local_dt = datetime.combine(week_end_local, datetime.max.time()).replace(tzinfo=user_tz)
+
+        week_start_utc = week_start_local_dt.astimezone(timezone.utc).replace(tzinfo=None)
+        week_end_utc = week_end_local_dt.astimezone(timezone.utc).replace(tzinfo=None)
+
         analyses = db.query(Analysis, Emotion).join(
             Emotion, Analysis.id_emocion == Emotion.id
         ).filter(
             and_(
                 Analysis.id_sesion.in_(session_ids),
-                Analysis.fecha_analisis >= week_start,
-                Analysis.fecha_analisis <= week_end + timedelta(days=1)
+                Analysis.fecha_analisis >= week_start_utc,
+                Analysis.fecha_analisis <= week_end_utc
             )
         ).all()
-        
+
         emotion_counts = {}
         for analysis, emotion in analyses:
             emotion_name = emotion.nombre
             emotion_counts[emotion_name] = emotion_counts.get(emotion_name, 0) + 1
-        
+
         weeks_data.append(WeeklyEmotionData(
-            week_start=week_start.strftime("%Y-%m-%d"),
+            week_start=week_start_local.strftime("%Y-%m-%d"),
             emotions=emotion_counts
         ))
-    
+
     return weeks_data
 
 def calculate_positive_negative_balance(emotion_counts: Dict[str, int]) -> Dict[str, int]:
@@ -319,40 +369,57 @@ def calculate_positive_negative_balance(emotion_counts: Dict[str, int]) -> Dict[
         "negative": negative_count
     }
 
-def calculate_streak(db: Session, session_ids: List[int]) -> int:
+def calculate_streak(db: Session, session_ids: List[int], timezone_name: Optional[str] = None) -> int:
     """Calcular racha de días consecutivos con análisis"""
     if not session_ids:
         return 0
     
-    # Obtener fechas únicas de análisis, ordenadas descendentemente
-    dates_query = db.query(
-        func.date(Analysis.fecha_analisis).label('analysis_date')
-    ).filter(
+    # Determinar zona del usuario
+    if timezone_name and ZoneInfo is not None:
+        try:
+            user_tz = ZoneInfo(timezone_name)
+        except Exception:
+            user_tz = timezone.utc
+    else:
+        user_tz = timezone.utc
+
+    # Obtener todos los timestamps de análisis ordenados descendientemente
+    rows = db.query(Analysis.fecha_analisis).filter(
         Analysis.id_sesion.in_(session_ids)
-    ).distinct().order_by(
-        func.date(Analysis.fecha_analisis).desc()
-    ).all()
-    
-    if not dates_query:
+    ).order_by(Analysis.fecha_analisis.desc()).all()
+
+    if not rows:
         return 0
-    
-    dates = [row.analysis_date for row in dates_query]
-    today = datetime.now(timezone.utc).date()
-    
+
+    # Convertir a fechas locales únicas en orden
+    local_dates = []
+    seen = set()
+    for (dt,) in rows:
+        if dt is None:
+            continue
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        try:
+            dt_local = dt.astimezone(user_tz)
+        except Exception:
+            dt_local = dt.astimezone(timezone.utc)
+
+        d = dt_local.date()
+        if d not in seen:
+            local_dates.append(d)
+            seen.add(d)
+
+    today_local = datetime.now(timezone.utc).astimezone(user_tz).date()
     streak = 0
-    current_date = today
-    
-    for analysis_date in dates:
+    current_date = today_local
+
+    for analysis_date in local_dates:
         if analysis_date == current_date:
             streak += 1
             current_date -= timedelta(days=1)
-        elif analysis_date == current_date + timedelta(days=1):
-            # Si hay un gap de un día, podemos continuar
-            streak += 1
-            current_date = analysis_date - timedelta(days=1)
         else:
             break
-    
+
     return streak
 
 @router.get("/history", response_model=AnalysisHistoryResponse)
