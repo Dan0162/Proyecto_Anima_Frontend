@@ -290,15 +290,6 @@ const RecommendationsPage = () => {
                     <div className="track-artist">
                       {track.artists?.map(a => a.name).join(', ') || 'Artista Desconocido'}
                     </div>
-                    <div style={{ marginTop: 4 }}>
-                      <button
-                        className="spotify-link-btn"
-                        style={{ background: currentColors.gradient, color: '#fff', border: 'none', borderRadius: 4, padding: '2px 8px', cursor: 'pointer', fontSize: 12 }}
-                        onClick={() => window.open(track.external_urls?.spotify, '_blank')}
-                      >
-                        Ver en Spotify
-                      </button>
-                    </div>
                   </div>
                 </div>
               ))}
