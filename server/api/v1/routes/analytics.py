@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException, Header, Query
 from sqlalchemy.orm import Session
 from server.db.session import get_db
 from server.core.security import verify_token
@@ -429,7 +429,8 @@ def get_user_history(
     authorization: str = Header(..., alias="Authorization"),
     db: Session = Depends(get_db),
     emotion_filter: Optional[str] = None,
-    timezone_header: Optional[str] = Header(None, alias="X-Client-Timezone")
+    timezone_header: Optional[str] = Header(None, alias="X-Client-Timezone"),
+    include_recommendations: bool = Query(False, description="Include music recommendations (may be slow)")
 ):
     """
     Obtiene el historial de análisis del usuario usando datos reales
@@ -478,16 +479,40 @@ def get_user_history(
                 dt_local = dt.astimezone(timezone.utc)
             dt_local_iso = dt_local.isoformat()
 
-        # Use stored recommendations if present; otherwise try to fetch real recommendations now
+        # Use stored recommendations if present; optionally fetch real recommendations now
         recs = analysis.recommendations or []
-        if (not recs) and authorization:
+        if (not recs) and include_recommendations and authorization:
             try:
                 fetched = get_music_recommendations(authorization, emotion.nombre)
-                # get_music_recommendations returns a list of tracks (or []), so accept it
+                # get_music_recommendations may return a list OR a dict with playlist metadata.
+                # Normalize into a list below.
                 if fetched:
                     recs = fetched
             except Exception as e:
                 print(f"⚠️ Error obteniendo recomendaciones para historial: {e}")
+
+        # Normalize recommendations to always be a list of dicts so Pydantic validation passes
+        try:
+            if isinstance(recs, dict):
+                # Common shapes: { 'tracks': [...] } or { 'playlist': { 'tracks': [...] }, ... }
+                if 'tracks' in recs and isinstance(recs['tracks'], list):
+                    recs = recs['tracks']
+                elif 'playlist' in recs and isinstance(recs['playlist'], dict):
+                    playlist = recs.get('playlist') or {}
+                    if isinstance(playlist.get('tracks'), list):
+                        recs = playlist['tracks']
+                    else:
+                        # fallback: wrap the dict into a list
+                        recs = [recs]
+                else:
+                    # Unknown dict shape - wrap into list so caller can inspect metadata
+                    recs = [recs]
+            elif not isinstance(recs, list):
+                # Any other unexpected type -> wrap into list
+                recs = [recs]
+        except Exception as _:
+            # If normalization fails for any reason, ensure recs is at least a list
+            recs = [recs] if recs is not None else []
 
         analyses.append(AnalysisHistory(
             id=str(analysis.id),

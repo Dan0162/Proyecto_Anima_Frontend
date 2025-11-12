@@ -37,16 +37,23 @@ export const getUserStats = async () => {
  * Get user analysis history
  * @param {string} emotionFilter - Filter by emotion (optional)
  */
-export const getUserHistory = async (emotionFilter = null) => {
+export const getUserHistory = async (emotionFilter = null, includeRecommendations = false) => {
   try {
     let url = `${getBaseUrl()}/v1/analytics/history`;
-    
-    if (emotionFilter && emotionFilter !== 'all') {
-      url += `?emotion_filter=${encodeURIComponent(emotionFilter)}`;
-    }
+    const params = new URLSearchParams();
+    if (emotionFilter && emotionFilter !== 'all') params.append('emotion_filter', emotionFilter);
+    if (includeRecommendations) params.append('include_recommendations', 'true');
+    const qs = params.toString();
+    if (qs) url += `?${qs}`;
 
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || null;
-  const response = await authenticatedFetch(url, { method: 'GET', headers: tz ? { 'X-Client-Timezone': tz } : {} });
+  const response = await authenticatedFetch(
+    url,
+    { method: 'GET', headers: tz ? { 'X-Client-Timezone': tz } : {} },
+    true,
+    1,
+    60000
+  );
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
