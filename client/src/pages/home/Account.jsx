@@ -266,6 +266,8 @@ export default function Account() {
       errors.new_password = 'La nueva contraseña es requerida';
     } else if (passwordData.new_password.length < 8) {
       errors.new_password = 'Debe tener al menos 8 caracteres';
+    } else if (passwordData.new_password === passwordData.current_password) {
+      errors.new_password = 'La nueva contraseña no puede ser igual a la actual';
     }
     
     if (!passwordData.confirm_password) {

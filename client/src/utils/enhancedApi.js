@@ -311,6 +311,15 @@ export const updateUserProfileApi = async (userData) => {
  * Change user password
  */
 export const changePasswordApi = async (passwordData) => {
+  // Client-side guard: prevent sending request if new and current passwords match
+  try {
+    if (passwordData.new_password && passwordData.current_password && passwordData.new_password === passwordData.current_password) {
+      throw new Error('La nueva contraseña no puede ser igual a la actual');
+    }
+  } catch (e) {
+    // Re-throw to be handled by caller
+    throw e;
+  }
   try {
     const url = `${getBaseUrl()}/v1/user/change-password`;
     const response = await authenticatedFetch(url, {
