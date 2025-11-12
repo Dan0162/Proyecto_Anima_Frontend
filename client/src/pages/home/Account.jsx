@@ -46,6 +46,7 @@ export default function Account() {
   streak: 0,
   mostFrequentEmotion: null
 });
+  const [profileStatsLoading, setProfileStatsLoading] = useState(true);
   
   // Estados para cambio de contraseña
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
@@ -137,18 +138,48 @@ export default function Account() {
 
   // Cargar estadísticas del perfil
     useEffect(() => {
-      const loadProfileStats = async () => {
+      const CACHE_KEY = 'profileStats_v1';
+      const CACHE_TTL = 2 * 60 * 1000; // 2 minutos
+
+      const loadProfileStats = async (options = { useCache: true }) => {
         try {
+          // Use cache if available and not expired
+          if (options.useCache) {
+            const cached = localStorage.getItem(CACHE_KEY);
+            if (cached) {
+              try {
+                const parsed = JSON.parse(cached);
+                if (parsed?.ts && (Date.now() - parsed.ts) < CACHE_TTL && parsed?.data) {
+                  setProfileStats(parsed.data);
+                  setProfileStatsLoading(false);
+                  // Continue to background revalidate
+                }
+              } catch (e) {
+                // ignore parse errors
+              }
+            }
+          }
+
           const stats = await getUserProfileStats();
-          setProfileStats(stats);
+          if (stats) {
+            setProfileStats(stats);
+            try {
+              localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: stats }));
+            } catch (e) {
+              // ignore storage errors (quota, privacy mode)
+            }
+          }
         } catch (error) {
           console.error('Error loading profile stats:', error);
           // Keep default values on error
+        } finally {
+          setProfileStatsLoading(false);
         }
       };
-      
+
       if (user) {
-        loadProfileStats();
+        // Try to show cached data immediately then revalidate in background
+        loadProfileStats({ useCache: true });
       }
     }, [user]);
 
@@ -381,11 +412,23 @@ export default function Account() {
 
             <div className="profile-stats">
               <div className="profile-stat">
-                <div className="stat-value">{profileStats.totalAnalyses || profileStats.total_analyses || 0}</div>
+                <div className="stat-value">
+                  {profileStatsLoading ? (
+                    <div className="skeleton-box" aria-hidden="true" />
+                  ) : (
+                    (profileStats.totalAnalyses || profileStats.total_analyses || 0)
+                  )}
+                </div>
                 <div className="stat-label">Análisis</div>
               </div>
               <div className="profile-stat">
-                <div className="stat-value">{profileStats.streak || 0}</div>
+                <div className="stat-value">
+                  {profileStatsLoading ? (
+                    <div className="skeleton-box small" aria-hidden="true" />
+                  ) : (
+                    (profileStats.streak || 0)
+                  )}
+                </div>
                 <div className="stat-label">Días activo</div>
               </div>
             </div>

@@ -210,6 +210,9 @@
 .weekly-activity-card {
   padding: 2rem;
   border: 2px solid rgba(255, 255, 255, 0.25);
+  /* Ensure the chart stays anchored to the bottom of the card */
+  display: flex;
+  flex-direction: column;
 }
 
 .weekly-chart {
@@ -219,6 +222,8 @@
   gap: 0.75rem;
   height: 200px;
   padding: 1rem 0;
+  /* push the chart area to the bottom of the card container */
+  margin-top: auto;
 }
 
 .day-column {
@@ -226,9 +231,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* make the column stretch to the chart height so percentage heights inside work */
   height: 100%;
-  justify-content: flex-end; /* push bar toward bottom */
+  justify-content: flex-end;
   gap: 0.75rem;
 }
 
@@ -271,6 +275,9 @@
 .hourly-analysis-card {
   padding: 2rem;
   border: 2px solid rgba(255, 255, 255, 0.25);
+  /* Ensure the hourly chart stays anchored to the bottom of the card */
+  display: flex;
+  flex-direction: column;
 }
 
 .hourly-chart {
@@ -281,6 +288,8 @@
   height: 180px;
   padding: 1rem 0;
   overflow-x: auto;
+  /* push the chart area to the bottom of the card container */
+  margin-top: auto;
 }
 
 .hour-column {

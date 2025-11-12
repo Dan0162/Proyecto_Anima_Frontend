@@ -10,7 +10,12 @@ const DashboardPage = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // DevTools: print timezone and offset to help debug hour-based aggregations
   useEffect(() => {
+    // kept intentionally empty for production — debug logging removed
+  }, []);
+
+useEffect(() => {
     const loadStats = async () => {
       setLoading(true);
       try {
@@ -44,7 +49,15 @@ const DashboardPage = () => {
     };
 
     loadStats();
-  }, []);
+
+    // Actualizar estadísticas cada 30 segundos
+    const interval = setInterval(() => {
+      loadStats();
+    }, 30000);
+
+    // Limpiar el intervalo cuando el componente se desmonte
+    return () => clearInterval(interval);
+  }, []); // carga inicial de estadísticas
 
   const getEmotionColor = (emotion) => {
     const colors = {
@@ -89,36 +102,129 @@ const DashboardPage = () => {
       return { day, count };
     });
   };
-
-  // Normalize hourly activity: return array of 24 {hour, count}
+  // ===========================================================
+  // Normaliza la actividad por hora considerando la zona horaria local
+  // ===========================================================
   const getHourlyData = (hourly_activity) => {
-    if (!hourly_activity) return Array.from({ length: 24 }, (_, i) => ({ hour: i, count: 0 }));
+    if (!hourly_activity) {
+      return Array.from({ length: 24 }, (_, i) => ({ hour: i, count: 0 }));
+    }
 
-    // Case 1: array of 24 numbers
+    // Caso simple: arreglo de 24 números
     if (Array.isArray(hourly_activity) && hourly_activity.length === 24 && typeof hourly_activity[0] === 'number') {
-      return hourly_activity.map((c, i) => ({ hour: i, count: Number(c) || 0 }));
-    }
+      // Asumimos que el backend puede estar enviando counts indexados por HORA UTC.
+      // Para mostrarlos en la hora local del cliente, rotamos la matriz según el timezone offset.
+      const offsetMinutes = new Date().getTimezoneOffset(); // minutos que hay que sumar a la hora local para obtener UTC
+      const shift = Math.round(offsetMinutes / 60); // horas de diferencia (puede ser negativa)
+      // Si shift === 0 no necesitamos rotar
+      if (shift === 0) {
+        return hourly_activity.map((c, i) => ({ hour: i, count: Number(c) || 0 }));
+      }
 
-    // Case 2: array of objects [{hour, count}, ...]
-    if (Array.isArray(hourly_activity) && hourly_activity.length > 0 && typeof hourly_activity[0] === 'object') {
-      const map = {};
-      hourly_activity.forEach(it => {
-        const hour = Number(it?.hour ?? it?.h ?? it?.hora ?? 0);
-        const count = Number(it?.count ?? it?.value ?? it?.analyses_count ?? 0) || 0;
-        if (Number.isFinite(hour) && hour >= 0 && hour < 24) map[hour] = (map[hour] || 0) + count;
+      const rotated = Array.from({ length: 24 }, (_, localHour) => {
+        // Queremos: local[localHour] = source[(localHour + shift) % 24]
+        const src = ((localHour + shift) % 24 + 24) % 24;
+        return { hour: localHour, count: Number(hourly_activity[src]) || 0 };
       });
-      return Array.from({ length: 24 }, (_, i) => ({ hour: i, count: map[i] || 0 }));
+
+      // rotation applied silently in production; debug log removed
+      return rotated;
     }
 
-    // Case 3: object/map { '0': 2, '1': 0, ... }
+    // Caso más complejo: arreglo de objetos
+    if (Array.isArray(hourly_activity) && hourly_activity.length > 0 && typeof hourly_activity[0] === 'object') {
+      const looksLikeHourCount = hourly_activity.every(it =>
+        ('hour' in it) || ('h' in it) || ('hora' in it) || ('count' in it) || ('analyses_count' in it)
+      );
+
+      const looksLikeEventsWithTimestamps = hourly_activity.some(it =>
+        it && (it.timestamp || it.created_at || it.analyzed_at || it.date)
+      );
+
+      // Si ya son objetos con hora y conteo directo
+      if (looksLikeHourCount && !looksLikeEventsWithTimestamps) {
+        const map = {};
+        hourly_activity.forEach(it => {
+          const hour = Number(it?.hour ?? it?.h ?? it?.hora ?? 0);
+          const count = Number(it?.count ?? it?.value ?? it?.analyses_count ?? 0) || 0;
+          if (Number.isFinite(hour) && hour >= 0 && hour < 24) {
+            map[hour] = (map[hour] || 0) + count;
+          }
+        });
+        return Array.from({ length: 24 }, (_, i) => ({ hour: i, count: map[i] || 0 }));
+      }
+
+      // ✅ Caso de eventos con timestamp o fecha
+      if (looksLikeEventsWithTimestamps) {
+        const map = {};
+
+        hourly_activity.forEach(ev => {
+          const dateStr = ev?.timestamp ?? ev?.created_at ?? ev?.analyzed_at ?? ev?.date;
+          let d = null;
+
+          // Normalizar y parsear según formato
+          if (typeof dateStr === 'number') {
+            d = new Date(dateStr);
+          } else if (typeof dateStr === 'string') {
+            const s = dateStr.trim();
+
+            // Si incluye Z o un offset explícito (+hh:mm o -hh:mm), usar directamente (UTC→local automático)
+            if (/[Zz]|[+-]\d{2}:?\d{2}$/.test(s)) {
+              d = new Date(s);
+            }
+            // Formato común sin zona "YYYY-MM-DD HH:mm:ss" → interpretar como local
+            else if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(s)) {
+              const [datePart, timePart] = s.split(' ');
+              const [Y, M, D] = datePart.split('-').map(Number);
+              const [h, m, sec] = timePart.split(':').map(Number);
+              d = new Date(Y, M - 1, D, h, m, sec);
+            }
+            // Formato ISO sin zona "YYYY-MM-DDTHH:mm:ss" → interpretar como local
+            else if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(s)) {
+              const [datePart, timePart] = s.split('T');
+              const [Y, M, D] = datePart.split('-').map(Number);
+              const [h, m, sec] = timePart.split(':').map(Number);
+              d = new Date(Y, M - 1, D, h, m, sec);
+            } else {
+              // fallback: dejar que Date() intente interpretarlo (puede variar entre navegadores)
+              d = new Date(s);
+            }
+          } else if (ev?.date instanceof Date) {
+            d = ev.date;
+          }
+
+          if (d && !isNaN(d.getTime())) {
+            const localHour = d.getHours();
+
+            // Per-event debug removed in production
+
+            if (Number.isFinite(localHour) && localHour >= 0 && localHour < 24) {
+              map[localHour] = (map[localHour] || 0) + 1;
+            }
+          } else {
+            // fallback: si no hay fecha válida pero hay campo de hora explícito
+            const hour = Number(ev?.hour ?? ev?.h ?? ev?.hora ?? -1);
+            if (Number.isFinite(hour) && hour >= 0 && hour < 24) {
+              map[hour] = (map[hour] || 0) + 1;
+            }
+          }
+        });
+
+        return Array.from({ length: 24 }, (_, i) => ({ hour: i, count: map[i] || 0 }));
+      }
+    }
+
+    // Caso de objeto simple tipo {0:2, 1:0, ...}
     if (typeof hourly_activity === 'object') {
       return Array.from({ length: 24 }, (_, i) => ({ hour: i, count: Number(hourly_activity[i]) || 0 }));
     }
 
-    // Fallback
+    // Fallback vacío
     return Array.from({ length: 24 }, (_, i) => ({ hour: i, count: 0 }));
   };
 
+    // debug logging removed — production build should not log hourly internals
+  
   const formatWeekLabel = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();

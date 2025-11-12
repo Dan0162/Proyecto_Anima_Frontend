@@ -135,6 +135,27 @@
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Skeleton placeholder for stats while loading */
+.skeleton-box {
+  display: inline-block;
+  width: 48px;
+  height: 28px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.08) 25%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.08) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.2s linear infinite;
+}
+
+.skeleton-box.small {
+  width: 32px;
+  height: 20px;
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 .profile-stat .stat-label {
   font-size: 0.875rem;
   color: #4a5568;
