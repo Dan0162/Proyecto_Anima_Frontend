@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
+import { LOGO_SRC } from '../../constants/assets';
 import './PublicSidebar.css';
 
 const PublicSidebar = () => {
@@ -96,12 +97,11 @@ const PublicSidebar = () => {
       <aside className={`public-sidebar glass-lilac ${isOpen ? 'open' : ''}`}>
         {/* Header */}
         <div className="public-sidebar-header">
-          <div className="public-sidebar-logo">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-              <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
-            </svg>
-          </div>
+          <Link to="/" className="public-sidebar-logo-link" onClick={() => setIsOpen(false)}>
+            <div className="public-sidebar-logo">
+              <img src={LOGO_SRC} alt="Ánima Logo" className="public-sidebar-logo-img" />
+            </div>
+          </Link>
           <h3 className="public-sidebar-title">Ánima</h3>
         </div>
 
