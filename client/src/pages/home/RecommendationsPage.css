@@ -215,6 +215,7 @@
 }
 
 /* Tracks Grid */
+/* Tracks Grid */
 .tracks-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -241,6 +242,7 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
+/* Container del cover - CORREGIDO */
 .track-cover-container {
   position: relative;
   width: 100%;
@@ -248,28 +250,37 @@
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-}
-
-.track-cover,
-.track-cover-placeholder {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.track-cover-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background: rgba(0, 0, 0, 0.1);
 }
 
+/* Cover images - CORREGIDO para llenar completamente */
+.track-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  border-radius: 0; /* Sin border-radius para evitar espacios */
+}
+
+/* Placeholder para cuando no hay imagen */
+.track-cover-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.05));
+  border-radius: 0;
+}
+
 .track-cover-placeholder svg {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   color: rgba(0, 0, 0, 0.3);
 }
 
+/* Play overlay - mantener igual */
 .track-play-overlay {
   position: absolute;
   top: 0;
@@ -281,6 +292,7 @@
   justify-content: center;
   opacity: 0;
   transition: opacity 0.3s ease;
+  background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
@@ -290,8 +302,8 @@
 }
 
 .track-play-overlay svg {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   color: #fff;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
   transform: scale(0.8);
@@ -472,3 +484,4 @@ body.dark-mode .track-artist {
 body.dark-mode .loading-state p {
   color: #e2e8f0;
 }
+
