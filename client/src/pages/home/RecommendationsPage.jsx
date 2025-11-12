@@ -257,6 +257,12 @@ const RecommendationsPage = () => {
                         className="track-cover"
                         style={{ cursor: 'pointer' }}
                         onClick={() => setActiveEmbedIndex(index)}
+                        loading="lazy"
+                        onLoad={(e) => {
+                          e.target.style.width = '100%';
+                          e.target.style.height = '100%';
+                          e.target.style.objectFit = 'cover';
+                        }}
                       />
                     ) : (
                       <div className="track-cover-placeholder" onClick={() => setActiveEmbedIndex(index)} style={{ cursor: 'pointer' }}>
