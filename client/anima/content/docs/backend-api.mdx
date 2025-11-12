@@ -1,0 +1,154 @@
+---
+title: API del Backend
+description: Resumen de endpoints principales expuestos por FastAPI.
+---
+
+Base URL por defecto: `http://127.0.0.1:8000`
+
+Healthcheck:
+
+```
+GET /health → 200 { "status": "ok" }
+```
+
+### Namespaces v1
+
+Las rutas se agrupan bajo `server/api/v1/routes/` y se montan en `/v1/...`.
+
+- `auth` → `/v1/auth` (registro, login, integración Spotify)
+- `user` → `/v1/user`
+- `recommend` → `/v1/recommend`
+- `analysis` → `/v1/analysis`
+- `password_recovery` → `/v1/password-recovery`
+- `contact` → `/v1/contact`
+- `analytics` → `/v1/analytics`
+- `spotify` → `/v1/auth/spotify*` (dentro de `auth.py`)
+
+> Revisá el directorio `server/api/v1/routes/` para ver la definición exacta de cada endpoint.
+
+### Auth (ejemplos)
+
+```
+POST /v1/auth/register
+Body: { "email": string, "password": string, "name": string }
+Res: 201 UserResponse
+
+POST /v1/auth/login
+Body: { "email": string, "password": string }
+Res: 200 { access_token, token_type }
+
+GET  /v1/auth/spotify?state=<random>
+→ Redirección a Spotify
+
+GET  /v1/auth/spotify/callback?code=...&state=...
+→ Guarda temporalmente los tokens y redirige a frontend
+
+GET  /v1/auth/spotify/exchange?state=...
+→ Devuelve un JWT firmado por el servidor con datos de Spotify
+```
+
+### Convenciones
+
+- Los endpoints devuelven errores consistentes gracias a `middlewares/error_handler.py`.
+- Autenticación basada en JWT (`Authorization: Bearer <token>`).
+
+---
+
+## Endpoints detallados (Backend)
+
+### Auth `/v1/auth`
+
+| Método | Path | Auth | Body | Resumen |
+|--------|------|------|------|---------|
+| POST | /register | No | email, password, name | Registra usuario y devuelve perfil |
+| POST | /login | No | email, password | Devuelve JWT de acceso |
+| GET | /spotify?state=UUID | Sí (state del front) | - | Redirige a Spotify OAuth |
+| GET | /spotify/callback | No (Spotify) | code, state | Procesa callback OAuth y guarda tokens temporales |
+| GET | /spotify/exchange?state=UUID | No | - | Intercambia state por JWT con datos de Spotify |
+| GET | /spotify/status | JWT opcional | - | Indica si hay conexión válida con Spotify |
+| POST | /spotify/disconnect | JWT | - | Invalida sesión (lado cliente) |
+| POST | /spotify/revoke | JWT | - | Intenta revocar refresh token y recomienda limpiar JWT |
+
+### User `/v1/user`
+
+| Método | Path | Auth | Body | Resumen |
+|--------|------|------|------|---------|
+| GET | `/{user_id}` | No (público básico) | - | Obtiene datos del usuario por id |
+| PATCH | /profile | JWT | campos opcionales (name, etc.) | Actualiza perfil del usuario autenticado |
+| POST | /change-password | JWT | old_password, new_password | Cambia contraseña validando la anterior |
+
+### Password Recovery `/v1/password-recovery`
+
+| Método | Path | Auth | Body | Resumen |
+|--------|------|------|------|---------|
+| POST | /request | No | email | Envía código de recuperación |
+| POST | /verify | No | email, code | Verifica código válido |
+| POST | /reset | No | email, code, new_password | Restablece contraseña tras verificación |
+
+### Analysis `/v1/analysis`
+
+| Método | Path | Auth | Body / Form | Resumen |
+|--------|------|------|-----------|---------|
+| POST | /analyze-base64 | JWT | `{ "image": "<base64>" }` | Analiza emoción (AWS Rekognition si credenciales; fallback mock) y devuelve recomendaciones |
+| POST | /analyze | JWT | file (UploadFile) | Alternativa con archivo directo |
+
+Respuesta típica:
+
+```json
+{
+	"emotion": "happy",
+	"confidence": 0.87,
+	"emotions_detected": {"happy":0.87,"relaxed":0.06,...},
+	"timestamp": "2025-11-12T12:00:00Z",
+	"message": "Análisis completado exitosamente (AWS Rekognition)",
+	"recommendations": [ {"name":"Track..."} ]
+}
+```
+
+### Recommend `/recommend` (nota: sin prefijo `/v1` según código)
+
+| Método | Path | Auth | Query | Resumen |
+|--------|------|------|-------|---------|
+| GET | /recommend?emotion=happy | JWT Spotify o raw access_token | emotion | Devuelve lista real de canciones vía Spotify |
+| GET | /recommend/test-spotify?access_token=... | Raw token | access_token | Test rápido de token Spotify |
+| GET | /recommend/mockup?emotion=happy | No | emotion | Canciones mock sin autenticación |
+| GET | /recommend/test-mockup | No | - | Verifica disponibilidad de dataset mock |
+
+### Contact `/v1/contact`
+
+| Método | Path | Auth | Body | Resumen |
+|--------|------|------|------|---------|
+| POST | /send | No | name, email, subject, message | Envía correo al soporte |
+
+### Analytics `/v1/analytics`
+
+| Método | Path | Auth | Query | Resumen |
+|--------|------|------|-------|---------|
+| GET | /stats | JWT | - | Estadísticas agregadas del usuario (emociones, racha, actividad) |
+| GET | `/analysis/{analysis_id}` | JWT | - | Detalle de un análisis con recomendaciones guardadas |
+| GET | /history | JWT | emotion_filter (opcional) | Historial de análisis paginado completo |
+| POST | /save-analysis | JWT | análisis + recomendaciones | Persiste un análisis (según implementación) |
+
+---
+
+## Rutas Frontend (SPA / CRA / Next Docs)
+
+Estas rutas son del lado cliente y consumen los endpoints anteriores:
+
+| Path Front | Propósito | Backend consumido |
+|------------|----------|------------------|
+| /login | Formulario de autenticación | POST /v1/auth/login |
+| /register | Registro de usuario | POST /v1/auth/register |
+| /profile | Ver/editar perfil | GET `/v1/user/{user_id}`, PATCH `/v1/user/profile` |
+| /change-password | Cambiar contraseña | POST /v1/user/change-password |
+| /analysis | Subir imagen/base64 | POST /v1/analysis/analyze-base64 / POST /v1/analysis/analyze |
+| /results | Mostrar emoción y playlist | POST análisis + GET /recommend |
+| /history | Historial de análisis | GET /v1/analytics/history |
+| /stats | Dashboard emocional | GET /v1/analytics/stats |
+| /analysis/:id | Detalle individual | GET `/v1/analytics/analysis/{id}` |
+| /recover-password | Flujo recuperación | POST /v1/password-recovery/* |
+| /contact | Formulario contacto | POST /v1/contact/send |
+| /spotify-connect | OAuth flujo | GET /v1/auth/spotify, callback, exchange |
+| /docs/* | Documentación | (No backend; generado por Fumadocs) |
+
+---

@@ -44,4 +44,22 @@ Su objetivo es ofrecer una experiencia distinta a las playlists estáticas: aqu�
 - PostgreSQL
 - Cuenta y credenciales en **AWS Rekognition**
 - Credenciales de **Spotify Web API**
+ 
+---
+
+## 📚 Documentación (Fumadocs)
+
+El sitio de documentación vive en `client/anima` y se sirve con Next.js.
+
+Pasos rápidos:
+
+```pwsh
+cd client/anima
+npm install
+npm run dev
+```
+
+Abrí: http://localhost:3000/docs
+
+En la documentación vas a encontrar: Getting Started, estructura del proyecto, cómo correr/deployar, variables de entorno, resumen de API, testing, contribuir y FAQ.
 

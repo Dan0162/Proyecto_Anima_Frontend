@@ -1,0 +1,38 @@
+---
+title: Estructura del Proyecto
+description: Vista general de carpetas y qué hace cada parte del repo.
+---
+
+```text
+Proyecto_Anima_Frontend/
+├─ docker-compose.yml           # Orquesta el backend (FastAPI)
+├─ Dockerfile                   # Imagen del backend
+├─ README.md                    # Descripción general
+├─ public/                      # (CRA) assets estáticos
+├─ src/                         # (CRA) código de la app React
+│  ├─ components/               # UI, auth, layout, etc.
+│  ├─ hooks/                    # hooks de negocio (useAuth, useApi…)
+│  ├─ pages/                    # páginas principales
+│  └─ utils/                    # utilidades
+├─ client/
+│  └─ anima/                    # Sitio de documentación (Fumadocs + Next.js)
+│     ├─ content/docs/          # Documentos MDX
+│     ├─ src/app/docs/          # Ruta /docs en Next.js
+│     └─ source.config.ts       # Configuración de colecciones MDX
+└─ server/                      # Backend FastAPI
+   ├─ app/main.py               # App y middlewares
+   ├─ api/v1/routes/            # Rutas: auth, user, spotify, analysis, etc.
+   ├─ controllers/              # Lógica de orquestación
+   ├─ services/                 # Integraciones (AWS, Spotify, email)
+   ├─ db/                       # Conexión y modelos
+   ├─ schemas/                  # Pydantic schemas
+   ├─ core/config.py            # Configuración vía .env
+   ├─ tests/                    # Pytest
+   └─ requirements.txt
+```
+
+Notas:
+
+- La documentación no interfiere con la app: vive aislada en `client/anima`.
+- El backend expone la API en `http://127.0.0.1:8000` por defecto.
+- La app CRA se sirve en `http://127.0.0.1:3000` (ajustá si tu entorno difiere).

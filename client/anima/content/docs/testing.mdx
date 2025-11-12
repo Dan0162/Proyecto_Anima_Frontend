@@ -1,0 +1,44 @@
+---
+title: Testing
+description: Cómo ejecutar y estructurar pruebas en el backend y potencial frontend.
+---
+
+## Backend (Pytest)
+
+Las pruebas viven en `server/tests/`.
+
+Ejecutar todas:
+
+```powershell
+cd server
+pytest -q
+```
+
+Agregar una prueba nueva:
+
+```python
+# server/tests/test_example.py
+def test_health(client):
+    res = client.get('/health')
+    assert res.status_code == 200
+    assert res.json()['status'] == 'ok'
+```
+
+Fixtures comunes están en `server/tests/conftest.py`.
+
+## Frontend
+
+Si añadís pruebas (Jest/React Testing Library):
+
+```powershell
+npm test
+```
+
+## Cobertura
+
+Puedes integrar cobertura con:
+
+```powershell
+pytest --cov=server --cov-report=term-missing
+```
+
