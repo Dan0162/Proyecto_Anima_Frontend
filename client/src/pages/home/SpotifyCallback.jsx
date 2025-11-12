@@ -2,6 +2,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFlash } from '../../components/flash/FlashContext';
+import tokenManager from '../../utils/tokenManager';
 
 /**
  * Invisible component that handles Spotify OAuth callback
@@ -49,7 +50,7 @@ const SpotifyCallback = () => {
       // Exchange on the backend for a signed JWT that contains spotify tokens
       (async () => {
         try {
-          const res = await fetch(`http://127.0.0.1:8000/v1/auth/spotify/exchange?state=${encodeURIComponent(state)}`);
+          const res = await fetch(`${tokenManager.getBaseUrl()}/v1/auth/spotify/exchange?state=${encodeURIComponent(state)}`);
           if (!res.ok) {
             throw new Error('No se pudo completar el intercambio de tokens');
           }

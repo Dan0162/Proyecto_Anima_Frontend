@@ -1,5 +1,6 @@
 import { authenticatedFetch } from './enhancedApi';
-const API_BASE_URL = 'http://127.0.0.1:8000';
+import tokenManager from './tokenManager';
+const API_BASE_URL = tokenManager.getBaseUrl();
 
 /**
  * Guarda el resultado de un análisis de emoción en la base de datos

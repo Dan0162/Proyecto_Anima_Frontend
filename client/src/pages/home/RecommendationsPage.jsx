@@ -4,6 +4,7 @@ import Sidebar from '../../components/sidebar/Sidebar';
 import GlassCard from '../../components/layout/GlassCard';
 import './RecommendationsPage.css';
 import { useFlash } from '../../components/flash/FlashContext';
+import tokenManager from '../../utils/tokenManager';
 
 // Preload album cover images for tracks
 const preloadImages = async (tracks) => {
@@ -56,8 +57,8 @@ const RecommendationsPage = () => {
     const MIN_LOADING_TIME = 2000; // ms
     const start = Date.now();
     try {
-      const protectedUrl = `http://127.0.0.1:8000/recommend?emotion=${selectedEmotion}`;
-      const response = await fetch(protectedUrl, { headers: { 'Authorization': `Bearer ${jwt}` } });
+  const protectedUrl = `${tokenManager.getBaseUrl()}/recommend?emotion=${selectedEmotion}`;
+  const response = await fetch(protectedUrl, { headers: { 'Authorization': `Bearer ${jwt}` } });
 
       if (!response.ok) {
         if (response.status === 401) {

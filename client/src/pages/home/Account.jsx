@@ -7,6 +7,7 @@ import PasswordInput from '../../components/ui/PasswordInput';
 import { useCurrentUser } from '../../hooks/useAuth';
 import { useFlash } from '../../components/flash/FlashContext';
 import { updateUserProfileApi, changePasswordApi, logoutApi } from '../../utils/enhancedApi';
+import tokenManager from '../../utils/tokenManager';
 import './Account.css';
 import { getUserProfileStats } from '../../utils/analyticsApi';
 
@@ -100,7 +101,7 @@ export default function Account() {
           if (mounted) setSpotifyConnected(false);
           return;
         }
-        const res = await fetch('http://127.0.0.1:8000/v1/auth/spotify/status', {
+        const res = await fetch(`${tokenManager.getBaseUrl()}/v1/auth/spotify/status`, {
           headers: { 'Authorization': `Bearer ${jwt}` }
         });
         if (res.ok) {
@@ -361,13 +362,13 @@ export default function Account() {
       console.warn('Could not save return path:', e);
     }
     
-    window.location.href = `http://127.0.0.1:8000/v1/auth/spotify?state=${state}`;
+  window.location.href = `${tokenManager.getBaseUrl()}/v1/auth/spotify?state=${state}`;
   };
 
   const handleDisconnectSpotify = async () => {
     try {
       const jwt = localStorage.getItem('spotify_jwt');
-      const res = await fetch('http://127.0.0.1:8000/v1/auth/spotify/disconnect', {
+      const res = await fetch(`${tokenManager.getBaseUrl()}/v1/auth/spotify/disconnect`, {
         method: 'POST',
         headers: jwt ? { 'Authorization': `Bearer ${jwt}` } : {}
       });

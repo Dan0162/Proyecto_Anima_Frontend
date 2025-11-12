@@ -4,6 +4,7 @@ import Sidebar from '../../components/sidebar/Sidebar';
 import GlassCard from '../../components/layout/GlassCard';
 import { useFlash } from '../../components/flash/FlashContext';
 import { saveAnalysisResult } from '../../utils/analyticsApi';
+import tokenManager from '../../utils/tokenManager';
 import './ResultsPage.css';
 
 const ResultsPage = () => {
@@ -21,7 +22,7 @@ const ResultsPage = () => {
   const fetchRecommendations = useCallback(async () => {
     setLoading(true);
     try {
-      const protectedUrl = `http://127.0.0.1:8000/recommend?emotion=${result.emotion}`;
+  const protectedUrl = `${tokenManager.getBaseUrl()}/recommend?emotion=${result.emotion}`;
       const jwt = localStorage.getItem('spotify_jwt');
       let response;
       if (jwt) {
@@ -121,7 +122,7 @@ const ResultsPage = () => {
         tracks: recommendations.slice(0, 20).map(track => track.uri).filter(Boolean)
       };
 
-      const response = await fetch('http://127.0.0.1:8000/v1/spotify/create-playlist', {
+  const response = await fetch(`${tokenManager.getBaseUrl()}/v1/spotify/create-playlist`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

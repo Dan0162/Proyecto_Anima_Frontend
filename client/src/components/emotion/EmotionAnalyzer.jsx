@@ -5,6 +5,7 @@ import CameraCapture from './CameraCapture';
 import PhotoUpload from './PhotoUpload';
 import { LOGO_SRC } from '../../constants/assets';
 import { analyzeEmotionBase64 } from '../../utils/enhancedApi';
+import tokenManager from '../../utils/tokenManager';
 import { saveAnalysisResult } from '../../utils/analyticsApi';
 import { useFlash } from '../flash/FlashContext';
 import { useCurrentUser } from '../../hooks/useAuth';
@@ -53,7 +54,7 @@ const EmotionAnalyzer = () => {
       try {
         const jwt = localStorage.getItem('spotify_jwt');
         if (jwt) {
-          const res = await fetch('http://127.0.0.1:8000/v1/auth/spotify/status', {
+          const res = await fetch(`${tokenManager.getBaseUrl()}/v1/auth/spotify/status`, {
             headers: { 'Authorization': `Bearer ${jwt}` }
           });
           if (res.ok) {
@@ -183,7 +184,7 @@ const EmotionAnalyzer = () => {
           if (mounted) setSpotifyConnected(false);
           return;
         }
-        const res = await fetch('http://127.0.0.1:8000/v1/auth/spotify/status', {
+        const res = await fetch(`${tokenManager.getBaseUrl()}/v1/auth/spotify/status`, {
           headers: { 'Authorization': `Bearer ${jwt}` }
         });
         if (res.ok) {
@@ -290,7 +291,7 @@ const EmotionAnalyzer = () => {
                   } catch (e) {
                     console.warn('Could not save state:', e);
                   }
-                  window.location.href = `http://127.0.0.1:8000/v1/auth/spotify?state=${state}`;
+                  window.location.href = `${tokenManager.getBaseUrl()}/v1/auth/spotify?state=${state}`;
                 }}
               >
                 <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">

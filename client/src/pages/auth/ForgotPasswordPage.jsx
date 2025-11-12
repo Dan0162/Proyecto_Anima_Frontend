@@ -7,6 +7,7 @@ import Input from '../../components/ui/Input';
 import PasswordInput from '../../components/ui/PasswordInput';
 import Button from '../../components/ui/Button';
 import { useFlash } from '../../components/flash/FlashContext';
+import tokenManager from '../../utils/tokenManager';
 import usePasswordValidation from '../../hooks/usePasswordValidation';
 import PasswordRequirements from '../../components/ui/PasswordRequirements';
 import './ForgotPasswordPage.css';
@@ -52,7 +53,7 @@ const ForgotPasswordPage = () => {
     setErrors({});
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/v1/password-recovery/request', {
+  const response = await fetch(`${tokenManager.getBaseUrl()}/v1/password-recovery/request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -87,7 +88,7 @@ const ForgotPasswordPage = () => {
     setErrors({});
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/v1/password-recovery/verify', {
+  const response = await fetch(`${tokenManager.getBaseUrl()}/v1/password-recovery/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, code })
@@ -127,7 +128,7 @@ const ForgotPasswordPage = () => {
     setErrors({});
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/v1/password-recovery/reset', {
+  const response = await fetch(`${tokenManager.getBaseUrl()}/v1/password-recovery/reset`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

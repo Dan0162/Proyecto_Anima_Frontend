@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/sidebar/Sidebar';
 import GlassCard from '../../components/layout/GlassCard';
 import { useFlash } from '../../components/flash/FlashContext';
+import tokenManager from '../../utils/tokenManager';
 import './AnalysisDetailPage.css';
 
 const AnalysisDetailPage = () => {
@@ -22,7 +23,7 @@ const AnalysisDetailPage = () => {
 const loadRecommendations = useCallback(async (emotion) => {
   try {
     const jwt = localStorage.getItem('spotify_jwt');
-    const url = `http://127.0.0.1:8000/recommend?emotion=${emotion}`;
+    const url = `${tokenManager.getBaseUrl()}/recommend?emotion=${emotion}`;
     
     if (!jwt) {
       // No mocks: require Spotify connection
@@ -56,7 +57,7 @@ const loadAnalysisDetails = useCallback(async () => {
     console.log(`🔍 Cargando análisis ${analysisId}...`);
     
     // Obtener detalles del análisis CON recomendaciones guardadas
-    const analysisResponse = await fetch(`http://127.0.0.1:8000/v1/analytics/analysis/${analysisId}`, {
+  const analysisResponse = await fetch(`${tokenManager.getBaseUrl()}/v1/analytics/analysis/${analysisId}`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('access_token')}`
       }
@@ -125,7 +126,7 @@ const loadAnalysisDetails = useCallback(async () => {
         tracks: recommendations.slice(0, 20).map(track => track.uri).filter(Boolean)
       };
 
-      const response = await fetch('http://127.0.0.1:8000/v1/spotify/create-playlist', {
+  const response = await fetch(`${tokenManager.getBaseUrl()}/v1/spotify/create-playlist`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

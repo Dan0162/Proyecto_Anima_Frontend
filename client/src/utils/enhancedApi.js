@@ -150,10 +150,10 @@ export const handleApiError = (error) => {
 
 export const loginApi = async (formData) => {
   try {
-  // Prefer a dedicated login URL when provided, otherwise use localhost (useful for local dev)
-  // Keep REACT_APP_LOGIN_URL if set so CI / deployed envs can override.
-  const loginBase = 'http://localhost:8000';
-    const url = `${loginBase}/v1/auth/login`;
+  // Prefer a dedicated login URL when provided (REACT_APP_LOGIN_URL), otherwise use the app base URL
+  // This lets CI/deployed envs override login separately if needed, while defaulting to the main API base.
+  const loginBase = process.env.REACT_APP_LOGIN_URL || getBaseUrl();
+  const url = `${loginBase}/v1/auth/login`;
     // Use fetchWithTimeout to avoid hanging requests; choose a reasonable timeout for login
     const LOGIN_TIMEOUT_MS = 10000; // 10 seconds
     const t0 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
