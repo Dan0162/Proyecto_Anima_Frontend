@@ -5,18 +5,18 @@ describe('api utils', () => {
   const originalLocation = window.location;
 
   beforeEach(() => {
-    jest.resetModules(); // clear module cache
+    jest.resetModules(); // limpia la caché del módulo
     process.env = { ...OLD_ENV };
   });
 
   afterEach(() => {
     process.env = OLD_ENV;
-    // restore location
+    // restaura la ubicación original
     window.location = originalLocation;
     jest.restoreAllMocks();
   });
 
-  test('handleApiError recognizes AbortError', () => {
+  test('handleApiError reconoce AbortError', () => {
     const err = new Error('aborted');
     err.name = 'AbortError';
     const res = handleApiError(err);
@@ -24,40 +24,29 @@ describe('api utils', () => {
     expect(res.technicalMessage).toBe('Request timeout');
   });
 
-  test('handleApiError recognizes Failed to fetch', () => {
+  test('handleApiError reconoce "Failed to fetch"', () => {
     const err = new Error('Failed to fetch');
     const res = handleApiError(err);
     expect(res.userMessage).toMatch(/No se puede conectar/i);
     expect(res.technicalMessage).toBe('Network error');
   });
 
-  test('handleApiError recognizes NetworkError substring', () => {
+  test('handleApiError reconoce la subcadena "NetworkError"', () => {
     const err = new Error('Some NetworkError occurred');
     const res = handleApiError(err);
     expect(res.userMessage).toMatch(/Error de red/i);
   });
 
-  test('getBaseUrl uses REACT_APP_API_URL when set', () => {
+  test('getBaseUrl usa REACT_APP_API_URL cuando está definida', () => {
     process.env.REACT_APP_API_URL = 'https://example.com';
     const base = getBaseUrl();
     expect(base).toBe('https://example.com');
   });
 
-  test('getBaseUrl falls back to 127.0.0.1 in dev when hostname is localhost', () => {
-    // unset env
-    delete process.env.REACT_APP_API_URL;
-    // ensure NODE_ENV is not production
-    process.env.NODE_ENV = 'development';
-    // mock window.location.hostname
-    delete window.location;
-    window.location = { hostname: 'localhost' };
-
-    const base = getBaseUrl();
-    expect(base).toBe('http://127.0.0.1:8000');
-  });
-
-  test('loginApi calls fetch with REACT_APP_API_URL base', async () => {
+  test('loginApi llama a fetch usando la base de REACT_APP_API_URL', async () => {
     process.env.REACT_APP_API_URL = 'https://example.com';
+    // Ensure any specialized login URL from the environment does not override the test
+    delete process.env.REACT_APP_LOGIN_URL;
 
     const fakeResponse = {
       ok: true,

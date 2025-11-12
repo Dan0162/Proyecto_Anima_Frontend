@@ -336,31 +336,35 @@
 <a name='L271'></a><a href='#L271'>271</a>
 <a name='L272'></a><a href='#L272'>272</a>
 <a name='L273'></a><a href='#L273'>273</a>
-<a name='L274'></a><a href='#L274'>274</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L274'></a><a href='#L274'>274</a>
+<a name='L275'></a><a href='#L275'>275</a>
+<a name='L276'></a><a href='#L276'>276</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -607,11 +611,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
- * Centralized JWT Token Management System
- * Handles token storage, refresh, and validation
+ * Sistema de gestión de tokens de autenticación
+ * - Almacena tokens en localStorage
+ * - Verifica expiración y renueva tokens automáticamente
+ * Maneja almacenamiento, renovación y validación de tokens
  */
 &nbsp;
 class TokenManager {
@@ -621,13 +627,13 @@ class TokenManager {
     this.SPOTIFY_TOKEN_KEY = 'spotify_jwt';
     this.TOKEN_EXPIRY_KEY = 'token_expiry';
     
-    // Refresh token 5 minutes before expiry
+    // Renovar token 5 minutos antes de que expire
     this.REFRESH_BUFFER_MS = 5 * 60 * 1000;
     
-    // Lock to prevent concurrent refresh attempts
+    // Bloqueo para evitar intentos concurrentes de renovación
     this.refreshPromise = null;
     
-    // Base URL for API calls
+    // URL base para llamadas a la API
     this.baseUrl = this.getBaseUrl();
   }
 &nbsp;
@@ -637,7 +643,7 @@ class TokenManager {
   }
 &nbsp;
   /**
-   * Store access token with expiry information
+   * Almacena token de acceso con información de expiración
    */
   setAccessToken(token, expiresIn = <span class="branch-0 cbranch-no" title="branch not covered" >3600)</span> {
     try {
@@ -654,7 +660,7 @@ class TokenManager {
   }
 &nbsp;
   /**
-   * Get current access token
+   * Obtiene token de acceso actual
    */
   getAccessToken() {
     try {
@@ -666,7 +672,7 @@ class TokenManager {
   }
 &nbsp;
   /**
-   * Store refresh token (if your backend supports it)
+   * Almacena el token de refresh 
    */
 <span class="fstat-no" title="function not covered" >  se</span>tRefreshToken(token) {
 <span class="cstat-no" title="statement not covered" >    try {</span>
@@ -677,7 +683,7 @@ class TokenManager {
   }
 &nbsp;
   /**
-   * Get refresh token
+   * Obtiene el token para refrescar el acceso
    */
 <span class="fstat-no" title="function not covered" >  ge</span>tRefreshToken() {
 <span class="cstat-no" title="statement not covered" >    try {</span>
@@ -689,7 +695,7 @@ class TokenManager {
   }
 &nbsp;
   /**
-   * Store Spotify JWT separately
+   * Almacena JWT de Spotify por separado
    */
 <span class="fstat-no" title="function not covered" >  se</span>tSpotifyToken(token) {
 <span class="cstat-no" title="statement not covered" >    try {</span>
@@ -700,7 +706,7 @@ class TokenManager {
   }
 &nbsp;
   /**
-   * Get Spotify JWT
+   * Obtiene JWT de Spotify
    */
 <span class="fstat-no" title="function not covered" >  ge</span>tSpotifyToken() {
 <span class="cstat-no" title="statement not covered" >    try {</span>
@@ -712,7 +718,7 @@ class TokenManager {
   }
 &nbsp;
   /**
-   * Check if access token is expired or about to expire
+   * Verifica si el token de acceso ha expirado o está a punto de expirar
    */
   isTokenExpired() {
     try {
@@ -722,7 +728,7 @@ class TokenManager {
       const expiry = <span class="cstat-no" title="statement not covered" >parseInt(expiryStr, 10);</span>
       const now = <span class="cstat-no" title="statement not covered" >Date.now();</span>
       
-      // Consider token expired if it's within the refresh buffer
+      // Considera el token expirado si está dentro del buffer de renovación
 <span class="cstat-no" title="statement not covered" >      return now &gt;= (expiry - this.REFRESH_BUFFER_MS);</span>
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('❌ Error checking token expiry:', error);</span>
@@ -739,10 +745,10 @@ class TokenManager {
   }
 &nbsp;
   /**
-   * Refresh the access token using refresh token
+   * Refresca el token de acceso usando el token de refresh
    */
 <span class="fstat-no" title="function not covered" >  as</span>ync refreshAccessToken() {
-    // If there's already a refresh in progress, wait for it
+    // Si ya hay una actualización en progreso, espera a que termine
 <span class="cstat-no" title="statement not covered" >    if (this.refreshPromise) {</span>
 <span class="cstat-no" title="statement not covered" >      console.log('⏳ Waiting for existing token refresh...');</span>
 <span class="cstat-no" title="statement not covered" >      return this.refreshPromise;</span>
@@ -768,7 +774,7 @@ class TokenManager {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        if (!response.ok) {</span>
 <span class="cstat-no" title="statement not covered" >          if (response.status === 401) {</span>
-            // Refresh token is invalid, user needs to log in again
+            // El token de refresh no es válido, el usuario debe iniciar sesión nuevamente
 <span class="cstat-no" title="statement not covered" >            this.clearAllTokens();</span>
 <span class="cstat-no" title="statement not covered" >            throw new Error('REFRESH_TOKEN_EXPIRED');</span>
           }
@@ -777,7 +783,7 @@ class TokenManager {
 &nbsp;
         const data = <span class="cstat-no" title="statement not covered" >await response.json();</span>
         
-        // Store new tokens
+        // Almacena nuevos tokens
 <span class="cstat-no" title="statement not covered" >        if (data.access_token) {</span>
 <span class="cstat-no" title="statement not covered" >          this.setAccessToken(data.access_token, data.expires_in || 3600);</span>
         }
@@ -793,7 +799,7 @@ class TokenManager {
 <span class="cstat-no" title="statement not covered" >        console.error('❌ Token refresh failed:', error);</span>
         
 <span class="cstat-no" title="statement not covered" >        if (error.message === 'REFRESH_TOKEN_EXPIRED') {</span>
-          // Clear tokens and redirect to login
+          // Limpia los tokens y redirige al inicio de sesión
 <span class="cstat-no" title="statement not covered" >          this.clearAllTokens();</span>
 <span class="cstat-no" title="statement not covered" >          window.location.href = '/signin';</span>
         }
@@ -808,7 +814,7 @@ class TokenManager {
   }
 &nbsp;
   /**
-   * Get valid access token (refresh if needed)
+   * Obtiene token de acceso válido (refresca si es necesario)
    */
 <span class="fstat-no" title="function not covered" >  as</span>ync getValidAccessToken() {
     const token = <span class="cstat-no" title="statement not covered" >this.getAccessToken();</span>
@@ -817,7 +823,7 @@ class TokenManager {
 <span class="cstat-no" title="statement not covered" >      throw new Error('NO_TOKEN');</span>
     }
 &nbsp;
-    // If token is expired or about to expire, refresh it
+   // Si el token ha expirado o está a punto de expirar, refrescarlo
 <span class="cstat-no" title="statement not covered" >    if (this.isTokenExpired()) {</span>
 <span class="cstat-no" title="statement not covered" >      console.log('⚠️ Token expired or expiring soon, refreshing...');</span>
 <span class="cstat-no" title="statement not covered" >      return await this.refreshAccessToken();</span>
@@ -827,18 +833,18 @@ class TokenManager {
   }
 &nbsp;
   /**
-   * Clear authentication tokens.
-   * @param {boolean} preserveSpotify - if true, keep the Spotify token in storage (default: false)
+   * Limpia todos los tokens de autenticación almacenados
+   * @param {boolean} preserveSpotify - si es true, mantiene el token de Spotify en el almacenamiento (por defecto: false)
    */
 <span class="fstat-no" title="function not covered" >  cl</span>earAllTokens(preserveSpotify = <span class="branch-0 cbranch-no" title="branch not covered" >false)</span> {
 <span class="cstat-no" title="statement not covered" >    try {</span>
-      // Always remove access/refresh tokens and expiry
+      // Siempre elimina los tokens de acceso/refresco y la expiración
 <span class="cstat-no" title="statement not covered" >      localStorage.removeItem(this.ACCESS_TOKEN_KEY);</span>
 <span class="cstat-no" title="statement not covered" >      localStorage.removeItem(this.REFRESH_TOKEN_KEY);</span>
 <span class="cstat-no" title="statement not covered" >      localStorage.removeItem(this.TOKEN_EXPIRY_KEY);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      if (!preserveSpotify) {</span>
-        // Remove Spotify token only when not preserving it
+        // Elimina el token de Spotify solo cuando no se está preservando
 <span class="cstat-no" title="statement not covered" >        localStorage.removeItem(this.SPOTIFY_TOKEN_KEY);</span>
       }
 &nbsp;
@@ -849,7 +855,7 @@ class TokenManager {
   }
 &nbsp;
   /**
-   * Decode JWT token (client-side, for information only - never trust for security)
+   * Decodifica token JWT (lado cliente, solo para información - nunca confiar para seguridad)
    */
 <span class="fstat-no" title="function not covered" >  de</span>codeToken(token) {
 <span class="cstat-no" title="statement not covered" >    try {</span>
@@ -868,7 +874,7 @@ class TokenManager {
   }
 &nbsp;
   /**
-   * Get token expiry from JWT payload
+   * Obtiene la expiración del token desde el payload JWT
    */
 <span class="fstat-no" title="function not covered" >  ge</span>tTokenExpiry(token) {
     const decoded = <span class="cstat-no" title="statement not covered" >this.decodeToken(token);</span>
@@ -889,7 +895,7 @@ export default tokenManager;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-11-12T05:27:51.650Z
+                at 2025-11-12T06:14:18.339Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

@@ -2,9 +2,9 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import SignIn from '../../pages/SignIn';
 
-test('SignIn wrapper renders sign in form title', () => {
+test('El contenedor de SignIn renderiza el título del formulario de inicio de sesión', () => {
   render(<SignIn />);
 
-  // The page contains several occurrences of the text; target the heading specifically
+  // La página contiene varias apariciones del texto; se apunta específicamente al encabezado
   expect(screen.getByRole('heading', { name: /Iniciar Sesión/i })).toBeInTheDocument();
 });

@@ -4,13 +4,13 @@ describe('sha256Hex', () => {
   const originalCrypto = global.crypto;
 
   afterEach(() => {
-    // restore original crypto
+    // restaura el objeto crypto original
     global.crypto = originalCrypto;
     jest.restoreAllMocks();
   });
 
-  test('returns hex for provided ArrayBuffer from subtle.digest', async () => {
-    // Fake digest to return a predictable byte array [1,2,3,4]
+  test('retorna un valor hexadecimal para el ArrayBuffer proporcionado por subtle.digest', async () => {
+    // Finge un digest que devuelve un arreglo de bytes predecible [1,2,3,4]
     const fakeBytes = new Uint8Array([1, 2, 3, 4]);
     const fakeSubtle = {
       digest: jest.fn(() => Promise.resolve(fakeBytes.buffer))

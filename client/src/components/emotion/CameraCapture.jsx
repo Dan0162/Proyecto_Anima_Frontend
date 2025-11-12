@@ -86,9 +86,16 @@ const CameraCapture = ({ onCapture, onCancel }) => {
     if (stream && videoRef.current && !capturedPhoto) {
       videoRef.current.srcObject = stream;
       // Asegurar que el video se reproduzca
-      videoRef.current.play().catch(err => {
-        console.error('Error playing video:', err);
-      });
+      try {
+        const playResult = videoRef.current.play && videoRef.current.play();
+        if (playResult && typeof playResult.catch === 'function') {
+          playResult.catch(err => {
+            console.error('Error playing video:', err);
+          });
+        }
+      } catch (err) {
+        console.error('Error calling play on video element:', err);
+      }
     } else if (capturedPhoto && videoRef.current) {
       // Asegurar que el video se detenga completamente cuando hay foto capturada
       videoRef.current.srcObject = null;

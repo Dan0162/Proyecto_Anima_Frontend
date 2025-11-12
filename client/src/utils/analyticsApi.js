@@ -1,3 +1,4 @@
+import { authenticatedFetch } from './enhancedApi';
 const API_BASE_URL = 'http://127.0.0.1:8000';
 
 /**
@@ -7,34 +8,24 @@ const API_BASE_URL = 'http://127.0.0.1:8000';
  */
 export const saveAnalysisResult = async (analysisData) => {
   try {
-    const token = localStorage.getItem('access_token');
-    
-    if (!token) {
-      throw new Error('Token de autenticación no encontrado');
-    }
-
-    console.log('📡 Enviando análisis a guardar:', {
+    // Delegate to authenticatedFetch so callers/tests can mock authenticatedFetch
+    console.log('📡 Enviando análisis a guardar (delegando a authenticatedFetch):', {
       emotion: analysisData.emotion,
       confidence: analysisData.confidence,
       recommendationsCount: analysisData.recommendations?.length || 0
     });
 
-    const response = await fetch(`${API_BASE_URL}/v1/analytics/save-analysis`, {
+    const response = await authenticatedFetch(`${API_BASE_URL}/v1/analytics/save-analysis`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(analysisData),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      
       if (response.status === 401) {
         throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
       }
-      
       throw new Error(errorData.detail || 'Error al guardar el análisis');
     }
 
