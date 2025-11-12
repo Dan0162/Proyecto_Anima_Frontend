@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider } from '../../contexts/ThemeContext';
 import AboutPage from '../../pages/AboutPage';
 
-test('AboutPage renders hero title and subtitle', () => {
+test('AboutPage renderiza el título y subtítulo del héroe', () => {
   render(
     <MemoryRouter>
       <ThemeProvider>
@@ -13,7 +13,7 @@ test('AboutPage renders hero title and subtitle', () => {
     </MemoryRouter>
   );
 
-  // The hero heading should be present (use heading query to avoid duplicate matches)
+  // El encabezado principal (héroe) debe estar presente (usa la consulta de encabezado para evitar coincidencias duplicadas)
   expect(screen.getByRole('heading', { level: 1, name: /Sobre/i })).toBeInTheDocument();
   expect(screen.getByText(/Conectando emociones con música/i)).toBeInTheDocument();
 });

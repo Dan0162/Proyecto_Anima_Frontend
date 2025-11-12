@@ -5,7 +5,7 @@ import { ThemeProvider } from '../../contexts/ThemeContext';
 import FlashContext, { FlashProvider } from '../../components/flash/FlashContext';
 import ContactPage from '../../pages/ContactPage';
 
-test('ContactPage renders hero and form and validates inputs', async () => {
+test('ContactPage renderiza el héroe y el formulario, y valida las entradas', async () => {
   render(
     <MemoryRouter>
       <ThemeProvider>
@@ -18,30 +18,30 @@ test('ContactPage renders hero and form and validates inputs', async () => {
 
   expect(screen.getByText(/Contáctanos/i)).toBeInTheDocument();
 
-  // Find form inputs
+  // Buscar los campos del formulario
   const nameInput = screen.getByPlaceholderText(/Tu nombre completo/i);
   const emailInput = screen.getByPlaceholderText(/tu@ejemplo.com/i);
   const subjectInput = screen.getByPlaceholderText(/¿En qué podemos ayudarte\?/i);
   const messageInput = screen.getByPlaceholderText(/Escribe tu mensaje aquí/i);
 
-  // Submit empty form to trigger validations
+  // Enviar el formulario vacío para activar las validaciones
   const submit = screen.getByRole('button', { name: /Enviar Mensaje/i });
   fireEvent.click(submit);
 
-  // Expect validation errors to appear for required fields
+  // Esperar que aparezcan los mensajes de error de validación para los campos requeridos
   expect(await screen.findByText(/El nombre es requerido/i)).toBeInTheDocument();
   expect(await screen.findByText(/El correo es requerido/i)).toBeInTheDocument();
 });
 
-test('ContactPage successful submit shows flash and clears form', async () => {
-  // Mock global.fetch to simulate successful POST
+test('ContactPage con envío exitoso muestra un mensaje flash y limpia el formulario', async () => {
+  // Simular una llamada fetch exitosa de tipo POST
   const fakeResponse = { message: 'Enviado con éxito' };
   global.fetch = jest.fn().mockResolvedValue({
     ok: true,
     json: async () => fakeResponse
   });
 
-  // Provide a test flash context with a mocked `show` function so we can assert it was called
+  // Proveer un contexto flash de prueba con una función `show` simulada para verificar su invocación
   const mockShow = jest.fn();
   const TestFlashProvider = ({ children }) => (
     <FlashContext.Provider value={{ flash: null, show: mockShow, hide: jest.fn() }}>
@@ -59,7 +59,7 @@ test('ContactPage successful submit shows flash and clears form', async () => {
     </MemoryRouter>
   );
 
-  // Fill form
+  // Llenar el formulario
   fireEvent.change(screen.getByPlaceholderText(/Tu nombre completo/i), { target: { name: 'name', value: 'Ishai' } });
   fireEvent.change(screen.getByPlaceholderText(/tu@ejemplo.com/i), { target: { name: 'email', value: 'ishai@example.com' } });
   fireEvent.change(screen.getByPlaceholderText(/¿En qué podemos ayudarte\?/i), { target: { name: 'subject', value: 'Consulta' } });
@@ -68,14 +68,14 @@ test('ContactPage successful submit shows flash and clears form', async () => {
   const submit = screen.getByRole('button', { name: /Enviar Mensaje/i });
   fireEvent.click(submit);
 
-  // Wait for the mocked flash.show to be called with the server message
-  await screen.findByRole('button', { name: /Enviar Mensaje/i }); // ensure form processed
+  // Esperar a que la función flash.show sea llamada con el mensaje del servidor simulado
+  await screen.findByRole('button', { name: /Enviar Mensaje/i }); // asegura que el formulario haya sido procesado
   expect(mockShow).toHaveBeenCalledWith(fakeResponse.message, 'success', 4000);
 
-  // Form should be cleared: inputs should have empty values
+  // El formulario debe haberse limpiado: los campos deben estar vacíos
   expect(screen.getByPlaceholderText(/Tu nombre completo/i).value).toBe('');
   expect(screen.getByPlaceholderText(/tu@ejemplo.com/i).value).toBe('');
 
-  // Clean up mock
+  // Restaurar el mock
   global.fetch.mockRestore && global.fetch.mockRestore();
 });

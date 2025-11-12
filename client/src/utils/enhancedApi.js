@@ -26,7 +26,7 @@ export const fetchWithTimeout = async (url, options = {}, timeout = 20000) => {
 };
 
 // Get base URL
-const getBaseUrl = () => {
+export const getBaseUrl = () => {
   return tokenManager.getBaseUrl();
 };
 

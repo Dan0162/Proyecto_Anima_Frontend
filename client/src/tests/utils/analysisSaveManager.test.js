@@ -6,24 +6,32 @@ describe('analysisSaveManager', () => {
     jest.restoreAllMocks();
   });
 
-  test('prevents duplicate saves', async () => {
-    const analysis = { emotion: 'happy', confidence: 0.9, timestamp: Date.now() };
+  test('evita guardar duplicados', async () => {
+    const analisis = { emotion: 'happy', confidence: 0.9, timestamp: Date.now() };
     let calls = 0;
-    const saveFn = async () => { calls += 1; return { ok: true }; };
-    // First call -> saved
-    await analysisSaveManager.saveAnalysisSafe(analysis, saveFn);
+    const funcionGuardar = async () => { 
+      calls += 1; 
+      return { ok: true }; 
+    };
+
+    // Primera llamada → se guarda correctamente
+    await analysisSaveManager.saveAnalysisSafe(analisis, funcionGuardar);
     expect(calls).toBe(1);
-    // Second immediate call -> skipped
-    const res = await analysisSaveManager.saveAnalysisSafe(analysis, saveFn);
-    expect(res).toMatchObject({ success: true, message: 'Analysis already saved' });
+
+    // Segunda llamada inmediata → se omite
+    const resultado = await analysisSaveManager.saveAnalysisSafe(analisis, funcionGuardar);
+    expect(resultado).toMatchObject({ success: true, message: 'Analysis already saved' });
     expect(calls).toBe(1);
   });
 
-  test('propagates save errors and clears pending', async () => {
-    const analysis = { emotion: 'sad', confidence: 0.1, timestamp: Date.now() };
-    const saveFn = jest.fn().mockRejectedValue(new Error('fail'));
-    await expect(analysisSaveManager.saveAnalysisSafe(analysis, saveFn)).rejects.toThrow('fail');
-    // After error, we should be able to try again (pending cleared)
-    expect(analysisSaveManager.isAlreadySaved(analysis)).toBe(false);
+  test('propaga errores al guardar y limpia el estado pendiente', async () => {
+    const analisis = { emotion: 'sad', confidence: 0.1, timestamp: Date.now() };
+    const funcionGuardar = jest.fn().mockRejectedValue(new Error('fail'));
+
+    await expect(analysisSaveManager.saveAnalysisSafe(analisis, funcionGuardar))
+      .rejects.toThrow('fail');
+
+    // Después del error, debería ser posible intentar nuevamente (pendiente limpiado)
+    expect(analysisSaveManager.isAlreadySaved(analisis)).toBe(false);
   });
 });

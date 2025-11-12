@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">1.11% </span>
+                <span class="strong">1.04% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>1/90</span>
+                <span class='fraction'>1/96</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/65</span>
+                <span class='fraction'>0/71</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">1.12% </span>
+                <span class="strong">1.07% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>1/89</span>
+                <span class='fraction'>1/93</span>
             </div>
         
             
@@ -505,7 +505,11 @@
 <a name='L440'></a><a href='#L440'>440</a>
 <a name='L441'></a><a href='#L441'>441</a>
 <a name='L442'></a><a href='#L442'>442</a>
-<a name='L443'></a><a href='#L443'>443</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L443'></a><a href='#L443'>443</a>
+<a name='L444'></a><a href='#L444'>444</a>
+<a name='L445'></a><a href='#L445'>445</a>
+<a name='L446'></a><a href='#L446'>446</a>
+<a name='L447'></a><a href='#L447'>447</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -573,20 +577,24 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1015,21 +1023,25 @@ const AnalysisDetailPage = <span class="fstat-no" title="function not covered" >
       const jwt = <span class="cstat-no" title="statement not covered" >localStorage.getItem('spotify_jwt');</span>
       const url = <span class="cstat-no" title="statement not covered" >`http://127.0.0.1:8000/recommend?emotion=${emotion}`;</span>
       
-      let response;
-<span class="cstat-no" title="statement not covered" >      if (jwt) {</span>
-<span class="cstat-no" title="statement not covered" >        response = await fetch(url, {</span>
-          headers: { 'Authorization': `Bearer ${jwt}` }
-        });
-      } else {
-        // Fallback a mockup si no hay Spotify conectado
-        const fallbackUrl = <span class="cstat-no" title="statement not covered" >`http://127.0.0.1:8000/recommend/mockup?emotion=${emotion}`;</span>
-<span class="cstat-no" title="statement not covered" >        response = await fetch(fallbackUrl);</span>
+<span class="cstat-no" title="statement not covered" >      if (!jwt) {</span>
+        // No mocks: require Spotify connection
+<span class="cstat-no" title="statement not covered" >        if (flash?.show) <span class="cstat-no" title="statement not covered" >flash.show('Conecta tu cuenta de Spotify para generar recomendaciones musicales.', 'error');</span></span>
+<span class="cstat-no" title="statement not covered" >        return;</span>
       }
+&nbsp;
+      const response = <span class="cstat-no" title="statement not covered" >await fetch(url, {</span>
+        headers: { 'Authorization': `Bearer ${jwt}` }
+      });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      if (response.ok) {</span>
         const data = <span class="cstat-no" title="statement not covered" >await response.json();</span>
 <span class="cstat-no" title="statement not covered" >        setRecommendations(data.tracks || []);</span>
-<span class="cstat-no" title="statement not covered" >        console.log('🔄 Recomendaciones generadas como fallback:', data.tracks?.length || 0);</span>
+<span class="cstat-no" title="statement not covered" >        console.log('🔄 Recomendaciones generadas:', data.tracks?.length || 0);</span>
+      } else <span class="cstat-no" title="statement not covered" >if (response.status === 401) {</span>
+<span class="cstat-no" title="statement not covered" >        localStorage.removeItem('spotify_jwt');</span>
+<span class="cstat-no" title="statement not covered" >        if (flash?.show) <span class="cstat-no" title="statement not covered" >flash.show('Tu sesión de Spotify expiró. Vuelve a conectar.', 'error');</span></span>
+      } else {
+<span class="cstat-no" title="statement not covered" >        console.error('Error obteniendo recomendaciones:', response.status);</span>
       }
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error cargando recomendaciones:', error);</span>
@@ -1396,7 +1408,7 @@ export default AnalysisDetailPage;</pre></td></tr></table></pre>
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-11-12T05:27:51.650Z
+                at 2025-11-12T06:14:18.339Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
