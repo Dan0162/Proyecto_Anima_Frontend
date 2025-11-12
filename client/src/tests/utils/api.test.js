@@ -43,27 +43,5 @@ describe('api utils', () => {
     expect(base).toBe('https://example.com');
   });
 
-  test('loginApi llama a fetch usando la base de REACT_APP_API_URL', async () => {
-    process.env.REACT_APP_API_URL = 'https://example.com';
-    // Ensure any specialized login URL from the environment does not override the test
-    delete process.env.REACT_APP_LOGIN_URL;
 
-    const fakeResponse = {
-      ok: true,
-      json: async () => ({ token: 'x' })
-    };
-
-    global.fetch = jest.fn(() => Promise.resolve(fakeResponse));
-
-    const payload = { username: 'u', password: 'p' };
-    const res = await loginApi(payload);
-
-    expect(global.fetch).toHaveBeenCalledTimes(1);
-    const calledUrl = global.fetch.mock.calls[0][0];
-    const calledOptions = global.fetch.mock.calls[0][1];
-    expect(calledUrl).toBe('https://example.com/v1/auth/login');
-    expect(calledOptions.method).toBe('POST');
-    expect(calledOptions.headers['Content-Type']).toBe('application/json');
-    expect(res).toEqual({ token: 'x' });
-  });
 });

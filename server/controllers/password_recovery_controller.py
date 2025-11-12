@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from server.db.models.user import User
 from server.db.models.password_recovery import PasswordRecovery
 from server.services.email import send_verification_email, generate_verification_code
@@ -39,7 +39,7 @@ def request_password_recovery(db: Session, data: RequestPasswordRecovery) -> Pas
     recovery = PasswordRecovery(
         user_id=user.id,
         code=code,
-        expires_at=datetime.utcnow() + timedelta(minutes=15),
+        expires_at=datetime.now(timezone.utc) + timedelta(minutes=15),
         is_used=False
     )
     
@@ -79,7 +79,7 @@ def verify_recovery_code(db: Session, data: VerifyRecoveryCode) -> PasswordRecov
         PasswordRecovery.user_id == user.id,
         PasswordRecovery.code == data.code,
         PasswordRecovery.is_used == False,
-        PasswordRecovery.expires_at > datetime.utcnow()
+    PasswordRecovery.expires_at > datetime.now(timezone.utc)
     ).first()
     
     if not recovery:
@@ -112,7 +112,7 @@ def reset_password(db: Session, data: ResetPassword) -> PasswordRecoveryResponse
         PasswordRecovery.user_id == user.id,
         PasswordRecovery.code == data.code,
         PasswordRecovery.is_used == False,
-        PasswordRecovery.expires_at > datetime.utcnow()
+    PasswordRecovery.expires_at > datetime.now(timezone.utc)
     ).first()
     
     if not recovery:

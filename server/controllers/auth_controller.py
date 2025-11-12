@@ -6,7 +6,7 @@ from server.db.session import SessionLocal
 from sqlalchemy.orm import Session
 from server.db.models.user import User
 from server.db.models.session import Session as UserSession
-from datetime import datetime
+from datetime import datetime, timezone
 import re
 
 
@@ -54,8 +54,8 @@ def login_user(db: Session, user: UserLogin) -> TokenResponse:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Correo o contraseña invalida"
         )
-    # Create a new session record
-    new_session = UserSession(id_usuario=db_user.id, fecha_inicio=datetime.utcnow())
+    # Create a new session record (timezone-aware UTC)
+    new_session = UserSession(id_usuario=db_user.id, fecha_inicio=datetime.now(timezone.utc))
     db.add(new_session)
     db.commit()
     db.refresh(new_session)
@@ -73,7 +73,7 @@ def logout_user(db: Session, session_id: int) -> bool:
     if session_record.fecha_fin is not None:
         print(f"[LOGOUT] Session {session_id} already finished at {session_record.fecha_fin}")
         return False
-    session_record.fecha_fin = datetime.utcnow()
+    session_record.fecha_fin = datetime.now(timezone.utc)
     db.commit()
     print(f"[LOGOUT] Session {session_id} updated with fecha_fin={session_record.fecha_fin}")
     return True
