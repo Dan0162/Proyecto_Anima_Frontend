@@ -1,0 +1,1810 @@
+﻿node.exe : npm warn Unknown cli config "--watchAll". This will stop working in 
+the next major version of npm.
+En C:\Program Files\nodejs\npm.ps1: 29 Carácter: 3
++   & $NODE_EXE $NPM_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm warn Unknow...version of npm.:S 
+   tring) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+npm warn Unknown cli config "--runInBand". This will stop working in the next 
+major version of npm.
+npm warn Unknown cli config "--testLocationInResults". This will stop working in 
+the next major version of npm.
+
+> client@0.1.0 test
+> react-scripts test
+
+FAIL src/tests/components/navbar.test.jsx
+  ÔùÅ Console
+
+    console.warn
+      ÔÜá´©Å React Router Future Flag Warning: React Router will begin wrapping 
+state updates in `React.startTransition` in v7. You can use the 
+`v7_startTransition` future flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+
+    [0m [90m  9 |[39m [90m// Funci├│n auxiliar para renderizar el componente 
+con los proveedores necesarios[39m
+     [90m 10 |[39m [36mconst[39m renderConProveedores [33m=[39m 
+(ui[33m,[39m { route [33m=[39m [32m'/'[39m } [33m=[39m {}) [33m=>[39m {
+    [31m[1m>[22m[39m[90m 11 |[39m   [36mreturn[39m render(
+     [90m    |[39m                [31m[1m^[22m[39m
+     [90m 12 |[39m     [33m<[39m[33mMemoryRouter[39m 
+initialEntries[33m=[39m{[route]}[33m>[39m
+     [90m 13 |[39m       [33m<[39m[33mThemeProvider[39m[33m>[39m
+     [90m 14 |[39m         {ui}[0m
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at logV6DeprecationWarnings 
+(node_modules/react-router/lib/deprecations.ts:26:5)
+      at node_modules/react-router/lib/components.tsx:257:25
+      at Object.react_stack_bottom_frame 
+(node_modules/react-dom/cjs/react-dom-client.development.js:23953:20)
+      at runWithFiberInDEV 
+(node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHookEffectListMount 
+(node_modules/react-dom/cjs/react-dom-client.development.js:11905:29)
+      at commitHookPassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:12028:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13841:13)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13853:11)
+      at flushPassiveEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:15737:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:15379:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act 
+(node_modules/react/cjs/react.development.js:860:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at renderConProveedores (src/tests/components/navbar.test.jsx:11:16)
+      at Object.<anonymous> (src/tests/components/navbar.test.jsx:22:43)
+
+    console.warn
+      ÔÜá´©Å React Router Future Flag Warning: Relative route resolution within 
+Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future 
+flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+    [0m [90m  9 |[39m [90m// Funci├│n auxiliar para renderizar el componente 
+con los proveedores necesarios[39m
+     [90m 10 |[39m [36mconst[39m renderConProveedores [33m=[39m 
+(ui[33m,[39m { route [33m=[39m [32m'/'[39m } [33m=[39m {}) [33m=>[39m {
+    [31m[1m>[22m[39m[90m 11 |[39m   [36mreturn[39m render(
+     [90m    |[39m                [31m[1m^[22m[39m
+     [90m 12 |[39m     [33m<[39m[33mMemoryRouter[39m 
+initialEntries[33m=[39m{[route]}[33m>[39m
+     [90m 13 |[39m       [33m<[39m[33mThemeProvider[39m[33m>[39m
+     [90m 14 |[39m         {ui}[0m
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at logV6DeprecationWarnings 
+(node_modules/react-router/lib/deprecations.ts:37:5)
+      at node_modules/react-router/lib/components.tsx:257:25
+      at Object.react_stack_bottom_frame 
+(node_modules/react-dom/cjs/react-dom-client.development.js:23953:20)
+      at runWithFiberInDEV 
+(node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHookEffectListMount 
+(node_modules/react-dom/cjs/react-dom-client.development.js:11905:29)
+      at commitHookPassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:12028:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13841:13)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13853:11)
+      at flushPassiveEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:15737:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:15379:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act 
+(node_modules/react/cjs/react.development.js:860:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at renderConProveedores (src/tests/components/navbar.test.jsx:11:16)
+      at Object.<anonymous> (src/tests/components/navbar.test.jsx:22:43)
+
+  ÔùÅ Interacciones m├│viles del Navbar ÔÇ║ al hacer clic en el fondo se cierra 
+el men├║
+
+    TestingLibraryElementError: Unable to find a label with the text of: 
+/alternar navegaci├│n/i
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mclass[39m=[32m"navbar"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"navdiv"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"left-group"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"logo"[39m
+              [36m>[39m
+                [36m<a[39m
+                  [33maria-label[39m=[32m"Anima home"[39m
+                  [33mclass[39m=[32m"btn logo-btn"[39m
+                  [33mhref[39m=[32m"/"[39m
+                [36m>[39m
+                  [36m<img[39m
+                    [33malt[39m=[32m"Anima logo"[39m
+                    [33msrc[39m=[32m"/logo.png"[39m
+                  [36m/>[39m
+                [36m</a>[39m
+              [36m</div>[39m
+              [36m<ul[39m
+                [33mclass[39m=[32m"navlist"[39m
+              [36m>[39m
+                [36m<li>[39m
+                  [36m<a[39m
+                    [33mhref[39m=[32m"/"[39m
+                    [33mtitle[39m=[32m"Ir a la p├ígina principal"[39m
+                  [36m>[39m
+                    [0mInicio[0m
+                  [36m</a>[39m
+                [36m</li>[39m
+                [36m<li>[39m
+                  [36m<a[39m
+                    [33mhref[39m=[32m"/about"[39m
+                  [36m>[39m
+                    [0mSobre Nosotros[0m
+                  [36m</a>[39m
+                [36m</li>[39m
+                [36m<li>[39m
+                  [36m<a[39m
+                    [33mhref[39m=[32m"/contact"[39m
+                  [36m>[39m
+                    [0mContacto[0m
+                  [36m</a>[39m
+                [36m</li>[39m
+              [36m</ul>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"right-group"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-expanded[39m=[32m"false"[39m
+                [33maria-label[39m=[32m"Toggle navigation"[39m
+                [33mclass[39m=[32m"hamburger "[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"bar"[39m
+                [36m/>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"bar"[39m
+                [36m/>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"bar"[39m
+                [36m/>[39m
+              [36m</button>[39m
+              [36m<ul[39m
+                [33mclass[39m=[32m"navlist actions"[39m
+              [36m>[39m
+                [36m<li>[39m
+                  [36m<a[39m
+                    [33mclass[39m=[32m"btn signin"[39m
+                    [33mhref[39m=[32m"/signin"[39m
+                  [36m>[39m
+                    [0mIniciar Sesi├│n[0m
+                  [36m</a>[39m
+                [36m</li>[39m
+                [36m<li>[39m
+                  [36m<a[39m
+                    [33mclass[39m=[32m"btn signup"[39m
+                    [33mhref[39m=[32m"/signup"[39m
+                  [36m>[39m
+                    [0mRegistrarse[0m
+                  [36m</a>[39m
+                [36m</li>[39m
+                [36m<li>[39m
+                  [36m<button[39m
+                    [33maria-checked[39m=[32m"false"[39m
+                    [33maria-label[39m=[32m"Cambiar a modo oscuro"[39m
+                    [33mclass[39m=[32m"btn theme-toggle-btn"[39m
+                    [33mrole[39m=[32m"switch"[39m
+                  [36m>[39m
+                    [36m<svg[39m
+                      [33maria-hidden[39m=[32m"true"[39m
+                      [33mfill[39m=[32m"none"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 
+21 12.79z"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                  [36m</button>[39m
+                [36m</li>[39m
+              [36m</ul>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"mobile-backdrop "[39m
+          [36m/>[39m
+          [36m<div[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"mobile-dropdown "[39m
+          [36m>[39m
+            [36m<ul[39m
+              [33mclass[39m=[32m"mobile-nav"[39m
+            [36m>[39m
+              [36m<li>[39m
+                [36m<a[39m
+                  [33mhref[39m=[32m"/"[39m
+                [36m>[39m
+                  [0mInicio[0m
+                [36m</a>[39m
+              [36m</li>[39m
+              [36m<li>[39m
+                [36m<a[39m
+                  [33mhref[39m=[32m"/about"[39m
+                [36m>[39m
+                  [0mSobre Nosotros[0m
+                [36m</a>[39m
+              [36m</li>[39m
+              [36m<li>[39m
+                [36m<a[39m
+                  [33mhref[39m=[32m"/contact"[39m
+                [36m>[39m
+                  [0mContacto[0m
+                [36m</a>[39m
+              [36m</li>[39m
+            [36m</ul>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mobile-actions"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"btn signin"[39m
+                [33mhref[39m=[32m"/signin"[39m
+              [36m>[39m
+                [0mIniciar Sesi├│n[0m
+              [36m</a>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"btn signup"[39m
+                [33mhref[39m=[32m"/signup"[39m
+              [36m>[39m
+                [0mRegistrarse[0m
+              [36m</a>[39m
+              [36m<button[39m
+                [33maria-checked[39m=[32m"false"[39m
+                [33maria-label[39m=[32m"Cambiar a modo oscuro"[39m
+                [33mclass[39m=[32m"btn theme-toggle-mobile"[39m
+                [33mrole[39m=[32m"switch"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mstyle[39m=[32m"width: 18px; height: 18px; margin-right: 
+8px;"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 
+12.79z"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [0mModo Oscuro[0m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</nav>[39m
+      [36m</div>[39m
+    [36m</body>[39m
+
+    [0m [90m 21 |[39m   test([32m'al hacer clic en el fondo se cierra el 
+men├║'[39m[33m,[39m () [33m=>[39m {
+     [90m 22 |[39m     [36mconst[39m { container[33m,[39m getByLabelText } 
+[33m=[39m renderConProveedores([33m<[39m[33mNavbar[39m 
+[33m/[39m[33m>[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 23 |[39m     [36mconst[39m botonMenu 
+[33m=[39m getByLabelText([35m/alternar navegaci├│n/i[39m)[33m;[39m
+     [90m    |[39m                       [31m[1m^[22m[39m
+     [90m 24 |[39m
+     [90m 25 |[39m     [90m// abrir men├║[39m
+     [90m 26 |[39m     fireEvent[33m.[39mclick(botonMenu)[33m;[39m[0m
+
+      at Object.getElementError 
+(node_modules/@testing-library/dom/dist/config.js:37:19)
+      at getAllByLabelText 
+(node_modules/@testing-library/dom/dist/queries/label-text.js:111:38)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at getByLabelText 
+(node_modules/@testing-library/dom/dist/query-helpers.js:95:19)
+      at Object.<anonymous> (src/tests/components/navbar.test.jsx:23:23)
+
+  ÔùÅ Interacciones m├│viles del Navbar ÔÇ║ al presionar Escape se cierra el 
+men├║
+
+    TestingLibraryElementError: Unable to find a label with the text of: 
+/alternar navegaci├│n/i
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mclass[39m=[32m"navbar"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"navdiv"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"left-group"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"logo"[39m
+              [36m>[39m
+                [36m<a[39m
+                  [33maria-label[39m=[32m"Anima home"[39m
+                  [33mclass[39m=[32m"btn logo-btn"[39m
+                  [33mhref[39m=[32m"/"[39m
+                [36m>[39m
+                  [36m<img[39m
+                    [33malt[39m=[32m"Anima logo"[39m
+                    [33msrc[39m=[32m"/logo.png"[39m
+                  [36m/>[39m
+                [36m</a>[39m
+              [36m</div>[39m
+              [36m<ul[39m
+                [33mclass[39m=[32m"navlist"[39m
+              [36m>[39m
+                [36m<li>[39m
+                  [36m<a[39m
+                    [33mhref[39m=[32m"/"[39m
+                    [33mtitle[39m=[32m"Ir a la p├ígina principal"[39m
+                  [36m>[39m
+                    [0mInicio[0m
+                  [36m</a>[39m
+                [36m</li>[39m
+                [36m<li>[39m
+                  [36m<a[39m
+                    [33mhref[39m=[32m"/about"[39m
+                  [36m>[39m
+                    [0mSobre Nosotros[0m
+                  [36m</a>[39m
+                [36m</li>[39m
+                [36m<li>[39m
+                  [36m<a[39m
+                    [33mhref[39m=[32m"/contact"[39m
+                  [36m>[39m
+                    [0mContacto[0m
+                  [36m</a>[39m
+                [36m</li>[39m
+              [36m</ul>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"right-group"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-expanded[39m=[32m"false"[39m
+                [33maria-label[39m=[32m"Toggle navigation"[39m
+                [33mclass[39m=[32m"hamburger "[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"bar"[39m
+                [36m/>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"bar"[39m
+                [36m/>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"bar"[39m
+                [36m/>[39m
+              [36m</button>[39m
+              [36m<ul[39m
+                [33mclass[39m=[32m"navlist actions"[39m
+              [36m>[39m
+                [36m<li>[39m
+                  [36m<a[39m
+                    [33mclass[39m=[32m"btn signin"[39m
+                    [33mhref[39m=[32m"/signin"[39m
+                  [36m>[39m
+                    [0mIniciar Sesi├│n[0m
+                  [36m</a>[39m
+                [36m</li>[39m
+                [36m<li>[39m
+                  [36m<a[39m
+                    [33mclass[39m=[32m"btn signup"[39m
+                    [33mhref[39m=[32m"/signup"[39m
+                  [36m>[39m
+                    [0mRegistrarse[0m
+                  [36m</a>[39m
+                [36m</li>[39m
+                [36m<li>[39m
+                  [36m<button[39m
+                    [33maria-checked[39m=[32m"false"[39m
+                    [33maria-label[39m=[32m"Cambiar a modo oscuro"[39m
+                    [33mclass[39m=[32m"btn theme-toggle-btn"[39m
+                    [33mrole[39m=[32m"switch"[39m
+                  [36m>[39m
+                    [36m<svg[39m
+                      [33maria-hidden[39m=[32m"true"[39m
+                      [33mfill[39m=[32m"none"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 
+21 12.79z"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                  [36m</button>[39m
+                [36m</li>[39m
+              [36m</ul>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"mobile-backdrop "[39m
+          [36m/>[39m
+          [36m<div[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"mobile-dropdown "[39m
+          [36m>[39m
+            [36m<ul[39m
+              [33mclass[39m=[32m"mobile-nav"[39m
+            [36m>[39m
+              [36m<li>[39m
+                [36m<a[39m
+                  [33mhref[39m=[32m"/"[39m
+                [36m>[39m
+                  [0mInicio[0m
+                [36m</a>[39m
+              [36m</li>[39m
+              [36m<li>[39m
+                [36m<a[39m
+                  [33mhref[39m=[32m"/about"[39m
+                [36m>[39m
+                  [0mSobre Nosotros[0m
+                [36m</a>[39m
+              [36m</li>[39m
+              [36m<li>[39m
+                [36m<a[39m
+                  [33mhref[39m=[32m"/contact"[39m
+                [36m>[39m
+                  [0mContacto[0m
+                [36m</a>[39m
+              [36m</li>[39m
+            [36m</ul>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mobile-actions"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"btn signin"[39m
+                [33mhref[39m=[32m"/signin"[39m
+              [36m>[39m
+                [0mIniciar Sesi├│n[0m
+              [36m</a>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"btn signup"[39m
+                [33mhref[39m=[32m"/signup"[39m
+              [36m>[39m
+                [0mRegistrarse[0m
+              [36m</a>[39m
+              [36m<button[39m
+                [33maria-checked[39m=[32m"false"[39m
+                [33maria-label[39m=[32m"Cambiar a modo oscuro"[39m
+                [33mclass[39m=[32m"btn theme-toggle-mobile"[39m
+                [33mrole[39m=[32m"switch"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mstyle[39m=[32m"width: 18px; height: 18px; margin-right: 
+8px;"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 
+12.79z"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [0mModo Oscuro[0m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</nav>[39m
+      [36m</div>[39m
+    [36m</body>[39m
+
+    [0m [90m 35 |[39m   test([32m'al presionar Escape se cierra el 
+men├║'[39m[33m,[39m () [33m=>[39m {
+     [90m 36 |[39m     [36mconst[39m { container[33m,[39m getByLabelText } 
+[33m=[39m renderConProveedores([33m<[39m[33mNavbar[39m 
+[33m/[39m[33m>[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 37 |[39m     [36mconst[39m botonMenu 
+[33m=[39m getByLabelText([35m/alternar navegaci├│n/i[39m)[33m;[39m
+     [90m    |[39m                       [31m[1m^[22m[39m
+     [90m 38 |[39m
+     [90m 39 |[39m     [90m// abrir men├║[39m
+     [90m 40 |[39m     fireEvent[33m.[39mclick(botonMenu)[33m;[39m[0m
+
+      at Object.getElementError 
+(node_modules/@testing-library/dom/dist/config.js:37:19)
+      at getAllByLabelText 
+(node_modules/@testing-library/dom/dist/queries/label-text.js:111:38)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at getByLabelText 
+(node_modules/@testing-library/dom/dist/query-helpers.js:95:19)
+      at Object.<anonymous> (src/tests/components/navbar.test.jsx:37:23)
+
+PASS src/tests/components/signin-no-pwreq.test.jsx
+  ÔùÅ Console
+
+    console.warn
+      ÔÜá´©Å React Router Future Flag Warning: React Router will begin wrapping 
+state updates in `React.startTransition` in v7. You can use the 
+`v7_startTransition` future flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+
+    [0m [90m  6 |[39m [90m// Prueba que el componente SignIn no renderiza 
+los requisitos de contrase├▒a ni el interruptor compartido[39m
+     [90m  7 |[39m test([32m'SignIn no muestra los requisitos de contrase├▒a 
+ni el conmutador compartido'[39m[33m,[39m () [33m=>[39m {
+    [31m[1m>[22m[39m[90m  8 |[39m   [36mconst[39m { container } 
+[33m=[39m render(
+     [90m    |[39m                               [31m[1m^[22m[39m
+     [90m  9 |[39m     [33m<[39m[33mMemoryRouter[39m[33m>[39m
+     [90m 10 |[39m       [33m<[39m[33mThemeProvider[39m[33m>[39m
+     [90m 11 |[39m         [33m<[39m[33mSignIn[39m 
+[33m/[39m[33m>[39m[0m
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at logV6DeprecationWarnings 
+(node_modules/react-router/lib/deprecations.ts:26:5)
+      at node_modules/react-router/lib/components.tsx:257:25
+      at Object.react_stack_bottom_frame 
+(node_modules/react-dom/cjs/react-dom-client.development.js:23953:20)
+      at runWithFiberInDEV 
+(node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHookEffectListMount 
+(node_modules/react-dom/cjs/react-dom-client.development.js:11905:29)
+      at commitHookPassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:12028:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13841:13)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13853:11)
+      at flushPassiveEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:15737:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:15379:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act 
+(node_modules/react/cjs/react.development.js:860:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (src/tests/components/signin-no-pwreq.test.jsx:8:31)
+
+    console.warn
+      ÔÜá´©Å React Router Future Flag Warning: Relative route resolution within 
+Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future 
+flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+    [0m [90m  6 |[39m [90m// Prueba que el componente SignIn no renderiza 
+los requisitos de contrase├▒a ni el interruptor compartido[39m
+     [90m  7 |[39m test([32m'SignIn no muestra los requisitos de contrase├▒a 
+ni el conmutador compartido'[39m[33m,[39m () [33m=>[39m {
+    [31m[1m>[22m[39m[90m  8 |[39m   [36mconst[39m { container } 
+[33m=[39m render(
+     [90m    |[39m                               [31m[1m^[22m[39m
+     [90m  9 |[39m     [33m<[39m[33mMemoryRouter[39m[33m>[39m
+     [90m 10 |[39m       [33m<[39m[33mThemeProvider[39m[33m>[39m
+     [90m 11 |[39m         [33m<[39m[33mSignIn[39m 
+[33m/[39m[33m>[39m[0m
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at logV6DeprecationWarnings 
+(node_modules/react-router/lib/deprecations.ts:37:5)
+      at node_modules/react-router/lib/components.tsx:257:25
+      at Object.react_stack_bottom_frame 
+(node_modules/react-dom/cjs/react-dom-client.development.js:23953:20)
+      at runWithFiberInDEV 
+(node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHookEffectListMount 
+(node_modules/react-dom/cjs/react-dom-client.development.js:11905:29)
+      at commitHookPassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:12028:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13841:13)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13853:11)
+      at flushPassiveEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:15737:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:15379:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act 
+(node_modules/react/cjs/react.development.js:860:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (src/tests/components/signin-no-pwreq.test.jsx:8:31)
+
+PASS src/App.test.js
+  ÔùÅ Console
+
+    console.warn
+      ÔÜá´©Å React Router Future Flag Warning: React Router will begin wrapping 
+state updates in `React.startTransition` in v7. You can use the 
+`v7_startTransition` future flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+
+    [0m [90m 21 |[39m
+     [90m 22 |[39m test([32m'renders landing hero title'[39m[33m,[39m () 
+[33m=>[39m {
+    [31m[1m>[22m[39m[90m 23 |[39m   render(
+     [90m    |[39m         [31m[1m^[22m[39m
+     [90m 24 |[39m     [33m<[39m[33mMemoryRouter[39m[33m>[39m
+     [90m 25 |[39m       [33m<[39m[33mThemeProvider[39m[33m>[39m
+     [90m 26 |[39m         [33m<[39m[33mApp[39m [33m/[39m[33m>[39m[0m
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at logV6DeprecationWarnings 
+(node_modules/react-router/lib/deprecations.ts:26:5)
+      at node_modules/react-router/lib/components.tsx:257:25
+      at Object.react_stack_bottom_frame 
+(node_modules/react-dom/cjs/react-dom-client.development.js:23953:20)
+      at runWithFiberInDEV 
+(node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHookEffectListMount 
+(node_modules/react-dom/cjs/react-dom-client.development.js:11905:29)
+      at commitHookPassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:12028:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13841:13)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13853:11)
+      at flushPassiveEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:15737:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:15379:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act 
+(node_modules/react/cjs/react.development.js:860:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (src/App.test.js:23:9)
+
+    console.warn
+      ÔÜá´©Å React Router Future Flag Warning: Relative route resolution within 
+Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future 
+flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+    [0m [90m 21 |[39m
+     [90m 22 |[39m test([32m'renders landing hero title'[39m[33m,[39m () 
+[33m=>[39m {
+    [31m[1m>[22m[39m[90m 23 |[39m   render(
+     [90m    |[39m         [31m[1m^[22m[39m
+     [90m 24 |[39m     [33m<[39m[33mMemoryRouter[39m[33m>[39m
+     [90m 25 |[39m       [33m<[39m[33mThemeProvider[39m[33m>[39m
+     [90m 26 |[39m         [33m<[39m[33mApp[39m [33m/[39m[33m>[39m[0m
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at logV6DeprecationWarnings 
+(node_modules/react-router/lib/deprecations.ts:37:5)
+      at node_modules/react-router/lib/components.tsx:257:25
+      at Object.react_stack_bottom_frame 
+(node_modules/react-dom/cjs/react-dom-client.development.js:23953:20)
+      at runWithFiberInDEV 
+(node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHookEffectListMount 
+(node_modules/react-dom/cjs/react-dom-client.development.js:11905:29)
+      at commitHookPassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:12028:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13841:13)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13853:11)
+      at flushPassiveEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:15737:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:15379:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act 
+(node_modules/react/cjs/react.development.js:860:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (src/App.test.js:23:9)
+
+PASS src/tests/components/smoke.test.jsx
+  ÔùÅ Console
+
+    console.warn
+      ÔÜá´©Å React Router Future Flag Warning: React Router will begin wrapping 
+state updates in `React.startTransition` in v7. You can use the 
+`v7_startTransition` future flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+
+    [0m [90m  6 |[39m [90m// Prueba b├ísica (smoke test) - Verifica que el 
+componente App se renderiza sin errores[39m
+     [90m  7 |[39m test([32m'prueba b├ísica - App se renderiza 
+correctamente'[39m[33m,[39m () [33m=>[39m {
+    [31m[1m>[22m[39m[90m  8 |[39m   render(
+     [90m    |[39m         [31m[1m^[22m[39m
+     [90m  9 |[39m     [33m<[39m[33mMemoryRouter[39m[33m>[39m
+     [90m 10 |[39m       [33m<[39m[33mThemeProvider[39m[33m>[39m
+     [90m 11 |[39m         [33m<[39m[33mApp[39m [33m/[39m[33m>[39m[0m
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at logV6DeprecationWarnings 
+(node_modules/react-router/lib/deprecations.ts:26:5)
+      at node_modules/react-router/lib/components.tsx:257:25
+      at Object.react_stack_bottom_frame 
+(node_modules/react-dom/cjs/react-dom-client.development.js:23953:20)
+      at runWithFiberInDEV 
+(node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHookEffectListMount 
+(node_modules/react-dom/cjs/react-dom-client.development.js:11905:29)
+      at commitHookPassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:12028:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13841:13)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13853:11)
+      at flushPassiveEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:15737:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:15379:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act 
+(node_modules/react/cjs/react.development.js:860:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (src/tests/components/smoke.test.jsx:8:9)
+
+    console.warn
+      ÔÜá´©Å React Router Future Flag Warning: Relative route resolution within 
+Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future 
+flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+    [0m [90m  6 |[39m [90m// Prueba b├ísica (smoke test) - Verifica que el 
+componente App se renderiza sin errores[39m
+     [90m  7 |[39m test([32m'prueba b├ísica - App se renderiza 
+correctamente'[39m[33m,[39m () [33m=>[39m {
+    [31m[1m>[22m[39m[90m  8 |[39m   render(
+     [90m    |[39m         [31m[1m^[22m[39m
+     [90m  9 |[39m     [33m<[39m[33mMemoryRouter[39m[33m>[39m
+     [90m 10 |[39m       [33m<[39m[33mThemeProvider[39m[33m>[39m
+     [90m 11 |[39m         [33m<[39m[33mApp[39m [33m/[39m[33m>[39m[0m
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at logV6DeprecationWarnings 
+(node_modules/react-router/lib/deprecations.ts:37:5)
+      at node_modules/react-router/lib/components.tsx:257:25
+      at Object.react_stack_bottom_frame 
+(node_modules/react-dom/cjs/react-dom-client.development.js:23953:20)
+      at runWithFiberInDEV 
+(node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHookEffectListMount 
+(node_modules/react-dom/cjs/react-dom-client.development.js:11905:29)
+      at commitHookPassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:12028:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13841:13)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13853:11)
+      at flushPassiveEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:15737:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:15379:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act 
+(node_modules/react/cjs/react.development.js:860:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (src/tests/components/smoke.test.jsx:8:9)
+
+PASS src/tests/components/SignInForm.test.jsx
+  ÔùÅ Console
+
+    console.warn
+      ÔÜá´©Å React Router Future Flag Warning: React Router will begin wrapping 
+state updates in `React.startTransition` in v7. You can use the 
+`v7_startTransition` future flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+
+    [0m [90m  8 |[39m   [36mconst[39m renderForm [33m=[39m (props 
+[33m=[39m {}) [33m=>[39m {
+     [90m  9 |[39m     [36mconst[39m defaultProps [33m=[39m { 
+onSubmit[33m:[39m jest[33m.[39mfn()[33m,[39m isLoading[33m:[39m 
+[36mfalse[39m[33m,[39m formError[33m:[39m [32m''[39m }[33m;[39m
+    [31m[1m>[22m[39m[90m 10 |[39m     [36mreturn[39m render(
+     [90m    |[39m                  [31m[1m^[22m[39m
+     [90m 11 |[39m       [33m<[39m[33mMemoryRouter[39m[33m>[39m
+     [90m 12 |[39m         [33m<[39m[33mThemeProvider[39m[33m>[39m
+     [90m 13 |[39m           [33m<[39m[33mSignInForm[39m 
+{[33m...[39mdefaultProps} {[33m...[39mprops} [33m/[39m[33m>[39m[0m
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at logV6DeprecationWarnings 
+(node_modules/react-router/lib/deprecations.ts:26:5)
+      at node_modules/react-router/lib/components.tsx:257:25
+      at Object.react_stack_bottom_frame 
+(node_modules/react-dom/cjs/react-dom-client.development.js:23953:20)
+      at runWithFiberInDEV 
+(node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHookEffectListMount 
+(node_modules/react-dom/cjs/react-dom-client.development.js:11905:29)
+      at commitHookPassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:12028:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13841:13)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13853:11)
+      at flushPassiveEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:15737:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:15379:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act 
+(node_modules/react/cjs/react.development.js:860:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at renderForm (src/tests/components/SignInForm.test.jsx:10:18)
+      at Object.<anonymous> (src/tests/components/SignInForm.test.jsx:21:5)
+
+    console.warn
+      ÔÜá´©Å React Router Future Flag Warning: Relative route resolution within 
+Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future 
+flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+    [0m [90m  8 |[39m   [36mconst[39m renderForm [33m=[39m (props 
+[33m=[39m {}) [33m=>[39m {
+     [90m  9 |[39m     [36mconst[39m defaultProps [33m=[39m { 
+onSubmit[33m:[39m jest[33m.[39mfn()[33m,[39m isLoading[33m:[39m 
+[36mfalse[39m[33m,[39m formError[33m:[39m [32m''[39m }[33m;[39m
+    [31m[1m>[22m[39m[90m 10 |[39m     [36mreturn[39m render(
+     [90m    |[39m                  [31m[1m^[22m[39m
+     [90m 11 |[39m       [33m<[39m[33mMemoryRouter[39m[33m>[39m
+     [90m 12 |[39m         [33m<[39m[33mThemeProvider[39m[33m>[39m
+     [90m 13 |[39m           [33m<[39m[33mSignInForm[39m 
+{[33m...[39mdefaultProps} {[33m...[39mprops} [33m/[39m[33m>[39m[0m
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at logV6DeprecationWarnings 
+(node_modules/react-router/lib/deprecations.ts:37:5)
+      at node_modules/react-router/lib/components.tsx:257:25
+      at Object.react_stack_bottom_frame 
+(node_modules/react-dom/cjs/react-dom-client.development.js:23953:20)
+      at runWithFiberInDEV 
+(node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHookEffectListMount 
+(node_modules/react-dom/cjs/react-dom-client.development.js:11905:29)
+      at commitHookPassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:12028:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13841:13)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13853:11)
+      at flushPassiveEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:15737:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:15379:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act 
+(node_modules/react/cjs/react.development.js:860:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at renderForm (src/tests/components/SignInForm.test.jsx:10:18)
+      at Object.<anonymous> (src/tests/components/SignInForm.test.jsx:21:5)
+
+PASS src/tests/App.test.js
+  ÔùÅ Console
+
+    console.warn
+      ÔÜá´©Å React Router Future Flag Warning: React Router will begin wrapping 
+state updates in `React.startTransition` in v7. You can use the 
+`v7_startTransition` future flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+
+    [0m [90m  6 |[39m [90m// Prueba que verifica que se renderiza el t├¡tulo 
+principal en la p├ígina de inicio[39m
+     [90m  7 |[39m test([32m'renderiza el t├¡tulo principal de la p├ígina de 
+inicio'[39m[33m,[39m () [33m=>[39m {
+    [31m[1m>[22m[39m[90m  8 |[39m   render(
+     [90m    |[39m         [31m[1m^[22m[39m
+     [90m  9 |[39m     [33m<[39m[33mMemoryRouter[39m[33m>[39m
+     [90m 10 |[39m       [33m<[39m[33mThemeProvider[39m[33m>[39m
+     [90m 11 |[39m         [33m<[39m[33mApp[39m [33m/[39m[33m>[39m[0m
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at logV6DeprecationWarnings 
+(node_modules/react-router/lib/deprecations.ts:26:5)
+      at node_modules/react-router/lib/components.tsx:257:25
+      at Object.react_stack_bottom_frame 
+(node_modules/react-dom/cjs/react-dom-client.development.js:23953:20)
+      at runWithFiberInDEV 
+(node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHookEffectListMount 
+(node_modules/react-dom/cjs/react-dom-client.development.js:11905:29)
+      at commitHookPassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:12028:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13841:13)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13853:11)
+      at flushPassiveEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:15737:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:15379:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act 
+(node_modules/react/cjs/react.development.js:860:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (src/tests/App.test.js:8:9)
+
+    console.warn
+      ÔÜá´©Å React Router Future Flag Warning: Relative route resolution within 
+Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future 
+flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+    [0m [90m  6 |[39m [90m// Prueba que verifica que se renderiza el t├¡tulo 
+principal en la p├ígina de inicio[39m
+     [90m  7 |[39m test([32m'renderiza el t├¡tulo principal de la p├ígina de 
+inicio'[39m[33m,[39m () [33m=>[39m {
+    [31m[1m>[22m[39m[90m  8 |[39m   render(
+     [90m    |[39m         [31m[1m^[22m[39m
+     [90m  9 |[39m     [33m<[39m[33mMemoryRouter[39m[33m>[39m
+     [90m 10 |[39m       [33m<[39m[33mThemeProvider[39m[33m>[39m
+     [90m 11 |[39m         [33m<[39m[33mApp[39m [33m/[39m[33m>[39m[0m
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at logV6DeprecationWarnings 
+(node_modules/react-router/lib/deprecations.ts:37:5)
+      at node_modules/react-router/lib/components.tsx:257:25
+      at Object.react_stack_bottom_frame 
+(node_modules/react-dom/cjs/react-dom-client.development.js:23953:20)
+      at runWithFiberInDEV 
+(node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHookEffectListMount 
+(node_modules/react-dom/cjs/react-dom-client.development.js:11905:29)
+      at commitHookPassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:12028:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13841:13)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13853:11)
+      at flushPassiveEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:15737:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:15379:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act 
+(node_modules/react/cjs/react.development.js:860:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (src/tests/App.test.js:8:9)
+
+PASS src/tests/pages/ContactPage.test.jsx
+  ÔùÅ Console
+
+    console.warn
+      ÔÜá´©Å React Router Future Flag Warning: React Router will begin wrapping 
+state updates in `React.startTransition` in v7. You can use the 
+`v7_startTransition` future flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+
+    [0m [90m  7 |[39m
+     [90m  8 |[39m test([32m'ContactPage renders hero and form and validates 
+inputs'[39m[33m,[39m [36masync[39m () [33m=>[39m {
+    [31m[1m>[22m[39m[90m  9 |[39m   render(
+     [90m    |[39m         [31m[1m^[22m[39m
+     [90m 10 |[39m     [33m<[39m[33mMemoryRouter[39m[33m>[39m
+     [90m 11 |[39m       [33m<[39m[33mThemeProvider[39m[33m>[39m
+     [90m 12 |[39m         [33m<[39m[33mFlashProvider[39m[33m>[39m[0m
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at logV6DeprecationWarnings 
+(node_modules/react-router/lib/deprecations.ts:26:5)
+      at node_modules/react-router/lib/components.tsx:257:25
+      at Object.react_stack_bottom_frame 
+(node_modules/react-dom/cjs/react-dom-client.development.js:23953:20)
+      at runWithFiberInDEV 
+(node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHookEffectListMount 
+(node_modules/react-dom/cjs/react-dom-client.development.js:11905:29)
+      at commitHookPassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:12028:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13841:13)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13853:11)
+      at flushPassiveEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:15737:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:15379:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act 
+(node_modules/react/cjs/react.development.js:860:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (src/tests/pages/ContactPage.test.jsx:9:9)
+
+    console.warn
+      ÔÜá´©Å React Router Future Flag Warning: Relative route resolution within 
+Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future 
+flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+    [0m [90m  7 |[39m
+     [90m  8 |[39m test([32m'ContactPage renders hero and form and validates 
+inputs'[39m[33m,[39m [36masync[39m () [33m=>[39m {
+    [31m[1m>[22m[39m[90m  9 |[39m   render(
+     [90m    |[39m         [31m[1m^[22m[39m
+     [90m 10 |[39m     [33m<[39m[33mMemoryRouter[39m[33m>[39m
+     [90m 11 |[39m       [33m<[39m[33mThemeProvider[39m[33m>[39m
+     [90m 12 |[39m         [33m<[39m[33mFlashProvider[39m[33m>[39m[0m
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at logV6DeprecationWarnings 
+(node_modules/react-router/lib/deprecations.ts:37:5)
+      at node_modules/react-router/lib/components.tsx:257:25
+      at Object.react_stack_bottom_frame 
+(node_modules/react-dom/cjs/react-dom-client.development.js:23953:20)
+      at runWithFiberInDEV 
+(node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHookEffectListMount 
+(node_modules/react-dom/cjs/react-dom-client.development.js:11905:29)
+      at commitHookPassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:12028:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13841:13)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13853:11)
+      at flushPassiveEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:15737:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:15379:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act 
+(node_modules/react/cjs/react.development.js:860:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (src/tests/pages/ContactPage.test.jsx:9:9)
+
+PASS src/tests/components/spotifycallback.test.jsx
+  ÔùÅ Console
+
+    console.warn
+      ÔÜá´©Å React Router Future Flag Warning: React Router will begin wrapping 
+state updates in `React.startTransition` in v7. You can use the 
+`v7_startTransition` future flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+
+    [0m [90m  6 |[39m   [90m// create a dummy state with token[39m
+     [90m  7 |[39m   [36mconst[39m state [33m=[39m 
+encodeURIComponent([33mJSON[39m[33m.[39mstringify({ access_token[33m:[39m 
+[32m'abc123'[39m }))[33m;[39m
+    [31m[1m>[22m[39m[90m  8 |[39m   render(
+     [90m    |[39m         [31m[1m^[22m[39m
+     [90m  9 |[39m     [33m<[39m[33mMemoryRouter[39m initialEntries[33m=[
+39m{[[32m`/spotify-callback?state=${state}`[39m]}[33m>[39m
+     [90m 10 |[39m       [33m<[39m[33mSpotifyCallback[39m 
+[33m/[39m[33m>[39m
+     [90m 11 |[39m     
+[33m<[39m[33m/[39m[33mMemoryRouter[39m[33m>[39m[0m
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at logV6DeprecationWarnings 
+(node_modules/react-router/lib/deprecations.ts:26:5)
+      at node_modules/react-router/lib/components.tsx:257:25
+      at Object.react_stack_bottom_frame 
+(node_modules/react-dom/cjs/react-dom-client.development.js:23953:20)
+      at runWithFiberInDEV 
+(node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHookEffectListMount 
+(node_modules/react-dom/cjs/react-dom-client.development.js:11905:29)
+      at commitHookPassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:12028:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13841:13)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13853:11)
+      at flushPassiveEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:15737:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:15379:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act 
+(node_modules/react/cjs/react.development.js:860:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (src/tests/components/spotifycallback.test.jsx:8:9)
+
+    console.warn
+      ÔÜá´©Å React Router Future Flag Warning: Relative route resolution within 
+Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future 
+flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+    [0m [90m  6 |[39m   [90m// create a dummy state with token[39m
+     [90m  7 |[39m   [36mconst[39m state [33m=[39m 
+encodeURIComponent([33mJSON[39m[33m.[39mstringify({ access_token[33m:[39m 
+[32m'abc123'[39m }))[33m;[39m
+    [31m[1m>[22m[39m[90m  8 |[39m   render(
+     [90m    |[39m         [31m[1m^[22m[39m
+     [90m  9 |[39m     [33m<[39m[33mMemoryRouter[39m initialEntries[33m=[
+39m{[[32m`/spotify-callback?state=${state}`[39m]}[33m>[39m
+     [90m 10 |[39m       [33m<[39m[33mSpotifyCallback[39m 
+[33m/[39m[33m>[39m
+     [90m 11 |[39m     
+[33m<[39m[33m/[39m[33mMemoryRouter[39m[33m>[39m[0m
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at logV6DeprecationWarnings 
+(node_modules/react-router/lib/deprecations.ts:37:5)
+      at node_modules/react-router/lib/components.tsx:257:25
+      at Object.react_stack_bottom_frame 
+(node_modules/react-dom/cjs/react-dom-client.development.js:23953:20)
+      at runWithFiberInDEV 
+(node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHookEffectListMount 
+(node_modules/react-dom/cjs/react-dom-client.development.js:11905:29)
+      at commitHookPassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:12028:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13841:13)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13853:11)
+      at flushPassiveEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:15737:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:15379:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act 
+(node_modules/react/cjs/react.development.js:860:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (src/tests/components/spotifycallback.test.jsx:8:9)
+
+PASS src/tests/pages/homepage.test.jsx
+PASS src/tests/pages/AboutPage.test.jsx
+  ÔùÅ Console
+
+    console.warn
+      ÔÜá´©Å React Router Future Flag Warning: React Router will begin wrapping 
+state updates in `React.startTransition` in v7. You can use the 
+`v7_startTransition` future flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+
+    [0m [90m  6 |[39m
+     [90m  7 |[39m test([32m'AboutPage renders hero title and 
+subtitle'[39m[33m,[39m () [33m=>[39m {
+    [31m[1m>[22m[39m[90m  8 |[39m   render(
+     [90m    |[39m         [31m[1m^[22m[39m
+     [90m  9 |[39m     [33m<[39m[33mMemoryRouter[39m[33m>[39m
+     [90m 10 |[39m       [33m<[39m[33mThemeProvider[39m[33m>[39m
+     [90m 11 |[39m         [33m<[39m[33mAboutPage[39m 
+[33m/[39m[33m>[39m[0m
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at logV6DeprecationWarnings 
+(node_modules/react-router/lib/deprecations.ts:26:5)
+      at node_modules/react-router/lib/components.tsx:257:25
+      at Object.react_stack_bottom_frame 
+(node_modules/react-dom/cjs/react-dom-client.development.js:23953:20)
+      at runWithFiberInDEV 
+(node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHookEffectListMount 
+(node_modules/react-dom/cjs/react-dom-client.development.js:11905:29)
+      at commitHookPassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:12028:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13841:13)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13853:11)
+      at flushPassiveEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:15737:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:15379:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act 
+(node_modules/react/cjs/react.development.js:860:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (src/tests/pages/AboutPage.test.jsx:8:9)
+
+    console.warn
+      ÔÜá´©Å React Router Future Flag Warning: Relative route resolution within 
+Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future 
+flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+    [0m [90m  6 |[39m
+     [90m  7 |[39m test([32m'AboutPage renders hero title and 
+subtitle'[39m[33m,[39m () [33m=>[39m {
+    [31m[1m>[22m[39m[90m  8 |[39m   render(
+     [90m    |[39m         [31m[1m^[22m[39m
+     [90m  9 |[39m     [33m<[39m[33mMemoryRouter[39m[33m>[39m
+     [90m 10 |[39m       [33m<[39m[33mThemeProvider[39m[33m>[39m
+     [90m 11 |[39m         [33m<[39m[33mAboutPage[39m 
+[33m/[39m[33m>[39m[0m
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at logV6DeprecationWarnings 
+(node_modules/react-router/lib/deprecations.ts:37:5)
+      at node_modules/react-router/lib/components.tsx:257:25
+      at Object.react_stack_bottom_frame 
+(node_modules/react-dom/cjs/react-dom-client.development.js:23953:20)
+      at runWithFiberInDEV 
+(node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHookEffectListMount 
+(node_modules/react-dom/cjs/react-dom-client.development.js:11905:29)
+      at commitHookPassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:12028:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13841:13)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13853:11)
+      at flushPassiveEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:15737:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:15379:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act 
+(node_modules/react/cjs/react.development.js:860:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (src/tests/pages/AboutPage.test.jsx:8:9)
+
+PASS src/tests/components/authform.test.jsx
+PASS src/tests/pages/SignIn.test.jsx
+  ÔùÅ Console
+
+    console.warn
+      ÔÜá´©Å React Router Future Flag Warning: React Router will begin wrapping 
+state updates in `React.startTransition` in v7. You can use the 
+`v7_startTransition` future flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+
+    [0m [90m 4 |[39m
+     [90m 5 |[39m test([32m'SignIn wrapper renders sign in form 
+title'[39m[33m,[39m () [33m=>[39m {
+    [31m[1m>[22m[39m[90m 6 |[39m   render([33m<[39m[33mSignIn[39m 
+[33m/[39m[33m>[39m)[33m;[39m
+     [90m   |[39m         [31m[1m^[22m[39m
+     [90m 7 |[39m
+     [90m 8 |[39m   [90m// The page contains several occurrences of the text; 
+target the heading specifically[39m
+     [90m 9 |[39m   
+expect(screen[33m.[39mgetByRole([32m'heading'[39m[33m,[39m { 
+name[33m:[39m [35m/Iniciar Sesi├│n/i[39m 
+}))[33m.[39mtoBeInTheDocument()[33m;[39m[0m
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at logV6DeprecationWarnings 
+(node_modules/react-router/lib/deprecations.ts:26:5)
+      at node_modules/react-router/lib/components.tsx:257:25
+      at Object.react_stack_bottom_frame 
+(node_modules/react-dom/cjs/react-dom-client.development.js:23953:20)
+      at runWithFiberInDEV 
+(node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHookEffectListMount 
+(node_modules/react-dom/cjs/react-dom-client.development.js:11905:29)
+      at commitHookPassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:12028:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13841:13)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13834:11)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13853:11)
+      at flushPassiveEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:15737:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:15379:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act 
+(node_modules/react/cjs/react.development.js:860:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (src/tests/pages/SignIn.test.jsx:6:9)
+
+    console.warn
+      ÔÜá´©Å React Router Future Flag Warning: Relative route resolution within 
+Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future 
+flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+    [0m [90m 4 |[39m
+     [90m 5 |[39m test([32m'SignIn wrapper renders sign in form 
+title'[39m[33m,[39m () [33m=>[39m {
+    [31m[1m>[22m[39m[90m 6 |[39m   render([33m<[39m[33mSignIn[39m 
+[33m/[39m[33m>[39m)[33m;[39m
+     [90m   |[39m         [31m[1m^[22m[39m
+     [90m 7 |[39m
+     [90m 8 |[39m   [90m// The page contains several occurrences of the text; 
+target the heading specifically[39m
+     [90m 9 |[39m   
+expect(screen[33m.[39mgetByRole([32m'heading'[39m[33m,[39m { 
+name[33m:[39m [35m/Iniciar Sesi├│n/i[39m 
+}))[33m.[39mtoBeInTheDocument()[33m;[39m[0m
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at logV6DeprecationWarnings 
+(node_modules/react-router/lib/deprecations.ts:37:5)
+      at node_modules/react-router/lib/components.tsx:257:25
+      at Object.react_stack_bottom_frame 
+(node_modules/react-dom/cjs/react-dom-client.development.js:23953:20)
+      at runWithFiberInDEV 
+(node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHookEffectListMount 
+(node_modules/react-dom/cjs/react-dom-client.development.js:11905:29)
+      at commitHookPassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:12028:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13841:13)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13834:11)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13853:11)
+      at flushPassiveEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:15737:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:15379:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act 
+(node_modules/react/cjs/react.development.js:860:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (src/tests/pages/SignIn.test.jsx:6:9)
+
+PASS src/tests/utils/analysisSaveManager.test.js
+  ÔùÅ Console
+
+    console.log
+      Ô£à An├ílisis guardado exitosamente
+
+      at AnalysisSaveManager.saveAnalysisSafe 
+(src/utils/analysisSaveManager.js:82:15)
+
+    console.log
+      ÔÜá´©Å An├ílisis ya guardado o pendiente, omitiendo...
+
+      at AnalysisSaveManager.saveAnalysisSafe 
+(src/utils/analysisSaveManager.js:68:15)
+
+    console.error
+      ÔØî Error guardando an├ílisis: Error: fail
+          at Object.<anonymous> (C:\Users\Ishai\Projects\Progra Web\Proyecto FIna
+l\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\src\tests\utils\analysis
+SaveManager.test.js:24:48)
+          at Promise.then.completed (C:\Users\Ishai\Projects\Progra Web\Proyecto 
+FInal\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-ci
+rcus\build\utils.js:391:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal
+\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-circus\
+build\utils.js:316:10)
+          at _callCircusTest (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\P
+royecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-circus\bu
+ild\run.js:218:40)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at _runTest (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\Proyecto
+_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-circus\build\run
+.js:155:3)
+          at _runTestsForDescribeBlock (C:\Users\Ishai\Projects\Progra 
+Web\Proyecto FInal\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_mo
+dules\jest-circus\build\run.js:66:9)
+          at _runTestsForDescribeBlock (C:\Users\Ishai\Projects\Progra 
+Web\Proyecto FInal\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_mo
+dules\jest-circus\build\run.js:60:9)
+          at run (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\Proyecto_Anim
+a_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-circus\build\run.js:2
+5:3)
+          at runAndTransformResultsToJestFormat (C:\Users\Ishai\Projects\Progra 
+Web\Proyecto FInal\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_mo
+dules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:170:21)
+          at jestAdapter (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\Proye
+cto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-circus\build\
+legacy-code-todo-rewrite\jestAdapter.js:82:19)
+          at runTestInternal (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\P
+royecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-runner\bu
+ild\runTest.js:389:16)
+          at runTest (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\Proyecto_
+Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-runner\build\runT
+est.js:475:34)
+          at Object.worker (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\Pro
+yecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-runner\buil
+d\testWorker.js:133:12)
+
+    [0m [90m 88 |[39m       
+[36mthis[39m[33m.[39mpendingSaves[33m.[39m[36mdelete[39m(hash)[33m;[39m
+     [90m 89 |[39m       
+    [31m[1m>[22m[39m[90m 90 |[39m       console[33m.[39merror([32m'ÔØî 
+Error guardando an├ílisis:'[39m[33m,[39m error)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 91 |[39m       [36mthrow[39m error[33m;[39m
+     [90m 92 |[39m     }
+     [90m 93 |[39m   }[0m
+
+      at AnalysisSaveManager.saveAnalysisSafe 
+(src/utils/analysisSaveManager.js:90:15)
+      at Object.<anonymous> (src/tests/utils/analysisSaveManager.test.js:25:5)
+
+PASS src/tests/utils/hash.test.js
+PASS src/tests/components/SignUpForm.test.jsx
+  ÔùÅ Console
+
+    console.warn
+      ÔÜá´©Å React Router Future Flag Warning: React Router will begin wrapping 
+state updates in `React.startTransition` in v7. You can use the 
+`v7_startTransition` future flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+
+    [0m [90m 15 |[39m   [36mconst[39m renderForm [33m=[39m (props 
+[33m=[39m {}) [33m=>[39m {
+     [90m 16 |[39m     [36mconst[39m defaultProps [33m=[39m { 
+onSubmit[33m:[39m jest[33m.[39mfn()[33m,[39m isLoading[33m:[39m 
+[36mfalse[39m[33m,[39m formError[33m:[39m [32m''[39m }[33m;[39m
+    [31m[1m>[22m[39m[90m 17 |[39m     [36mreturn[39m render(
+     [90m    |[39m                  [31m[1m^[22m[39m
+     [90m 18 |[39m       [33m<[39m[33mMemoryRouter[39m[33m>[39m
+     [90m 19 |[39m         [33m<[39m[33mThemeProvider[39m[33m>[39m
+     [90m 20 |[39m           [33m<[39m[33mSignUpForm[39m 
+{[33m...[39mdefaultProps} {[33m...[39mprops} [33m/[39m[33m>[39m[0m
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at logV6DeprecationWarnings 
+(node_modules/react-router/lib/deprecations.ts:26:5)
+      at node_modules/react-router/lib/components.tsx:257:25
+      at Object.react_stack_bottom_frame 
+(node_modules/react-dom/cjs/react-dom-client.development.js:23953:20)
+      at runWithFiberInDEV 
+(node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHookEffectListMount 
+(node_modules/react-dom/cjs/react-dom-client.development.js:11905:29)
+      at commitHookPassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:12028:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13841:13)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13853:11)
+      at flushPassiveEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:15737:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:15379:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act 
+(node_modules/react/cjs/react.development.js:860:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at renderForm (src/tests/components/SignUpForm.test.jsx:17:18)
+      at Object.<anonymous> (src/tests/components/SignUpForm.test.jsx:33:27)
+
+    console.warn
+      ÔÜá´©Å React Router Future Flag Warning: Relative route resolution within 
+Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future 
+flag to opt-in early. For more information, see 
+https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+    [0m [90m 15 |[39m   [36mconst[39m renderForm [33m=[39m (props 
+[33m=[39m {}) [33m=>[39m {
+     [90m 16 |[39m     [36mconst[39m defaultProps [33m=[39m { 
+onSubmit[33m:[39m jest[33m.[39mfn()[33m,[39m isLoading[33m:[39m 
+[36mfalse[39m[33m,[39m formError[33m:[39m [32m''[39m }[33m;[39m
+    [31m[1m>[22m[39m[90m 17 |[39m     [36mreturn[39m render(
+     [90m    |[39m                  [31m[1m^[22m[39m
+     [90m 18 |[39m       [33m<[39m[33mMemoryRouter[39m[33m>[39m
+     [90m 19 |[39m         [33m<[39m[33mThemeProvider[39m[33m>[39m
+     [90m 20 |[39m           [33m<[39m[33mSignUpForm[39m 
+{[33m...[39mdefaultProps} {[33m...[39mprops} [33m/[39m[33m>[39m[0m
+
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:9:13)
+      at logDeprecation (node_modules/react-router/lib/deprecations.ts:14:3)
+      at logV6DeprecationWarnings 
+(node_modules/react-router/lib/deprecations.ts:37:5)
+      at node_modules/react-router/lib/components.tsx:257:25
+      at Object.react_stack_bottom_frame 
+(node_modules/react-dom/cjs/react-dom-client.development.js:23953:20)
+      at runWithFiberInDEV 
+(node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at commitHookEffectListMount 
+(node_modules/react-dom/cjs/react-dom-client.development.js:11905:29)
+      at commitHookPassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:12028:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13841:13)
+      at recursivelyTraversePassiveMountEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13815:11)
+      at commitPassiveMountOnFiber 
+(node_modules/react-dom/cjs/react-dom-client.development.js:13853:11)
+      at flushPassiveEffects 
+(node_modules/react-dom/cjs/react-dom-client.development.js:15737:9)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:15379:15
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act 
+(node_modules/react/cjs/react.development.js:860:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at renderForm (src/tests/components/SignUpForm.test.jsx:17:18)
+      at Object.<anonymous> (src/tests/components/SignUpForm.test.jsx:33:27)
+
+PASS src/tests/utils/api.test.js
+  ÔùÅ Console
+
+    console.error
+      API Error: Error [AbortError]: aborted
+          at Object.<anonymous> (C:\Users\Ishai\Projects\Progra Web\Proyecto FIna
+l\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\src\tests\utils\api.test
+.js:20:17)
+          at Promise.then.completed (C:\Users\Ishai\Projects\Progra Web\Proyecto 
+FInal\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-ci
+rcus\build\utils.js:391:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal
+\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-circus\
+build\utils.js:316:10)
+          at _callCircusTest (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\P
+royecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-circus\bu
+ild\run.js:218:40)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at _runTest (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\Proyecto
+_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-circus\build\run
+.js:155:3)
+          at _runTestsForDescribeBlock (C:\Users\Ishai\Projects\Progra 
+Web\Proyecto FInal\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_mo
+dules\jest-circus\build\run.js:66:9)
+          at _runTestsForDescribeBlock (C:\Users\Ishai\Projects\Progra 
+Web\Proyecto FInal\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_mo
+dules\jest-circus\build\run.js:60:9)
+          at run (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\Proyecto_Anim
+a_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-circus\build\run.js:2
+5:3)
+          at runAndTransformResultsToJestFormat (C:\Users\Ishai\Projects\Progra 
+Web\Proyecto FInal\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_mo
+dules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:170:21)
+          at jestAdapter (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\Proye
+cto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-circus\build\
+legacy-code-todo-rewrite\jestAdapter.js:82:19)
+          at runTestInternal (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\P
+royecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-runner\bu
+ild\runTest.js:389:16)
+          at runTest (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\Proyecto_
+Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-runner\build\runT
+est.js:475:34)
+          at Object.worker (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\Pro
+yecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-runner\buil
+d\testWorker.js:133:12)
+
+    [0m [90m 22 |[39m [90m// utils/api.js[39m
+     [90m 23 |[39m [36mexport[39m [36mconst[39m handleApiError [33m=[39m 
+(error) [33m=>[39m {
+    [31m[1m>[22m[39m[90m 24 |[39m   console[33m.[39merror([32m'API 
+Error:'[39m[33m,[39m error)[33m;[39m
+     [90m    |[39m           [31m[1m^[22m[39m
+     [90m 25 |[39m   
+     [90m 26 |[39m   [36mif[39m (error[33m.[39mname [33m===[39m 
+[32m'AbortError'[39m) {
+     [90m 27 |[39m     [36mreturn[39m {[0m
+
+      at handleApiError (src/utils/api.js:24:11)
+      at Object.<anonymous> (src/tests/utils/api.test.js:22:31)
+
+    console.error
+      API Error: Error: Failed to fetch
+          at Object.<anonymous> (C:\Users\Ishai\Projects\Progra Web\Proyecto FIna
+l\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\src\tests\utils\api.test
+.js:28:17)
+          at Promise.then.completed (C:\Users\Ishai\Projects\Progra Web\Proyecto 
+FInal\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-ci
+rcus\build\utils.js:391:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal
+\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-circus\
+build\utils.js:316:10)
+          at _callCircusTest (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\P
+royecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-circus\bu
+ild\run.js:218:40)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at _runTest (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\Proyecto
+_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-circus\build\run
+.js:155:3)
+          at _runTestsForDescribeBlock (C:\Users\Ishai\Projects\Progra 
+Web\Proyecto FInal\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_mo
+dules\jest-circus\build\run.js:66:9)
+          at _runTestsForDescribeBlock (C:\Users\Ishai\Projects\Progra 
+Web\Proyecto FInal\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_mo
+dules\jest-circus\build\run.js:60:9)
+          at run (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\Proyecto_Anim
+a_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-circus\build\run.js:2
+5:3)
+          at runAndTransformResultsToJestFormat (C:\Users\Ishai\Projects\Progra 
+Web\Proyecto FInal\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_mo
+dules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:170:21)
+          at jestAdapter (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\Proye
+cto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-circus\build\
+legacy-code-todo-rewrite\jestAdapter.js:82:19)
+          at runTestInternal (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\P
+royecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-runner\bu
+ild\runTest.js:389:16)
+          at runTest (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\Proyecto_
+Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-runner\build\runT
+est.js:475:34)
+          at Object.worker (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\Pro
+yecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-runner\buil
+d\testWorker.js:133:12)
+
+    [0m [90m 22 |[39m [90m// utils/api.js[39m
+     [90m 23 |[39m [36mexport[39m [36mconst[39m handleApiError [33m=[39m 
+(error) [33m=>[39m {
+    [31m[1m>[22m[39m[90m 24 |[39m   console[33m.[39merror([32m'API 
+Error:'[39m[33m,[39m error)[33m;[39m
+     [90m    |[39m           [31m[1m^[22m[39m
+     [90m 25 |[39m   
+     [90m 26 |[39m   [36mif[39m (error[33m.[39mname [33m===[39m 
+[32m'AbortError'[39m) {
+     [90m 27 |[39m     [36mreturn[39m {[0m
+
+      at handleApiError (src/utils/api.js:24:11)
+      at Object.<anonymous> (src/tests/utils/api.test.js:29:31)
+
+    console.error
+      API Error: Error: Some NetworkError occurred
+          at Object.<anonymous> (C:\Users\Ishai\Projects\Progra Web\Proyecto FIna
+l\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\src\tests\utils\api.test
+.js:35:17)
+          at Promise.then.completed (C:\Users\Ishai\Projects\Progra Web\Proyecto 
+FInal\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-ci
+rcus\build\utils.js:391:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal
+\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-circus\
+build\utils.js:316:10)
+          at _callCircusTest (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\P
+royecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-circus\bu
+ild\run.js:218:40)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at _runTest (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\Proyecto
+_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-circus\build\run
+.js:155:3)
+          at _runTestsForDescribeBlock (C:\Users\Ishai\Projects\Progra 
+Web\Proyecto FInal\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_mo
+dules\jest-circus\build\run.js:66:9)
+          at _runTestsForDescribeBlock (C:\Users\Ishai\Projects\Progra 
+Web\Proyecto FInal\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_mo
+dules\jest-circus\build\run.js:60:9)
+          at run (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\Proyecto_Anim
+a_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-circus\build\run.js:2
+5:3)
+          at runAndTransformResultsToJestFormat (C:\Users\Ishai\Projects\Progra 
+Web\Proyecto FInal\Proyecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_mo
+dules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:170:21)
+          at jestAdapter (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\Proye
+cto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-circus\build\
+legacy-code-todo-rewrite\jestAdapter.js:82:19)
+          at runTestInternal (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\P
+royecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-runner\bu
+ild\runTest.js:389:16)
+          at runTest (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\Proyecto_
+Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-runner\build\runT
+est.js:475:34)
+          at Object.worker (C:\Users\Ishai\Projects\Progra Web\Proyecto FInal\Pro
+yecto_Anima_Frontend\Proyecto_Anima_Frontend\client\node_modules\jest-runner\buil
+d\testWorker.js:133:12)
+
+    [0m [90m 22 |[39m [90m// utils/api.js[39m
+     [90m 23 |[39m [36mexport[39m [36mconst[39m handleApiError [33m=[39m 
+(error) [33m=>[39m {
+    [31m[1m>[22m[39m[90m 24 |[39m   console[33m.[39merror([32m'API 
+Error:'[39m[33m,[39m error)[33m;[39m
+     [90m    |[39m           [31m[1m^[22m[39m
+     [90m 25 |[39m   
+     [90m 26 |[39m   [36mif[39m (error[33m.[39mname [33m===[39m 
+[32m'AbortError'[39m) {
+     [90m 27 |[39m     [36mreturn[39m {[0m
+
+      at handleApiError (src/utils/api.js:24:11)
+      at Object.<anonymous> (src/tests/utils/api.test.js:36:31)
+
+PASS src/tests/utils/analyticsApi.test.js
+PASS src/tests/utils/enhancedApi.login.test.js
+  ÔùÅ Console
+
+    console.log
+      Ô£à Access token stored, expires in: 3600 seconds
+
+      at TokenManager.setAccessToken (src/utils/tokenManager.js:39:15)
+
+
+Test Suites: 1 failed, 17 passed, 18 total
+Tests:       2 failed, 30 passed, 32 total
+Snapshots:   0 total
+Time:        8.197 s
+Ran all test suites.

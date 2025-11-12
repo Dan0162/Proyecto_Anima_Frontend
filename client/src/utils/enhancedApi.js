@@ -130,7 +130,9 @@ export const handleApiError = (error) => {
 
 export const loginApi = async (formData) => {
   try {
-    const url = `${getBaseUrl()}/v1/auth/login`;
+    // Prefer a dedicated login URL when provided, otherwise use base URL
+    const loginBase = process.env.REACT_APP_LOGIN_URL || getBaseUrl();
+    const url = `${loginBase}/v1/auth/login`;
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
