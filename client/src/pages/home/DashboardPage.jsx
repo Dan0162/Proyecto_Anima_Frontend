@@ -269,10 +269,13 @@ const DashboardPage = () => {
             
             <div className="hourly-chart">
               {stats.hourly_activity.map((count, index) => {
-                const hour = index;
+                const utcHour = index;
+                const utcDate = new Date(Date.UTC(2000, 0, 1, utcHour, 0, 0));
+                const localHour = utcDate.getHours();
+
                 const maxCount = Math.max(...stats.hourly_activity);
                 const height = maxCount > 0 ? (count / maxCount) * 100 : 0;
-                
+
                 return (
                   <div key={index} className="hour-column">
                     <div 
@@ -283,7 +286,7 @@ const DashboardPage = () => {
                       {count > 0 && <span className="bar-value">{count}</span>}
                     </div>
                     <div className="hour-label">
-                      {hour.toString().padStart(2, '0')}:00
+                      {localHour.toString().padStart(2, '0')}:00
                     </div>
                   </div>
                 );

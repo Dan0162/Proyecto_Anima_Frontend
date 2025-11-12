@@ -14,7 +14,9 @@
     border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   cursor: pointer;
   text-decoration: none;
+  min-width: 120px;
 }
+
 
 /* Button variants */
 .btn--default {
@@ -99,4 +101,46 @@ a.btn {
 .btn--block {
   display: block;
   width: 100%;
+}
+
+/* Responsive para botones grandes */
+@media (max-width: 768px) {
+  .btn--large {
+    padding: 0.875rem 1.5rem; /* Reducir padding en móvil */
+    font-size: 1rem; /* Reducir font size */
+    width: 100%; /* Full width en móvil */
+    max-width: 300px; /* Pero con max-width */
+    margin: 0 auto; /* Centrar */
+  }
+}
+
+@media (max-width: 480px) {
+  .btn--large {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+  }
+  
+  /* Stack buttons vertically en móvil */
+  .btn + .btn {
+    margin-top: 0.75rem;
+  }
+}
+
+
+/* Para botones en containers flex */
+.btn-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .btn-container {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+  }
 }

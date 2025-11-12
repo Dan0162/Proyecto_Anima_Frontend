@@ -99,18 +99,125 @@
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
 }
 
-.cta-button.primary {
-  background: linear-gradient(135deg,
-    rgba(195, 196, 250, 0.6) 0%,
-    rgba(139, 140, 245, 0.6) 100%);
-  color: #fff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+/* Responsividad para botones */
+@media (max-width: 1024px) {
+  .cta-button {
+    padding: 0.95rem 2rem;
+    font-size: 1.05rem;
+    gap: 0.65rem;
+  }
 }
 
+@media (max-width: 768px) {
+  /* En pantallas medianas y pequeñas los botones pasan a full width para mejor accesibilidad */
+  .cta-button {
+    width: 100%;
+    padding: 0.9rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 12px;
+    justify-content: center;
+    gap: 0.6rem;
+  }
+
+  .cta-button svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Ajustes finos para móviles */
+  .cta-button {
+    padding: 0.85rem 1rem;
+    font-size: 0.975rem;
+    gap: 0.5rem;
+    border-radius: 10px;
+  }
+
+  .cta-button svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.cta-button.primary {
+  background: linear-gradient(135deg,
+    rgba(195, 196, 250, 0.9) 0%,
+    rgba(139, 140, 245, 0.9) 100%);
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Ajustes responsivos: tamaños y padding */
+@media (max-width: 1024px) {
+  .cta-button.primary {
+    padding: 0.95rem 2rem;
+    font-size: 1.05rem;
+    max-width: 250px;
+  }
+
+  .cta-button.secondary {
+    padding: 0.95rem 2rem;
+    font-size: 1.05rem;
+    max-width: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .cta-button.primary {
+    padding: 0.9rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 12px;
+    background: linear-gradient(135deg,
+      rgba(195, 196, 250, 0.85) 0%,
+      rgba(139, 140, 245, 0.85) 100%);
+  }
+
+  .cta-button.secondary {
+    padding: 0.9rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cta-button.primary,
+  .cta-button.secondary {
+    padding: 0.85rem 1rem;
+    font-size: 0.975rem;
+    border-radius: 10px;
+    gap: 0.5rem;
+  }
+
+  /* íconos más pequeños en móviles (si tienen svg) */
+  .cta-button.primary svg,
+  .cta-button.secondary svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* Secondary button base */
 .cta-button.secondary {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.18);
   color: var(--black);
-  border: 1px solid rgba(195, 196, 250, 0.3);
+  border: 1px solid rgba(195, 196, 250, 0.28);
+}
+
+/* Dark mode overrides para mantener contraste */
+body.dark-mode .cta-button.primary {
+  background: linear-gradient(135deg,
+    rgba(120, 122, 200, 0.95) 0%,
+    rgba(100, 102, 200, 0.95) 100%);
+  border: 1px solid rgba(155, 156, 245, 0.18);
+  color: #fff;
+}
+
+body.dark-mode .cta-button.secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+  border: 1px solid rgba(155, 156, 245, 0.18);
 }
 
 .cta-button:hover {
