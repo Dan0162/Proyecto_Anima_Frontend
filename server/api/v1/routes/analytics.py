@@ -569,11 +569,13 @@ def save_analysis_result(
         
         db.add(new_analysis)
         db.commit()
-        
+        db.refresh(new_analysis)
+
         print(f"✅ Análisis guardado en BD para usuario {user.id}: {emotion_name}")
         print(f"🎵 Recomendaciones guardadas: {len(analysis_data.get('recommendations', []))}")
-        
-        return {"message": "Análisis guardado exitosamente", "success": True}
+
+        # Devolver el id del análisis recién creado para que el cliente pueda enlazar acciones (p.ej. crear playlists)
+        return {"message": "Análisis guardado exitosamente", "success": True, "analysis_id": str(new_analysis.id)}
         
     except Exception as e:
         db.rollback()

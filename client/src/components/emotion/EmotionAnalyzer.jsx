@@ -79,8 +79,9 @@ const EmotionAnalyzer = () => {
       }
 
       // 🆕 Guardar análisis usando el manager seguro - INCLUYENDO recomendaciones
+      let createdAnalysisId = null;
       try {
-        await analysisSaveManager.saveAnalysisSafe(
+        const saveResult = await analysisSaveManager.saveAnalysisSafe(
           {
             emotion: result.emotion,
             confidence: result.confidence,
@@ -89,6 +90,10 @@ const EmotionAnalyzer = () => {
           },
           saveAnalysisResult
         );
+        // saveAnalysisResult devuelve { success, message, analysis_id }
+        if (saveResult && saveResult.analysis_id) {
+          createdAnalysisId = saveResult.analysis_id;
+        }
       } catch (saveError) {
         console.error('❌ Error guardando análisis en historial:', saveError);
         // No bloqueamos el flujo si falla el guardado
@@ -102,13 +107,14 @@ const EmotionAnalyzer = () => {
         flash.show(message, 'success', 3000);
       }
       
-      // Navigate to results page
+      // Navigate to results page, include created analysis id when available
       navigate('/home/results', { 
         state: { 
           result: result, 
           photo: photoData,
           hasSpotify: hasSpotify,
-          alreadySaved: true, // 🆕 Indicar que ya fue guardado
+          alreadySaved: !!createdAnalysisId,
+          analysis_id: createdAnalysisId,
           recommendations: result.recommendations || [] // 🆕 Pasar recomendaciones
         } 
       });

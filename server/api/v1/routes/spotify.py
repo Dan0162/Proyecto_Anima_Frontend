@@ -5,6 +5,11 @@ import requests
 import json
 from server.core.security import verify_token
 from datetime import datetime
+from sqlalchemy.orm import Session
+from server.db.session import get_db
+from server.db.models.user import User
+from server.db.models.session import Session as UserSession
+from server.db.models.analysis import Analysis
 
 router = APIRouter(prefix="/v1/spotify", tags=["spotify"])
 
@@ -93,7 +98,8 @@ def add_tracks_to_playlist(access_token: str, playlist_id: str, track_uris: List
 @router.post("/create-playlist", response_model=CreatePlaylistResponse)
 async def create_analysis_playlist(
     request: CreatePlaylistRequest,
-    authorization: str = Header(..., alias="Authorization")
+    authorization: str = Header(..., alias="Authorization"),
+    db: Session = Depends(get_db)
 ):
     """
     Crea una playlist en Spotify basada en un análisis de emoción
@@ -112,15 +118,15 @@ async def create_analysis_playlist(
         try:
             payload = verify_token(token)
             spotify_info = payload.get('spotify')
-            
+
             if not spotify_info or not spotify_info.get('access_token'):
                 raise HTTPException(
                     status_code=401,
                     detail="Token de Spotify no encontrado. Conecta tu cuenta de Spotify."
                 )
-            
+
             spotify_access_token = spotify_info.get('access_token')
-            
+
         except Exception as e:
             raise HTTPException(
                 status_code=401,
@@ -187,7 +193,38 @@ async def create_analysis_playlist(
                 status_code=400,
                 detail="No se pudieron agregar canciones válidas a la playlist"
             )
-        
+        # Intentar persistir metadata de playlist dentro del análisis (si existe)
+        try:
+            if request.analysis_id:
+                # Verificar que el análisis pertenezca al usuario que hace la petición
+                # Obtener email del JWT
+                payload = verify_token(token)
+                email = payload.get('sub')
+                user = db.query(User).filter(User.email == email).first()
+                if user:
+                    # Verificar que la sesión asociada al análisis pertenece al usuario
+                    analysis_obj = db.query(Analysis).filter(Analysis.id == request.analysis_id).first()
+                    if analysis_obj:
+                        session_obj = db.query(UserSession).filter(UserSession.id == analysis_obj.id_sesion, UserSession.id_usuario == user.id).first()
+                        if session_obj:
+                            # Actualizar recommendations (mantener estructura existente)
+                            recs = analysis_obj.recommendations or {}
+                            if isinstance(recs, list):
+                                # Convertir lista a dict con key 'tracks' para almacenar playlist metadata
+                                recs = { 'tracks': recs }
+                            recs['playlist'] = {
+                                'id': playlist_id,
+                                'name': playlist_name,
+                                'url': playlist_url,
+                                'tracks_added': tracks_added
+                            }
+                            analysis_obj.recommendations = recs
+                            db.add(analysis_obj)
+                            db.commit()
+        except Exception as e:
+            # No bloquear la creación de playlist por errores de persistencia en BD
+            print(f"⚠️ Error guardando metadata de playlist en BD: {e}")
+
         return CreatePlaylistResponse(
             success=True,
             playlist_id=playlist_id,

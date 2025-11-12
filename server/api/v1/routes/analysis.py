@@ -132,46 +132,31 @@ def get_music_recommendations(authorization: str, emotion: str) -> list:
     Obtiene recomendaciones musicales para la emoción detectada
     """
     try:
-        # Extraer token de Spotify si está disponible
-        jwt = None
+        # Extraer access_token de Spotify si el Authorization es nuestro JWT
+        spotify_access = None
         if authorization and authorization.startswith("Bearer "):
             token = authorization.split(" ")[1]
             try:
                 payload = verify_token(token)
-                spotify_info = payload.get('spotify')
+                spotify_info = payload.get('spotify') if payload else None
                 if spotify_info and spotify_info.get('access_token'):
-                    jwt = authorization  # Usar el JWT completo
-            except:
-                pass
-        
-        # Intentar obtener recomendaciones con Spotify
-        if jwt:
-            try:
-                response = requests.get(
-                    f"http://127.0.0.1:8000/recommend?emotion={emotion}",
-                    headers={"Authorization": jwt},
-                    timeout=10
-                )
-                if response.ok:
-                    data = response.json()
-                    return data.get('tracks', [])
-            except:
-                pass
-        
-        # Fallback a recomendaciones mockup
-        try:
-            response = requests.get(
-                f"http://127.0.0.1:8000/recommend/mockup?emotion={emotion}",
-                timeout=10
-            )
-            if response.ok:
-                data = response.json()
-                return data.get('tracks', [])
-        except:
-            pass
-        
+                    spotify_access = spotify_info.get('access_token')
+                else:
+                    # Si no es nuestro JWT, asumir que es un access token directo
+                    spotify_access = token
+            except Exception:
+                # Si verify_token falla, usar token como raw spotify access token
+                spotify_access = token
+
+        if not spotify_access:
+            return []
+
+        # Llamar directamente al servicio interno que obtiene recomendaciones desde Spotify
+        from server.services.spotify import get_recommendations as svc_get_recommendations
+        data = svc_get_recommendations(spotify_access, emotion)
+        if isinstance(data, dict):
+            return data.get('tracks', [])
         return []
-        
     except Exception as e:
         print(f"❌ Error obteniendo recomendaciones: {e}")
         return []
