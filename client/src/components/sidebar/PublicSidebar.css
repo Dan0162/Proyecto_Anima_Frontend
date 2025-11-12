@@ -1,5 +1,6 @@
 /* ============================================
    PUBLIC SIDEBAR - Menú para páginas públicas
+   SOLO VISIBLE EN RESPONSIVE (≤800px)
    ============================================ */
 
 .public-sidebar-toggle {
@@ -11,7 +12,7 @@
   height: 48px;
   border-radius: 12px;
   border: 2px solid rgba(107, 109, 184, 0.6);
-  display: flex;
+  display: none; /* OCULTO EN DESKTOP */
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -302,7 +303,32 @@
   background: rgba(195, 196, 250, 0.7);
 }
 
-/* Responsive */
+/* ============================================
+   RESPONSIVE - MOSTRAR SOLO EN MÓVIL/TABLET
+   ============================================ */
+
+/* Mostrar sidebar toggle SOLO en pantallas ≤800px */
+@media (max-width: 800px) {
+  .public-sidebar-toggle {
+    display: flex; /* MOSTRAR EN MÓVIL */
+  }
+}
+
+/* Desktop: OCULTAR completamente la sidebar */
+@media (min-width: 801px) {
+  .public-sidebar-toggle {
+    display: none !important;
+  }
+  
+  .public-sidebar {
+    display: none !important;
+  }
+  
+  .public-sidebar-backdrop {
+    display: none !important;
+  }
+}
+
 @media (max-width: 768px) {
   .public-sidebar {
     width: 300px;

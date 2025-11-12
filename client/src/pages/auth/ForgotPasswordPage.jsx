@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/navbar';
+import PublicSidebar from '../../components/sidebar/PublicSidebar';
 import GlassCard from '../../components/layout/GlassCard';
 import Input from '../../components/ui/Input';
 import PasswordInput from '../../components/ui/PasswordInput';
@@ -155,6 +156,7 @@ const ForgotPasswordPage = () => {
   return (
     <div className="forgot-password-page gradient-bg">
       <Navbar />
+      <PublicSidebar />
       <div className="forgot-password-content">
         <div className="forgot-password-container">
           <GlassCard variant="lilac" className="forgot-password-card">

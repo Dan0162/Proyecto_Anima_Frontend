@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Navbar from '../components/navbar';
+import PublicSidebar from '../components/sidebar/PublicSidebar';
 import GlassCard from '../components/layout/GlassCard';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
@@ -113,6 +114,7 @@ function ContactPage() {
   return (
     <div className="contact-page gradient-bg">
       <Navbar />
+      <PublicSidebar />
       
       <div className="contact-content">
         <div className="contact-hero">

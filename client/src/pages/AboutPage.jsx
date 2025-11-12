@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import Navbar from '../components/navbar';
+import PublicSidebar from '../components/sidebar/PublicSidebar';
 import GlassCard from '../components/layout/GlassCard';
 import './AboutPage.css';
 
@@ -14,6 +15,7 @@ function AboutPage() {
   return (
     <div className="about-page gradient-bg">
       <Navbar />
+      <PublicSidebar />
       
       <div className="about-content">
         <div className="about-hero">

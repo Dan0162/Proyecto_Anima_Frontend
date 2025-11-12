@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './landingpage.css';
 import Navbar from '../components/navbar';
+import PublicSidebar from '../components/sidebar/PublicSidebar';
 import GlassCard from '../components/layout/GlassCard';
 
 function Landingpage() {
@@ -15,6 +16,7 @@ function Landingpage() {
   return (
     <div className="landingpage gradient-bg">
       <Navbar />
+      <PublicSidebar />
       
       <div className="landingpage-content">
         {/* Hero Section */}

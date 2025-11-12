@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import GlassCard from '../../components/layout/GlassCard';
 import Navbar from '../../components/navbar';
+import PublicSidebar from '../../components/sidebar/PublicSidebar';
 import SignInForm from '../../components/auth/SignInForm';
 import './AuthPage.css';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -60,6 +61,7 @@ const SignInPage = () => {
   return (
     <div className="auth-page gradient-bg">
       <Navbar />
+      <PublicSidebar />
       <div className="auth-page-content">
         <div className="auth-container">
           <GlassCard variant="lilac" style={{ padding: '0' }}>
