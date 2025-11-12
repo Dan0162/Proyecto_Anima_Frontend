@@ -10,10 +10,6 @@ const DashboardPage = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // DevTools: print timezone and offset to help debug hour-based aggregations
-  useEffect(() => {
-    // kept intentionally empty for production — debug logging removed
-  }, []);
 
 useEffect(() => {
     const loadStats = async () => {

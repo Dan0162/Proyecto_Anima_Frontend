@@ -130,14 +130,23 @@ export const handleApiError = (error) => {
 
 export const loginApi = async (formData) => {
   try {
-    // Prefer a dedicated login URL when provided, otherwise use base URL
-    const loginBase = process.env.REACT_APP_LOGIN_URL || getBaseUrl();
+  // Prefer a dedicated login URL when provided, otherwise use localhost (useful for local dev)
+  // Keep REACT_APP_LOGIN_URL if set so CI / deployed envs can override.
+  const loginBase = 'http://localhost:8000';
     const url = `${loginBase}/v1/auth/login`;
-    const response = await fetch(url, {
+    // Use fetchWithTimeout to avoid hanging requests; choose a reasonable timeout for login
+    const LOGIN_TIMEOUT_MS = 10000; // 10 seconds
+    const t0 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+    const response = await fetchWithTimeout(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData)
-    });
+    }, LOGIN_TIMEOUT_MS);
+    const t1 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+    try {
+      // Log client-side timing for the login request to help diagnose latency
+      console.log(`[loginApi] fetch duration: ${(t1 - t0).toFixed(1)} ms, status: ${response.status}`);
+    } catch (e) {}
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));

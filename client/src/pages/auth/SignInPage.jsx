@@ -48,9 +48,8 @@ const SignInPage = () => {
       }
 
       const returnTo = location?.state?.from?.pathname || '/home';
-      setTimeout(() => {
-        navigate(returnTo);
-      }, 1000);
+      // Navigate immediately after successful login to reduce perceived latency
+      navigate(returnTo);
       
     } catch (err) {
       console.error('Sign in error:', err);
