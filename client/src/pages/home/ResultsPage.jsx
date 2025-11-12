@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from '../../components/sidebar/Sidebar';
 import GlassCard from '../../components/layout/GlassCard';
 import { useFlash } from '../../components/flash/FlashContext';
+import { saveAnalysisResult } from '../../utils/analyticsApi';
 import './ResultsPage.css';
 
 const ResultsPage = () => {
@@ -59,9 +60,10 @@ const ResultsPage = () => {
           });
           return;
         }
-        // Fallback to mockup if protected endpoint fails
-        const fallbackUrl = `http://127.0.0.1:8000/recommend/mockup?emotion=${result.emotion}`;
-        response = await fetch(fallbackUrl);
+        // No mocks available — inform the user and stop
+        console.error('❌ Recomendaciones no disponibles (sin mocks).');
+        if (flash?.show) flash.show('No se pudieron obtener recomendaciones. Conecta Spotify para obtener música personalizada.', 'error');
+        return;
       }
 
       if (response.ok) {
@@ -93,9 +95,27 @@ const ResultsPage = () => {
         return;
       }
 
-      // Crear playlist en Spotify
+      // Crear playlist en Spotify — usar analysis_id provisto por el flujo de análisis si existe
+      let providedAnalysisId = location.state?.analysis_id || null;
+      // Si no hay analysis_id, intentar guardar el análisis primero para obtener uno
+      if (!providedAnalysisId) {
+        try {
+          const saveData = {
+            emotion: result.emotion,
+            confidence: result.confidence,
+            emotions_detected: result.emotions_detected || {},
+            recommendations: recommendations || []
+          };
+          const saveResp = await saveAnalysisResult(saveData);
+          if (saveResp && saveResp.analysis_id) {
+            providedAnalysisId = saveResp.analysis_id;
+          }
+        } catch (e) {
+          console.error('Error guardando análisis antes de crear playlist:', e);
+        }
+      }
       const playlistData = {
-        analysis_id: 0, // Temporal para análisis recién creado
+        analysis_id: providedAnalysisId !== null ? providedAnalysisId : 0,
         emotion: result.emotion,
         confidence: result.confidence,
         tracks: recommendations.slice(0, 20).map(track => track.uri).filter(Boolean)
