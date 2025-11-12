@@ -423,17 +423,19 @@ const loadAnalysisDetails = useCallback(async () => {
               {recommendations.length > 0 ? (
                 <div className="tracks-list">
                   {recommendations.slice(0, 20).map((track, index) => (
-                    <div key={index} className="track-card">
+                    <div key={index} className="track-card">                      
+                      {/* Reproductor de Spotify */}
                       {track.uri && (
-                        <iframe
-                          title={`Spotify Player ${track.name}`}
-                          src={`https://open.spotify.com/embed/track/${track.uri.split(":").pop()}?utm_source=generator&theme=0`}
-                          width="100%"
-                          height="80"
-                          frameBorder="0"
-                          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                          style={{ borderRadius: 8 }}
-                        ></iframe>
+                        <div className="track-player">
+                          <iframe
+                            title={`Spotify Player ${track.name}`}
+                            src={`https://open.spotify.com/embed/track/${track.uri.split(":").pop()}?utm_source=generator&theme=0`}
+                            width="100%"
+                            height="120"
+                            frameBorder="0"
+                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                          ></iframe>
+                        </div>
                       )}
                     </div>
                   ))}

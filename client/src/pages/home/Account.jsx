@@ -381,11 +381,11 @@ export default function Account() {
 
             <div className="profile-stats">
               <div className="profile-stat">
-                <div className="stat-value">{profileStats.totalAnalyses}</div>
+                <div className="stat-value">{profileStats.totalAnalyses || profileStats.total_analyses || 0}</div>
                 <div className="stat-label">Análisis</div>
               </div>
               <div className="profile-stat">
-                <div className="stat-value">{profileStats.streak}</div>
+                <div className="stat-value">{profileStats.streak || 0}</div>
                 <div className="stat-label">Días activo</div>
               </div>
             </div>
