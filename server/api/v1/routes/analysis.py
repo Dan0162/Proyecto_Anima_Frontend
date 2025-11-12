@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Header, UploadFile, File
 from pydantic import BaseModel
-from typing import Dict
+from typing import Dict, Optional
 import random
 import base64
 import io
@@ -9,7 +9,11 @@ from PIL import Image
 from server.services.aws_rekognition_service import rekognition_service
 from server.core.config import settings
 from botocore.exceptions import BotoCoreError, ClientError
-from datetime import datetime
+from datetime import datetime, timezone
+try:
+    from zoneinfo import ZoneInfo
+except Exception:
+    ZoneInfo = None
 from server.core.security import verify_token
 from server.db.models.user import User
 from server.db.session import get_db
@@ -19,6 +23,7 @@ router = APIRouter(prefix="/v1/analysis", tags=["analysis"])
 
 class ImageBase64Request(BaseModel):
     image: str  # Base64 string
+    timezone: Optional[str] = None
 
 class EmotionAnalysisResponse(BaseModel):
     emotion: str
@@ -262,11 +267,22 @@ async def analyze_emotion_base64(
                     app_top = None
                     top_conf = 0.0
 
+                # Determine timestamp: prefer localizing to client timezone if provided
+                now_utc = datetime.now(timezone.utc)
+                if request.timezone and ZoneInfo is not None:
+                    try:
+                        tz = ZoneInfo(request.timezone)
+                        ts = now_utc.astimezone(tz).isoformat()
+                    except Exception:
+                        ts = now_utc.isoformat()
+                else:
+                    ts = now_utc.isoformat()
+
                 emotion_data = {
                     'emotion': app_top,
                     'confidence': round(top_conf, 4),
                     'emotions_detected': emotions_detected,
-                    'timestamp': datetime.utcnow().isoformat(),
+                    'timestamp': ts,
                     'message': 'Análisis completado exitosamente (AWS Rekognition)'
                 }
 
@@ -286,7 +302,15 @@ async def analyze_emotion_base64(
         if not emotion_data:
             emotion_key = random.choice(list(MOCK_EMOTIONS.keys()))
             emotion_data = MOCK_EMOTIONS[emotion_key].copy()
-            emotion_data["timestamp"] = datetime.utcnow().isoformat()
+            now_utc = datetime.now(timezone.utc)
+            if request.timezone and ZoneInfo is not None:
+                try:
+                    tz = ZoneInfo(request.timezone)
+                    emotion_data["timestamp"] = now_utc.astimezone(tz).isoformat()
+                except Exception:
+                    emotion_data["timestamp"] = now_utc.isoformat()
+            else:
+                emotion_data["timestamp"] = now_utc.isoformat()
             emotion_data["message"] = f"Análisis completado exitosamente (modo mockup)"
             print(f"✅ Análisis mockup: {emotion_key} ({emotion_data['confidence']*100:.1f}%)")
         
@@ -311,7 +335,8 @@ async def analyze_emotion_base64(
 @router.post("/analyze", response_model=EmotionAnalysisResponse, status_code=status.HTTP_200_OK)
 async def analyze_emotion_file(
     image: UploadFile = File(...),
-    authorization: str = Header(..., alias="Authorization")
+    authorization: str = Header(..., alias="Authorization"),
+    timezone_param: Optional[str] = Header(None, alias="X-Client-Timezone")
 ):
     """
     🎭 Análisis de emoción desde archivo de imagen (MOCKUP)
@@ -390,11 +415,21 @@ async def analyze_emotion_file(
                     app_top = None
                     top_conf = 0.0
 
+                now_utc = datetime.now(timezone.utc)
+                if timezone_param and ZoneInfo is not None:
+                    try:
+                        tz = ZoneInfo(timezone_param)
+                        ts = now_utc.astimezone(tz).isoformat()
+                    except Exception:
+                        ts = now_utc.isoformat()
+                else:
+                    ts = now_utc.isoformat()
+
                 emotion_data = {
                     'emotion': app_top,
                     'confidence': round(top_conf, 4),
                     'emotions_detected': emotions_detected,
-                    'timestamp': datetime.utcnow().isoformat(),
+                    'timestamp': ts,
                     'message': 'Análisis completado exitosamente (AWS Rekognition)'
                 }
 
@@ -414,7 +449,15 @@ async def analyze_emotion_file(
         if not emotion_data:
             emotion_key = random.choice(list(MOCK_EMOTIONS.keys()))
             emotion_data = MOCK_EMOTIONS[emotion_key].copy()
-            emotion_data["timestamp"] = datetime.utcnow().isoformat()
+            now_utc = datetime.now(timezone.utc)
+            if timezone_param and ZoneInfo is not None:
+                try:
+                    tz = ZoneInfo(timezone_param)
+                    emotion_data["timestamp"] = now_utc.astimezone(tz).isoformat()
+                except Exception:
+                    emotion_data["timestamp"] = now_utc.isoformat()
+            else:
+                emotion_data["timestamp"] = now_utc.isoformat()
             emotion_data["message"] = f"Análisis completado exitosamente (modo mockup)"
             print(f"✅ Análisis mockup (file): {emotion_key} ({emotion_data['confidence']*100:.1f}%)")
 

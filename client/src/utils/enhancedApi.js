@@ -332,10 +332,12 @@ export const changePasswordApi = async (passwordData) => {
 export const analyzeEmotionBase64 = async (imageBase64) => {
   try {
     const url = `${getBaseUrl()}/v1/analysis/analyze-base64`;
+    // Include user's IANA timezone so the server can return timestamps localized
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || null;
     const response = await authenticatedFetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image: imageBase64 })
+      body: JSON.stringify({ image: imageBase64, timezone: tz })
     }, true, 1); // Requires auth, 1 retry
 
     if (!response.ok) {

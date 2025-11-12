@@ -6,7 +6,7 @@ from server.db.models.user import User
 from server.db.models.session import Session as UserSession
 from server.db.models.analysis import Analysis, Emotion
 from sqlalchemy import func, desc, extract, and_
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from jose import JWTError
 from pydantic import BaseModel
 from typing import Dict, List, Optional
@@ -210,15 +210,20 @@ def get_analysis_details(
         )
     
     analysis, emotion = analysis_result
-    
+
     # 🆕 Obtener recomendaciones guardadas o generar nuevas si no existen
     recommendations = analysis.recommendations or []
-    
+
+    # Ensure date is timezone-aware (assume stored timestamps are UTC)
+    analysis_date = analysis.fecha_analisis
+    if analysis_date and analysis_date.tzinfo is None:
+        analysis_date = analysis_date.replace(tzinfo=timezone.utc)
+
     return AnalysisDetail(
         id=analysis.id,
         emotion=emotion.nombre,
         confidence=analysis.confidence or 0.0,
-        date=analysis.fecha_analisis,
+        date=analysis_date,
         emotions_detected=analysis.emotions_detected or {},
         session_id=analysis.id_sesion,
         recommendations=recommendations
@@ -240,7 +245,8 @@ def create_empty_stats():
 
 def calculate_weekly_activity(db: Session, session_ids: List[int]) -> List[WeeklyActivity]:
     """Calcular actividad de los últimos 7 días"""
-    today = datetime.now().date()
+    # Use UTC-aware now for consistent date calculations
+    today = datetime.now(timezone.utc).date()
     week_start = today - timedelta(days=today.weekday())  # Lunes de esta semana
     
     daily_counts = {}
@@ -270,7 +276,7 @@ def calculate_weekly_activity(db: Session, session_ids: List[int]) -> List[Weekl
 
 def calculate_weekly_emotions(db: Session, session_ids: List[int]) -> List[WeeklyEmotionData]:
     """Calcular emociones por semana (últimas 8 semanas)"""
-    today = datetime.now().date()
+    today = datetime.now(timezone.utc).date()
     weeks_data = []
     
     for week_offset in range(7, -1, -1):  # Últimas 8 semanas
@@ -331,7 +337,7 @@ def calculate_streak(db: Session, session_ids: List[int]) -> int:
         return 0
     
     dates = [row.analysis_date for row in dates_query]
-    today = datetime.now().date()
+    today = datetime.now(timezone.utc).date()
     
     streak = 0
     current_date = today
@@ -382,11 +388,16 @@ def get_user_history(
     # Convertir a formato de respuesta
     analyses = []
     for analysis, emotion in results:
+        # Ensure returned datetimes are timezone-aware (assume stored timestamps are UTC)
+        analysis_date = analysis.fecha_analisis
+        if analysis_date and analysis_date.tzinfo is None:
+            analysis_date = analysis_date.replace(tzinfo=timezone.utc)
+
         analyses.append(AnalysisHistory(
             id=str(analysis.id),
             emotion=emotion.nombre,
             confidence=analysis.confidence or 0.0,
-            date=analysis.fecha_analisis,
+            date=analysis_date,
             emotions_detected=analysis.emotions_detected or {}
         ))
     
@@ -418,9 +429,9 @@ def save_analysis_result(
         if not latest_session:
             # Crear una nueva sesión si no hay ninguna activa
             latest_session = UserSession(
-                id_usuario=user.id,
-                fecha_inicio=datetime.utcnow()
-            )
+                    id_usuario=user.id,
+                    fecha_inicio=datetime.now(timezone.utc)
+                )
             db.add(latest_session)
             db.commit()
             db.refresh(latest_session)
@@ -434,9 +445,9 @@ def save_analysis_result(
             db.add(emotion)
             db.commit()
             db.refresh(emotion)
-        
+
         # Verificar si ya existe un análisis muy reciente (últimos 30 segundos)
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         recent_analysis = db.query(Analysis).filter(
             and_(
                 Analysis.id_sesion == latest_session.id,
