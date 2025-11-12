@@ -14,6 +14,7 @@ except Exception:
 from jose import JWTError
 from pydantic import BaseModel
 from typing import Dict, List, Optional
+from server.api.v1.routes.analysis import get_music_recommendations
 
 router = APIRouter(prefix="/v1/analytics", tags=["analytics"])
 
@@ -47,6 +48,7 @@ class AnalysisHistory(BaseModel):
     confidence: float
     date: datetime
     emotions_detected: Dict[str, float]
+    recommendations: List[Dict] = []
 
 class AnalysisHistoryResponse(BaseModel):
     analyses: List[AnalysisHistory]
@@ -426,7 +428,8 @@ def calculate_streak(db: Session, session_ids: List[int], timezone_name: Optiona
 def get_user_history(
     authorization: str = Header(..., alias="Authorization"),
     db: Session = Depends(get_db),
-    emotion_filter: Optional[str] = None
+    emotion_filter: Optional[str] = None,
+    timezone_header: Optional[str] = Header(None, alias="X-Client-Timezone")
 ):
     """
     Obtiene el historial de análisis del usuario usando datos reales
@@ -452,20 +455,47 @@ def get_user_history(
     # Obtener resultados ordenados por fecha
     results = query.order_by(Analysis.fecha_analisis.desc()).all()
     
-    # Convertir a formato de respuesta
+    # Convertir a formato de respuesta, incluir recomendaciones reales y localizar fecha si se indicó zona
+    if timezone_header and ZoneInfo is not None:
+        try:
+            user_tz = ZoneInfo(timezone_header)
+        except Exception:
+            user_tz = timezone.utc
+    else:
+        user_tz = timezone.utc
+
     analyses = []
     for analysis, emotion in results:
-        # Ensure returned datetimes are timezone-aware (assume stored timestamps are UTC)
-        analysis_date = analysis.fecha_analisis
-        if analysis_date and analysis_date.tzinfo is None:
-            analysis_date = analysis_date.replace(tzinfo=timezone.utc)
+        dt = analysis.fecha_analisis
+        if dt is None:
+            dt_local_iso = None
+        else:
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            try:
+                dt_local = dt.astimezone(user_tz)
+            except Exception:
+                dt_local = dt.astimezone(timezone.utc)
+            dt_local_iso = dt_local.isoformat()
+
+        # Use stored recommendations if present; otherwise try to fetch real recommendations now
+        recs = analysis.recommendations or []
+        if (not recs) and authorization:
+            try:
+                fetched = get_music_recommendations(authorization, emotion.nombre)
+                # get_music_recommendations returns a list of tracks (or []), so accept it
+                if fetched:
+                    recs = fetched
+            except Exception as e:
+                print(f"⚠️ Error obteniendo recomendaciones para historial: {e}")
 
         analyses.append(AnalysisHistory(
             id=str(analysis.id),
             emotion=emotion.nombre,
             confidence=analysis.confidence or 0.0,
-            date=analysis_date,
-            emotions_detected=analysis.emotions_detected or {}
+            date=dt_local_iso,
+            emotions_detected=analysis.emotions_detected or {},
+            recommendations=recs or []
         ))
     
     return AnalysisHistoryResponse(

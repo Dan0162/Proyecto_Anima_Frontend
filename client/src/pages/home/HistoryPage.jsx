@@ -13,58 +13,82 @@ const HistoryPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-  const loadHistory = async () => {
-    setLoading(true);
-    try {
-      const response = await getUserHistory();
-      const historyData = response.analyses.map(analysis => ({
-        id: analysis.id,
-        emotion: analysis.emotion,
-        confidence: analysis.confidence,
-        date: analysis.date,
-        emotions_detected: analysis.emotions_detected,
-        tracksCount: Math.floor(Math.random() * 10) + 5 // Temporal hasta implementar tracks reales
-      }));
-      
-      setAnalyses(historyData);
-      setFilteredAnalyses(historyData);
-    } catch (error) {
-      console.error('Error loading history:', error);
-      setAnalyses([]);
-      setFilteredAnalyses([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const loadHistory = async () => {
+      setLoading(true);
+      try {
+        const response = await getUserHistory();
+        const historyData = response.analyses.map(analysis => {
+          const recs = analysis.recommendations || [];
+          // Support multiple shapes: array of tracks, or object with 'tracks' key, or object with 'total_tracks'
+          let tracksCount = 0;
+          if (Array.isArray(recs)) {
+            tracksCount = recs.length;
+          } else if (recs && typeof recs === 'object') {
+            if (Array.isArray(recs.tracks)) tracksCount = recs.tracks.length;
+            else if (typeof recs.total_tracks === 'number') tracksCount = recs.total_tracks;
+          }
 
-  loadHistory();
-}, []);
+          return {
+            id: analysis.id,
+            emotion: analysis.emotion,
+            confidence: analysis.confidence,
+            date: analysis.date,
+            emotions_detected: analysis.emotions_detected,
+            recommendations: Array.isArray(recs) ? recs : (recs.tracks || []),
+            tracksCount
+          };
+        });
+
+        setAnalyses(historyData);
+        setFilteredAnalyses(historyData);
+      } catch (error) {
+        console.error('Error loading history:', error);
+        setAnalyses([]);
+        setFilteredAnalyses([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadHistory();
+  }, []);
 
   useEffect(() => {
-  const filterAnalyses = async () => {
-    if (selectedEmotion === 'all') {
-      setFilteredAnalyses(analyses);
-    } else {
-      try {
-        const response = await getUserHistory(selectedEmotion);
-        const filteredData = response.analyses.map(analysis => ({
-          id: analysis.id,
-          emotion: analysis.emotion,
-          confidence: analysis.confidence,
-          date: analysis.date,
-          emotions_detected: analysis.emotions_detected,
-          tracksCount: Math.floor(Math.random() * 10) + 5
-        }));
-        setFilteredAnalyses(filteredData);
-      } catch (error) {
-        console.error('Error filtering history:', error);
-        setFilteredAnalyses([]);
-      }
-    }
-  };
+    const filterAnalyses = async () => {
+      if (selectedEmotion === 'all') {
+        setFilteredAnalyses(analyses);
+      } else {
+        try {
+          const response = await getUserHistory(selectedEmotion);
+          const filteredData = response.analyses.map(analysis => {
+            const recs = analysis.recommendations || [];
+            let tracksCount = 0;
+            if (Array.isArray(recs)) tracksCount = recs.length;
+            else if (recs && typeof recs === 'object') {
+              if (Array.isArray(recs.tracks)) tracksCount = recs.tracks.length;
+              else if (typeof recs.total_tracks === 'number') tracksCount = recs.total_tracks;
+            }
 
-  filterAnalyses();
-}, [selectedEmotion, analyses]);
+            return {
+              id: analysis.id,
+              emotion: analysis.emotion,
+              confidence: analysis.confidence,
+              date: analysis.date,
+              emotions_detected: analysis.emotions_detected,
+              recommendations: Array.isArray(recs) ? recs : (recs.tracks || []),
+              tracksCount
+            };
+          });
+          setFilteredAnalyses(filteredData);
+        } catch (error) {
+          console.error('Error filtering history:', error);
+          setFilteredAnalyses([]);
+        }
+      }
+    };
+
+    filterAnalyses();
+  }, [selectedEmotion, analyses]);
 
 
   const getEmotionColor = (emotion) => {
@@ -100,21 +124,39 @@ const HistoryPage = () => {
     return labels[emotion] || emotion;
   };
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now - date);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const getTrackPreview = (analysis) => {
+    const recs = analysis.recommendations || [];
+    if (!recs || recs.length === 0) return 'Sin canciones';
+    const first = recs[0];
+    // first may be an object with name and artists (array of {name})
+    const name = first.name || first.title || first.track?.name || '';
+    let artists = [];
+    if (Array.isArray(first.artists)) {
+      artists = first.artists.map(a => a.name).filter(Boolean);
+    } else if (first.track && Array.isArray(first.track.artists)) {
+      artists = first.track.artists.map(a => a.name).filter(Boolean);
+    }
+    const artistStr = artists.join(', ');
+    if (name && artistStr) return `${name} — ${artistStr}`;
+    if (name) return name;
+    return 'Recomendación disponible';
+  };
 
-    if (diffDays === 0) return 'Hoy';
-    if (diffDays === 1) return 'Ayer';
-    if (diffDays < 7) return `Hace ${diffDays} días`;
-    
-    return date.toLocaleDateString('es-ES', { 
-      day: 'numeric', 
-      month: 'short', 
-      year: 'numeric' 
-    });
+  const formatDate = (dateString) => {
+    // Mostrar fecha y hora localizada (sin textos relativos)
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    try {
+      return date.toLocaleString('es-ES', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (e) {
+      return date.toLocaleDateString();
+    }
   };
 
   const handleViewDetails = (analysisId) => {
@@ -234,7 +276,7 @@ const HistoryPage = () => {
                           <circle cx="6" cy="18" r="3"></circle>
                           <circle cx="18" cy="16" r="3"></circle>
                         </svg>
-                        <span>{analysis.tracksCount} canciones</span>
+                        <span className="track-preview">{getTrackPreview(analysis)}</span>
                       </div>
                     </div>
                   </div>

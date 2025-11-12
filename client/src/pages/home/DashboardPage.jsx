@@ -264,7 +264,7 @@ const DashboardPage = () => {
                 <circle cx="12" cy="12" r="10"></circle>
                 <polyline points="12 6 12 12 16 14"></polyline>
               </svg>
-              Análisis por Hora del Día
+              Análisis a la Semana por Hora del Día 
             </h3>
             
             <div className="hourly-chart">

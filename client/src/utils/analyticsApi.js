@@ -45,7 +45,8 @@ export const getUserHistory = async (emotionFilter = null) => {
       url += `?emotion_filter=${encodeURIComponent(emotionFilter)}`;
     }
 
-    const response = await authenticatedFetch(url, { method: 'GET' });
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || null;
+  const response = await authenticatedFetch(url, { method: 'GET', headers: tz ? { 'X-Client-Timezone': tz } : {} });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
