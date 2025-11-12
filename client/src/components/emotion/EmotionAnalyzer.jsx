@@ -81,6 +81,9 @@ const EmotionAnalyzer = () => {
       // 🆕 Guardar análisis usando el manager seguro - INCLUYENDO recomendaciones
       let createdAnalysisId = null;
       try {
+        console.log('💾 Guardando análisis con recomendaciones...');
+        console.log('🎵 Recomendaciones a guardar:', result.recommendations?.length || 0);
+        
         const saveResult = await analysisSaveManager.saveAnalysisSafe(
           {
             emotion: result.emotion,
@@ -90,9 +93,13 @@ const EmotionAnalyzer = () => {
           },
           saveAnalysisResult
         );
+        
+        console.log('📝 Resultado del guardado:', saveResult);
+        
         // saveAnalysisResult devuelve { success, message, analysis_id }
         if (saveResult && saveResult.analysis_id) {
           createdAnalysisId = saveResult.analysis_id;
+          console.log('✅ Análisis guardado con ID:', createdAnalysisId);
         }
       } catch (saveError) {
         console.error('❌ Error guardando análisis en historial:', saveError);

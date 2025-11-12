@@ -5,8 +5,9 @@
 
 class AnalysisSaveManager {
   constructor() {
-    this.savedAnalyses = new Set();
-    this.pendingSaves = new Set();
+    this.isSaving = false;
+    this.lastSaveTime = null;
+    this.lastSaveData = null;
   }
 
   /**
@@ -57,46 +58,80 @@ class AnalysisSaveManager {
   /**
    * Guarda un análisis de manera segura sin duplicados
    */
+    /**
+   * Guarda un análisis de forma segura evitando duplicados
+   * @param {Object} analysisData - Datos del análisis a guardar
+   * @param {Function} saveFunction - Función para guardar el análisis
+   * @returns {Promise<Object>} - Resultado del guardado
+   */
   async saveAnalysisSafe(analysisData, saveFunction) {
-    const dataWithTimestamp = {
-      ...analysisData,
-      timestamp: Date.now()
-    };
-
-    // Verificar si ya está guardado o pendiente
-    if (this.isAlreadySaved(dataWithTimestamp)) {
-      console.log('⚠️ Análisis ya guardado o pendiente, omitiendo...');
-      return { success: true, message: 'Analysis already saved' };
+    // Prevenir múltiples guardados concurrentes
+    if (this.isSaving) {
+      console.log('⚠️ Ya hay un guardado en progreso, ignorando...');
+      return { success: false, message: 'Guardado en progreso' };
     }
 
-    // Marcar como pendiente
-    this.markAsPending(dataWithTimestamp);
+    // Verificar si es un duplicado muy reciente (últimos 5 segundos)
+    const now = Date.now();
+    const timeSinceLastSave = this.lastSaveTime ? now - this.lastSaveTime : Infinity;
+    
+    if (timeSinceLastSave < 5000 && this.isDuplicateData(analysisData)) {
+      console.log('⚠️ Datos duplicados detectados, ignorando guardado');
+      return { success: false, message: 'Datos duplicados' };
+    }
 
     try {
-      // Ejecutar función de guardado
-      const result = await saveFunction(dataWithTimestamp);
+      this.isSaving = true;
+      console.log('💾 Iniciando guardado seguro de análisis...');
       
-      // Marcar como guardado exitosamente
-      this.markAsSaved(dataWithTimestamp);
+      const result = await saveFunction(analysisData);
+      
+      // Actualizar información de último guardado
+      this.lastSaveTime = now;
+      this.lastSaveData = { ...analysisData };
       
       console.log('✅ Análisis guardado exitosamente');
       return result;
       
     } catch (error) {
-      // Remover de pendientes en caso de error
-      const hash = this.generateAnalysisHash(dataWithTimestamp);
-      this.pendingSaves.delete(hash);
-      
-      console.error('❌ Error guardando análisis:', error);
+      console.error('❌ Error en guardado seguro:', error);
       throw error;
+    } finally {
+      this.isSaving = false;
     }
+  }
+
+  /**
+   * Verifica si los datos son duplicados del último guardado
+   * @param {Object} newData - Nuevos datos a comparar
+   * @returns {boolean} - True si son duplicados
+   */
+  isDuplicateData(newData) {
+    if (!this.lastSaveData) return false;
+
+    // Comparar campos clave para detectar duplicados
+    return (
+      this.lastSaveData.emotion === newData.emotion &&
+      Math.abs(this.lastSaveData.confidence - newData.confidence) < 0.01 &&
+      JSON.stringify(this.lastSaveData.emotions_detected) === JSON.stringify(newData.emotions_detected)
+    );
+  }
+
+  /**
+   * Resetea el estado del manager
+   */
+  reset() {
+    this.isSaving = false;
+    this.lastSaveTime = null;
+    this.lastSaveData = null;
   }
 }
 
-// Instancia singleton
+// Crear una instancia singleton
 const analysisSaveManager = new AnalysisSaveManager();
 
 export default analysisSaveManager;
+
 
 /**
  * Hook de React para guardar análisis de manera segura

@@ -1,122 +1,175 @@
-/**
- * API calls for analytics and user statistics
- */
-
-import { authenticatedFetch } from './enhancedApi';
-
-// Get base URL
-const getBaseUrl = () => {
-  return process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
-};
+const API_BASE_URL = 'http://127.0.0.1:8000';
 
 /**
- * Get user dashboard statistics
- */
-export const getUserStats = async () => {
-  try {
-    const url = `${getBaseUrl()}/v1/analytics/stats`;
-    // Send client's IANA timezone so server can compute weekly activity in user's local days
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || null;
-    const response = await authenticatedFetch(url, { method: 'GET', headers: { 'X-Client-Timezone': tz } });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || `Error ${response.status}: ${response.statusText}`);
-    }
-
-    return response.json();
-  } catch (error) {
-    if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
-      throw new Error('No se puede conectar con el servidor.');
-    }
-    throw error;
-  }
-};
-
-/**
- * Get user analysis history
- * @param {string} emotionFilter - Filter by emotion (optional)
- */
-export const getUserHistory = async (emotionFilter = null, includeRecommendations = false) => {
-  try {
-    let url = `${getBaseUrl()}/v1/analytics/history`;
-    const params = new URLSearchParams();
-    if (emotionFilter && emotionFilter !== 'all') params.append('emotion_filter', emotionFilter);
-    if (includeRecommendations) params.append('include_recommendations', 'true');
-    const qs = params.toString();
-    if (qs) url += `?${qs}`;
-
-  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || null;
-  const response = await authenticatedFetch(
-    url,
-    { method: 'GET', headers: tz ? { 'X-Client-Timezone': tz } : {} },
-    true,
-    1,
-    60000
-  );
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || `Error ${response.status}: ${response.statusText}`);
-    }
-
-    return response.json();
-  } catch (error) {
-    if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
-      throw new Error('No se puede conectar con el servidor.');
-    }
-    throw error;
-  }
-};
-
-/**
- * Save analysis result to user's history
- * @param {Object} analysisData - Analysis result data
+ * Guarda el resultado de un análisis de emoción en la base de datos
+ * @param {Object} analysisData - Datos del análisis
+ * @returns {Promise<Object>} - Resultado del guardado
  */
 export const saveAnalysisResult = async (analysisData) => {
   try {
-    const url = `${getBaseUrl()}/v1/analytics/save-analysis`;
-    const response = await authenticatedFetch(url, {
+    const token = localStorage.getItem('access_token');
+    
+    if (!token) {
+      throw new Error('Token de autenticación no encontrado');
+    }
+
+    console.log('📡 Enviando análisis a guardar:', {
+      emotion: analysisData.emotion,
+      confidence: analysisData.confidence,
+      recommendationsCount: analysisData.recommendations?.length || 0
+    });
+
+    const response = await fetch(`${API_BASE_URL}/v1/analytics/save-analysis`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify(analysisData)
+      body: JSON.stringify(analysisData),
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || `Error ${response.status}: ${response.statusText}`);
+      const errorData = await response.json();
+      
+      if (response.status === 401) {
+        throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+      }
+      
+      throw new Error(errorData.detail || 'Error al guardar el análisis');
     }
 
-    return response.json();
+    const result = await response.json();
+    console.log('✅ Análisis guardado correctamente:', result);
+    return result;
   } catch (error) {
-    if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
-      throw new Error('No se puede conectar con el servidor.');
-    }
+    console.error('❌ Error en saveAnalysisResult:', error);
     throw error;
   }
 };
 
 /**
- * Get user profile stats for the Account page
+ * Obtiene el historial de análisis del usuario
+ * @param {string} emotionFilter - Filtro por emoción (opcional)
+ * @returns {Promise<Object>} - Historial de análisis
  */
-export const getUserProfileStats = async () => {
+export const getUserHistory = async (emotionFilter = null) => {
   try {
-    const stats = await getUserStats();
+    const token = localStorage.getItem('access_token');
     
-    return {
-      totalAnalyses: stats.total_analyses || 0,
-      streak: stats.streak || 0,
-      mostFrequentEmotion: stats.most_frequent_emotion || null
-    };
+    if (!token) {
+      throw new Error('Token de autenticación no encontrado');
+    }
+
+    let url = `${API_BASE_URL}/v1/analytics/history`;
+    
+    if (emotionFilter && emotionFilter !== 'all') {
+      url += `?emotion_filter=${encodeURIComponent(emotionFilter)}`;
+    }
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'X-Client-Timezone': Intl.DateTimeFormat().resolvedOptions().timeZone
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      
+      if (response.status === 401) {
+        throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+      }
+      
+      throw new Error(errorData.detail || 'Error al obtener el historial');
+    }
+
+    return await response.json();
   } catch (error) {
-    console.error('Error getting profile stats:', error);
-    // Return default values on error
-    return {
-      totalAnalyses: 0,
-      streak: 0,
-      mostFrequentEmotion: null
-    };
+    console.error('❌ Error en getUserHistory:', error);
+    throw error;
   }
 };
+
+/**
+ * Obtiene las estadísticas del usuario para el dashboard
+ * @returns {Promise<Object>} - Estadísticas del usuario
+ */
+export const getUserStats = async () => {
+  try {
+    const token = localStorage.getItem('access_token');
+    
+    if (!token) {
+      throw new Error('Token de autenticación no encontrado');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/v1/analytics/stats`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'X-Client-Timezone': Intl.DateTimeFormat().resolvedOptions().timeZone
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      
+      if (response.status === 401) {
+        throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+      }
+      
+      throw new Error(errorData.detail || 'Error al obtener estadísticas');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('❌ Error en getUserStats:', error);
+    throw error;
+  }
+};
+
+/**
+ * Obtiene los detalles de un análisis específico
+ * @param {string} analysisId - ID del análisis
+ * @returns {Promise<Object>} - Detalles del análisis
+ */
+export const getAnalysisDetails = async (analysisId) => {
+  try {
+    const token = localStorage.getItem('access_token');
+    
+    if (!token) {
+      throw new Error('Token de autenticación no encontrado');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/v1/analytics/analysis/${analysisId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      
+      if (response.status === 401) {
+        throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+      }
+      
+      if (response.status === 404) {
+        throw new Error('Análisis no encontrado');
+      }
+      
+      throw new Error(errorData.detail || 'Error al obtener detalles del análisis');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('❌ Error en getAnalysisDetails:', error);
+    throw error;
+  }
+};
+
+// Backwards-compatible alias: older components import getUserProfileStats
+// but the canonical name is getUserStats. Export an alias to avoid breaking
+// imports across the codebase.
+export const getUserProfileStats = getUserStats;

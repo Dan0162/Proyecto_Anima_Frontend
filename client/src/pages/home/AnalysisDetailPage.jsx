@@ -17,44 +17,56 @@ const AnalysisDetailPage = () => {
   const [playlistSaved, setPlaylistSaved] = useState(false);
 
   // Cargar detalles del análisis al montar
-  const loadAnalysisDetails = useCallback(async () => {
-    try {
-      setLoading(true);
-      
-      // Obtener detalles del análisis CON recomendaciones guardadas
-      const analysisResponse = await fetch(`http://127.0.0.1:8000/v1/analytics/analysis/${analysisId}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-        }
-      });
-
-      if (!analysisResponse.ok) {
-        throw new Error('Error al cargar detalles del análisis');
+  // Cargar detalles del análisis al montar
+const loadAnalysisDetails = useCallback(async () => {
+  try {
+    setLoading(true);
+    
+    console.log(`🔍 Cargando análisis ${analysisId}...`);
+    
+    // Obtener detalles del análisis CON recomendaciones guardadas
+    const analysisResponse = await fetch(`http://127.0.0.1:8000/v1/analytics/analysis/${analysisId}`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
       }
+    });
 
-      const analysisData = await analysisResponse.json();
-      setAnalysis(analysisData);
-
-      // 🆕 Usar recomendaciones guardadas si están disponibles
-      if (analysisData.recommendations && analysisData.recommendations.length > 0) {
-        console.log('✅ Usando recomendaciones guardadas:', analysisData.recommendations.length);
-        setRecommendations(analysisData.recommendations);
-      } else {
-        // 🔄 Fallback: generar recomendaciones si no hay guardadas (retrocompatibilidad)
-        console.log('⚠️ No hay recomendaciones guardadas, generando nuevas...');
-        await loadRecommendations(analysisData.emotion);
-      }
-      
-    } catch (error) {
-      console.error('Error cargando análisis:', error);
-      if (flash?.show) {
-        flash.show('Error al cargar los detalles del análisis', 'error');
-      }
-      navigate('/home/history');
-    } finally {
-      setLoading(false);
+    if (!analysisResponse.ok) {
+      throw new Error('Error al cargar detalles del análisis');
     }
-  }, [analysisId, navigate, flash]);
+
+    const analysisData = await analysisResponse.json();
+    console.log('📊 Datos del análisis cargados:', analysisData);
+    console.log('🎵 Recomendaciones en análisis:', analysisData.recommendations?.length || 0);
+    
+    setAnalysis(analysisData);
+
+    // 🆕 Verificar recomendaciones guardadas con mejor lógica
+    const savedRecommendations = analysisData.recommendations || [];
+    
+    // Verificar si las recomendaciones son válidas (no vacías y contienen datos útiles)
+    const hasValidRecommendations = savedRecommendations.length > 0 && 
+      savedRecommendations.some(track => track && (track.name || track.uri));
+    
+    if (hasValidRecommendations) {
+      console.log('✅ Usando recomendaciones guardadas del análisis:', savedRecommendations.length);
+      setRecommendations(savedRecommendations);
+    } else {
+      console.log('⚠️ No hay recomendaciones válidas guardadas. Datos encontrados:', savedRecommendations);
+      console.log('🔄 Generando recomendaciones de fallback...');
+      await loadRecommendations(analysisData.emotion);
+    }
+    
+  } catch (error) {
+    console.error('❌ Error cargando análisis:', error);
+    if (flash?.show) {
+      flash.show('Error al cargar los detalles del análisis', 'error');
+    }
+    navigate('/home/history');
+  } finally {
+    setLoading(false);
+  }
+}, [analysisId, navigate, flash]);
 
   useEffect(() => {
     loadAnalysisDetails();

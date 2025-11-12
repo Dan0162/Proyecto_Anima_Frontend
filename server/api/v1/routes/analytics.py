@@ -218,8 +218,29 @@ def get_analysis_details(
     
     analysis, emotion = analysis_result
 
-    # 🆕 Obtener recomendaciones guardadas o generar nuevas si no existen
-    recommendations = analysis.recommendations or []
+    print(f"📊 Análisis encontrado: {analysis_id}")
+    print(f"🎵 Recomendaciones guardadas: {len(analysis.recommendations or [])}")
+
+    # 🆕 Procesar recomendaciones guardadas con mejor validación
+    saved_recommendations = analysis.recommendations or []
+    
+    # Asegurar que las recomendaciones sean una lista válida
+    if isinstance(saved_recommendations, dict):
+        if 'tracks' in saved_recommendations:
+            saved_recommendations = saved_recommendations['tracks']
+        else:
+            # Si es un dict sin 'tracks', convertir a lista
+            saved_recommendations = [saved_recommendations]
+    elif not isinstance(saved_recommendations, list):
+        saved_recommendations = []
+
+    # Filtrar recomendaciones válidas (que tengan al menos name o uri)
+    valid_recommendations = [
+        track for track in saved_recommendations 
+        if track and isinstance(track, dict) and (track.get('name') or track.get('uri'))
+    ]
+
+    print(f"✅ Recomendaciones válidas procesadas: {len(valid_recommendations)}")
 
     # Ensure date is timezone-aware (assume stored timestamps are UTC)
     analysis_date = analysis.fecha_analisis
@@ -233,7 +254,7 @@ def get_analysis_details(
         date=analysis_date,
         emotions_detected=analysis.emotions_detected or {},
         session_id=analysis.id_sesion,
-        recommendations=recommendations
+        recommendations=valid_recommendations  # 🆕 Usar recomendaciones validadas
     )
 
 def create_empty_stats():
@@ -542,6 +563,15 @@ def save_analysis_result(
     ensure_emotions_exist(db)
     
     try:
+        # Debug: Imprimir datos recibidos
+        recommendations = analysis_data.get("recommendations", [])
+        print(f"📝 Datos de análisis recibidos para usuario {user.id}:")
+        print(f"   - Emoción: {analysis_data.get('emotion')}")
+        print(f"   - Confianza: {analysis_data.get('confidence')}")
+        print(f"   - Recomendaciones recibidas: {len(recommendations)}")
+        if recommendations:
+            print(f"   - Primera recomendación: {recommendations[0].get('name', 'Sin nombre') if recommendations[0] else 'None'}")
+        
         # Obtener la sesión activa más reciente del usuario
         latest_session = db.query(UserSession).filter(
             UserSession.id_usuario == user.id,
@@ -579,8 +609,19 @@ def save_analysis_result(
         ).first()
         
         if recent_analysis:
-            print(f"⚠️ Análisis duplicado detectado para usuario {user.id}, ignorando...")
-            return {"message": "Análisis ya fue guardado recientemente", "success": True}
+            print(f"⚠️ Análisis duplicado detectado para usuario {user.id}, devolviendo ID existente...")
+            return {"message": "Análisis ya fue guardado recientemente", "success": True, "analysis_id": str(recent_analysis.id)}
+        
+        # 🆕 Asegurar que las recomendaciones sean una lista válida
+        final_recommendations = []
+        if isinstance(recommendations, list):
+            final_recommendations = recommendations
+        elif isinstance(recommendations, dict) and 'tracks' in recommendations:
+            final_recommendations = recommendations['tracks']
+        else:
+            final_recommendations = []
+        
+        print(f"🔄 Recomendaciones procesadas: {len(final_recommendations)}")
         
         # 🆕 Crear nuevo registro de análisis con recomendaciones
         new_analysis = Analysis(
@@ -589,7 +630,7 @@ def save_analysis_result(
             fecha_analisis=now,
             confidence=analysis_data.get("confidence", 0.0),
             emotions_detected=analysis_data.get("emotions_detected", {}),
-            recommendations=analysis_data.get("recommendations", [])  # 🆕 Guardar recomendaciones
+            recommendations=final_recommendations  # 🆕 Guardar recomendaciones procesadas
         )
         
         db.add(new_analysis)
@@ -597,7 +638,8 @@ def save_analysis_result(
         db.refresh(new_analysis)
 
         print(f"✅ Análisis guardado en BD para usuario {user.id}: {emotion_name}")
-        print(f"🎵 Recomendaciones guardadas: {len(analysis_data.get('recommendations', []))}")
+        print(f"🎵 Recomendaciones guardadas: {len(final_recommendations)}")
+        print(f"🆔 Analysis ID creado: {new_analysis.id}")
 
         # Devolver el id del análisis recién creado para que el cliente pueda enlazar acciones (p.ej. crear playlists)
         return {"message": "Análisis guardado exitosamente", "success": True, "analysis_id": str(new_analysis.id)}

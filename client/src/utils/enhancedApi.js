@@ -331,27 +331,63 @@ export const changePasswordApi = async (passwordData) => {
 /**
  * Analyze emotion from base64 image
  */
-export const analyzeEmotionBase64 = async (imageBase64) => {
+export const analyzeEmotionBase64 = async (imageBase64, timezone = null) => {
   try {
-    const url = `${getBaseUrl()}/v1/analysis/analyze-base64`;
-    // Include user's IANA timezone so the server can return timestamps localized
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || null;
-    const response = await authenticatedFetch(url, {
+    // Obtener ambos tokens
+    const accessToken = localStorage.getItem('access_token');
+    const spotifyJwt = localStorage.getItem('spotify_jwt');
+    
+    console.log('🔐 Tokens disponibles para análisis:');
+    console.log(`   - Access token: ${accessToken ? 'Disponible' : 'No disponible'}`);
+    console.log(`   - Spotify JWT: ${spotifyJwt ? 'Disponible' : 'No disponible'}`);
+    
+    if (!accessToken) {
+      throw new Error('Token de autenticación no encontrado');
+    }
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
+    };
+    
+    // 🆕 Agregar JWT de Spotify como header adicional si está disponible
+    if (spotifyJwt) {
+      headers['X-Spotify-Token'] = `Bearer ${spotifyJwt}`;
+      console.log('✅ JWT de Spotify agregado a headers');
+    } else {
+      console.log('⚠️ JWT de Spotify no disponible - recomendaciones no se obtendrán');
+    }
+
+    if (timezone) {
+      headers['X-Client-Timezone'] = timezone;
+    }
+
+    const response = await fetch(`${getBaseUrl()}/v1/analysis/analyze-base64`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image: imageBase64, timezone: tz })
-    }, true, 1); // Requires auth, 1 retry
+      headers,
+      body: JSON.stringify({
+        image: imageBase64,
+        timezone: timezone
+      }),
+    });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || `Error ${response.status}: ${response.statusText}`);
+      const errorData = await response.json();
+      
+      if (response.status === 401) {
+        throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+      }
+      
+      throw new Error(errorData.detail || 'Error en el análisis de emoción');
     }
 
-    return response.json();
+    const result = await response.json();
+    console.log('📊 Resultado del análisis recibido:', result);
+    console.log(`🎵 Recomendaciones en resultado: ${result.recommendations?.length || 0}`);
+    
+    return result;
   } catch (error) {
-    if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
-      throw new Error('No se puede conectar con el servidor.');
-    }
+    console.error('❌ Error en analyzeEmotionBase64:', error);
     throw error;
   }
 };

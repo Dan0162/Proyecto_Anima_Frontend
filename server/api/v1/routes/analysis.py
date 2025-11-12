@@ -129,43 +129,240 @@ def validate_image_base64(image_data: str) -> bool:
 
 def get_music_recommendations(authorization: str, emotion: str) -> list:
     """
-    Obtiene recomendaciones musicales para la emoción detectada
+    Obtiene recomendaciones musicales para la emoción detectada durante el análisis
     """
     try:
-        # Extraer access_token de Spotify si el Authorization es nuestro JWT
-        spotify_access = None
-        if authorization and authorization.startswith("Bearer "):
-            token = authorization.split(" ")[1]
-            try:
-                payload = verify_token(token)
-                spotify_info = payload.get('spotify') if payload else None
-                if spotify_info and spotify_info.get('access_token'):
-                    spotify_access = spotify_info.get('access_token')
-                else:
-                    # Si no es nuestro JWT, asumir que es un access token directo
-                    spotify_access = token
-            except Exception:
-                # Si verify_token falla, usar token como raw spotify access token
-                spotify_access = token
-
-        if not spotify_access:
+        print(f"🎵 Iniciando obtención de recomendaciones para emoción: {emotion}")
+        print(f"🔑 Authorization header: {authorization[:50] if authorization else 'None'}...")
+        
+        # Primero verificar que tenemos autorización
+        if not authorization or not authorization.startswith("Bearer "):
+            print("❌ No hay header de autorización válido")
             return []
 
+        # Extraer el token principal (JWT de la app)
+        main_token = authorization.split(" ")[1]
+        
+        # Verificar si es un JWT válido de nuestra app
+        try:
+            payload = verify_token(main_token)
+            print(f"✅ JWT de la app verificado correctamente")
+            
+            # Buscar información de Spotify en el payload
+            spotify_info = payload.get('spotify') if payload else None
+            if spotify_info and spotify_info.get('access_token'):
+                spotify_access = spotify_info.get('access_token')
+                print(f"✅ Token de Spotify encontrado en JWT")
+            else:
+                print("❌ No se encontró token de Spotify en el JWT")
+                return []
+                
+        except Exception as e:
+            print(f"❌ Error verificando JWT: {e}")
+            # Intentar usar el token como JWT de Spotify directamente
+            spotify_jwt = main_token
+            try:
+                # Verificar si es un JWT de Spotify
+                spotify_payload = verify_token(spotify_jwt)
+                spotify_info = spotify_payload.get('spotify')
+                if spotify_info and spotify_info.get('access_token'):
+                    spotify_access = spotify_info.get('access_token')
+                    print(f"✅ Token de Spotify extraído de JWT secundario")
+                else:
+                    print("❌ No es un JWT de Spotify válido")
+                    return []
+            except Exception as e2:
+                print(f"❌ Error verificando JWT de Spotify: {e2}")
+                return []
+
+        if not spotify_access:
+            print("❌ No se pudo obtener access token de Spotify")
+            return []
+
+        print(f"🎵 Llamando servicio de recomendaciones con access token")
+        
         # Llamar directamente al servicio interno que obtiene recomendaciones desde Spotify
         from server.services.spotify import get_recommendations as svc_get_recommendations
         data = svc_get_recommendations(spotify_access, emotion)
+        
+        print(f"📊 Respuesta del servicio: {type(data)}")
+        
         if isinstance(data, dict):
-            return data.get('tracks', [])
-        return []
+            tracks = data.get('tracks', [])
+            print(f"✅ Recomendaciones obtenidas exitosamente: {len(tracks)} tracks")
+            return tracks
+        else:
+            print(f"⚠️ Respuesta inesperada del servicio: {data}")
+            return []
+            
     except Exception as e:
         print(f"❌ Error obteniendo recomendaciones: {e}")
+        import traceback
+        print(f"📜 Stack trace: {traceback.format_exc()}")
         return []
 
 @router.post("/analyze-base64", response_model=EmotionAnalysisResponse, status_code=status.HTTP_200_OK)
 async def analyze_emotion_base64(
     request: ImageBase64Request,
-    authorization: str = Header(..., alias="Authorization")
+    authorization: str = Header(..., alias="Authorization"),
+    spotify_token: Optional[str] = Header(None, alias="X-Spotify-Token")
 ):
+    try:
+        # Verifica autenticación
+        if not authorization or not authorization.startswith("Bearer "):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token inválido o ausente"
+            )
+        
+        print(f"🔐 Tokens recibidos:")
+        print(f"   - Authorization: {authorization[:50]}...")
+        print(f"   - X-Spotify-Token: {spotify_token[:50] if spotify_token else 'No disponible'}...")
+        
+        # Validar imagen
+        if not request.image:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No se proporcionó ninguna imagen"
+            )
+
+        # Remover prefijo data:image si existe y decodificar
+        image_data = request.image
+        if ',' in image_data:
+            image_data = image_data.split(',')[1]
+
+        try:
+            image_bytes = base64.b64decode(image_data)
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Formato de imagen inválido (no es Base64)."
+            )
+
+        # Validar que sea una imagen válida
+        try:
+            img = Image.open(io.BytesIO(image_bytes))
+            img.verify()
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Formato de imagen inválido. Use JPEG, PNG o WebP."
+            )
+
+        # If AWS credentials are configured, try to use Rekognition. Otherwise fallback to mockup.
+        use_aws = bool(getattr(settings, 'AWS_ACCESS_KEY_ID', None) and getattr(settings, 'AWS_SECRET_ACCESS_KEY', None))
+
+        emotion_data = None
+
+        if use_aws:
+            try:
+                # Call Rekognition detect_faces
+                result = await rekognition_service.detect_faces(image_bytes)
+
+                if not result.get('success'):
+                    # Rekognition call failed -> log and fallthrough to mockup
+                    raise Exception(result.get('error', 'AWS Rekognition returned an error'))
+
+                faces = result.get('faces', [])
+                if not faces:
+                    # No faces detected -> return an explicit error for uploaded images
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No se detectaron rostros humanos en la imagen")
+
+                # Use first face for emotion analysis
+                emotions_list = faces[0].get('emotions', [])
+
+                # Convert to dictionary and normalize confidences to 0..1
+                emotions_detected = {}
+                for e in emotions_list:
+                    typ = e.get('Type') or e.get('type') or e.get('emotion')
+                    conf = e.get('Confidence') or e.get('confidence') or 0.0
+                    conf = float(conf) / 100.0
+                    key = AWS_TO_APP.get(typ.upper(), typ.lower() if isinstance(typ, str) else str(typ))
+                    if key in emotions_detected:
+                        emotions_detected[key] += conf
+                    else:
+                        emotions_detected[key] = conf
+
+                # Normalize after mapping and summing
+                mapped_total = sum(emotions_detected.values())
+                if mapped_total > 0:
+                    for k in list(emotions_detected.keys()):
+                        emotions_detected[k] = round(emotions_detected[k] / mapped_total, 3)
+
+                # Pick top emotion by normalized value
+                if emotions_detected:
+                    app_top = max(emotions_detected, key=lambda k: emotions_detected[k])
+                    top_conf = emotions_detected[app_top]
+                else:
+                    app_top = None
+                    top_conf = 0.0
+
+                # Determine timestamp: prefer localizing to client timezone if provided
+                now_utc = datetime.now(timezone.utc)
+                if request.timezone and ZoneInfo is not None:
+                    try:
+                        tz = ZoneInfo(request.timezone)
+                        ts = now_utc.astimezone(tz).isoformat()
+                    except Exception:
+                        ts = now_utc.isoformat()
+                else:
+                    ts = now_utc.isoformat()
+
+                emotion_data = {
+                    'emotion': app_top,
+                    'confidence': round(top_conf, 4),
+                    'emotions_detected': emotions_detected,
+                    'timestamp': ts,
+                    'message': 'Análisis completado exitosamente (AWS Rekognition)'
+                }
+
+                print(f"✅ Análisis Rekognition: {app_top} ({emotion_data['confidence']*100:.1f}%)")
+
+            except (BotoCoreError, ClientError) as be:
+                print(f"❌ AWS Rekognition error: {be}")
+                # Fallthrough to mockup
+            except HTTPException:
+                # Re-raise explicit HTTPExceptions (e.g., no faces detected)
+                raise
+            except Exception as e:
+                print(f"❌ Rekognition processing error: {e}")
+                # Fallthrough to mockup
+
+        # If we reach here and don't have emotion_data, use mockup behavior
+        if not emotion_data:
+            emotion_key = random.choice(list(MOCK_EMOTIONS.keys()))
+            emotion_data = MOCK_EMOTIONS[emotion_key].copy()
+            now_utc = datetime.now(timezone.utc)
+            if request.timezone and ZoneInfo is not None:
+                try:
+                    tz = ZoneInfo(request.timezone)
+                    emotion_data["timestamp"] = now_utc.astimezone(tz).isoformat()
+                except Exception:
+                    emotion_data["timestamp"] = now_utc.isoformat()
+            else:
+                emotion_data["timestamp"] = now_utc.isoformat()
+            emotion_data["message"] = f"Análisis completado exitosamente (modo mockup)"
+            print(f"✅ Análisis mockup: {emotion_key} ({emotion_data['confidence']*100:.1f}%)")
+        
+        # 🆕 CRÍTICO: Usar el token de Spotify si está disponible
+        auth_header_for_recommendations = spotify_token or authorization
+        print(f"🎵 Obteniendo recomendaciones con: {auth_header_for_recommendations[:50]}...")
+        
+        recommendations = get_music_recommendations(auth_header_for_recommendations, emotion_data['emotion'])
+        emotion_data['recommendations'] = recommendations
+        
+        print(f"🎵 Recomendaciones incluidas en respuesta: {len(recommendations)} tracks")
+        
+        return EmotionAnalysisResponse(**emotion_data)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error en análisis: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error procesando la imagen. Por favor, intenta nuevamente."
+        )
     try:
         # Verifica autenticación
         if not authorization or not authorization.startswith("Bearer "):
@@ -299,11 +496,14 @@ async def analyze_emotion_base64(
             emotion_data["message"] = f"Análisis completado exitosamente (modo mockup)"
             print(f"✅ Análisis mockup: {emotion_key} ({emotion_data['confidence']*100:.1f}%)")
         
-        # 🆕 Obtener recomendaciones musicales
-        recommendations = get_music_recommendations(authorization, emotion_data['emotion'])
+        # 🆕 CRÍTICO: Usar el token de Spotify si está disponible
+        auth_header_for_recommendations = spotify_token or authorization
+        print(f"🎵 Obteniendo recomendaciones con: {'Spotify token' if spotify_token else 'App token'}...")
+        
+        recommendations = get_music_recommendations(auth_header_for_recommendations, emotion_data['emotion'])
         emotion_data['recommendations'] = recommendations
         
-        print(f"🎵 Recomendaciones obtenidas: {len(recommendations)} tracks")
+        print(f"🎵 Recomendaciones incluidas en respuesta: {len(recommendations)} tracks")
         
         return EmotionAnalysisResponse(**emotion_data)
         
