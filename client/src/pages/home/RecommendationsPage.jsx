@@ -24,7 +24,7 @@ const RecommendationsPage = () => {
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [visibleCount, setVisibleCount] = useState(10);
-  const [activeEmbedIndex, setActiveEmbedIndex] = useState(null);
+  // removed embedded player behavior; clicking now opens the Spotify page
   const gridRef = useRef(null);
   const hasShownFlashRef = useRef(false);
 
@@ -76,9 +76,8 @@ const RecommendationsPage = () => {
         const data = await response.json();
         const tracks = data.tracks ? data.tracks.slice(0, 30) : [];
         await preloadImages(tracks);
-        setRecommendations(tracks);
-        setVisibleCount(10);
-        setActiveEmbedIndex(null); // Reset embed when recommendations change
+  setRecommendations(tracks);
+  setVisibleCount(10);
         console.log('✅ Recomendaciones cargadas:', tracks.length);
       }
     } catch (error) {
@@ -92,6 +91,19 @@ const RecommendationsPage = () => {
       }
     }
   }, [selectedEmotion, flash]);
+
+  // Helper to open a track on Spotify in a new tab
+  const openSpotifyTrack = (track) => {
+    const id = track?.uri?.split(':').pop() || track?.id;
+    if (!id) return;
+    const url = `https://open.spotify.com/track/${id}`;
+    try {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } catch (e) {
+      // fallback: change location
+      window.location.href = url;
+    }
+  };
 
   useEffect(() => {
     fetchRecommendations();
@@ -237,26 +249,13 @@ const RecommendationsPage = () => {
                   className="track-item"
                 >
                   <div className="track-cover-container">
-                    {activeEmbedIndex === index ? (
-                      // Spotify embed only for active song
-                      <iframe
-                        key={track.uri || index}
-                        loading="lazy"
-                        src={`https://open.spotify.com/embed/track/${track.uri?.split(":").pop()}`}
-                        width="100%"
-                        height="80"
-                        frameBorder="0"
-                        allow="encrypted-media"
-                        title={track.name}
-                        style={{ borderRadius: '8px', minHeight: 80, background: '#181818' }}
-                      ></iframe>
-                    ) : track.album?.images?.[0]?.url ? (
+                    {track.album?.images?.[0]?.url ? (
                       <img 
                         src={track.album.images[0].url} 
                         alt={track.name}
                         className="track-cover"
                         style={{ cursor: 'pointer' }}
-                        onClick={() => setActiveEmbedIndex(index)}
+                        onClick={() => openSpotifyTrack(track)}
                         loading="lazy"
                         onLoad={(e) => {
                           e.target.style.width = '100%';
@@ -265,7 +264,7 @@ const RecommendationsPage = () => {
                         }}
                       />
                     ) : (
-                      <div className="track-cover-placeholder" onClick={() => setActiveEmbedIndex(index)} style={{ cursor: 'pointer' }}>
+                      <div className="track-cover-placeholder" onClick={() => openSpotifyTrack(track)} style={{ cursor: 'pointer' }}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M9 18V5l12-2v13"></path>
                           <circle cx="6" cy="18" r="3"></circle>
@@ -273,31 +272,20 @@ const RecommendationsPage = () => {
                         </svg>
                       </div>
                     )}
-                    {activeEmbedIndex !== index && (
-                      <div 
-                        className="track-play-overlay"
-                        style={{ background: currentColors.gradient, cursor: 'pointer' }}
-                        onClick={() => setActiveEmbedIndex(index)}
-                      >
-                        <svg viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M8 5v14l11-7z"/>
-                        </svg>
-                      </div>
-                    )}
+                    <div 
+                      className="track-play-overlay"
+                      style={{ background: currentColors.gradient, cursor: 'pointer' }}
+                      onClick={() => openSpotifyTrack(track)}
+                    >
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                    </div>
                   </div>
                   <div className="track-details">
                     <div className="track-title">{track.name}</div>
                     <div className="track-artist">
                       {track.artists?.map(a => a.name).join(', ') || 'Artista Desconocido'}
-                    </div>
-                    <div style={{ marginTop: 4 }}>
-                      <button
-                        className="spotify-link-btn"
-                        style={{ background: currentColors.gradient, color: '#fff', border: 'none', borderRadius: 4, padding: '2px 8px', cursor: 'pointer', fontSize: 12 }}
-                        onClick={() => window.open(track.external_urls?.spotify, '_blank')}
-                      >
-                        Ver en Spotify
-                      </button>
                     </div>
                   </div>
                 </div>

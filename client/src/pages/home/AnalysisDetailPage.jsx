@@ -18,6 +18,37 @@ const AnalysisDetailPage = () => {
 
   // Cargar detalles del análisis al montar
   // Cargar detalles del análisis al montar
+// 🔄 Función de fallback para generar recomendaciones si no hay guardadas
+const loadRecommendations = useCallback(async (emotion) => {
+  try {
+    const jwt = localStorage.getItem('spotify_jwt');
+    const url = `http://127.0.0.1:8000/recommend?emotion=${emotion}`;
+    
+    if (!jwt) {
+      // No mocks: require Spotify connection
+      if (flash?.show) flash.show('Conecta tu cuenta de Spotify para generar recomendaciones musicales.', 'error');
+      return;
+    }
+
+    const response = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${jwt}` }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      setRecommendations(data.tracks || []);
+      console.log('🔄 Recomendaciones generadas:', data.tracks?.length || 0);
+    } else if (response.status === 401) {
+      localStorage.removeItem('spotify_jwt');
+      if (flash?.show) flash.show('Tu sesión de Spotify expiró. Vuelve a conectar.', 'error');
+    } else {
+      console.error('Error obteniendo recomendaciones:', response.status);
+    }
+  } catch (error) {
+    console.error('Error cargando recomendaciones:', error);
+  }
+}, [flash]);
+
 const loadAnalysisDetails = useCallback(async () => {
   try {
     setLoading(true);
@@ -66,42 +97,11 @@ const loadAnalysisDetails = useCallback(async () => {
   } finally {
     setLoading(false);
   }
-}, [analysisId, navigate, flash]);
+}, [analysisId, navigate, flash, loadRecommendations]);
 
   useEffect(() => {
     loadAnalysisDetails();
   }, [loadAnalysisDetails]);
-
-  // 🔄 Función de fallback para generar recomendaciones si no hay guardadas
-  const loadRecommendations = async (emotion) => {
-    try {
-      const jwt = localStorage.getItem('spotify_jwt');
-      const url = `http://127.0.0.1:8000/recommend?emotion=${emotion}`;
-      
-      if (!jwt) {
-        // No mocks: require Spotify connection
-        if (flash?.show) flash.show('Conecta tu cuenta de Spotify para generar recomendaciones musicales.', 'error');
-        return;
-      }
-
-      const response = await fetch(url, {
-        headers: { 'Authorization': `Bearer ${jwt}` }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setRecommendations(data.tracks || []);
-        console.log('🔄 Recomendaciones generadas:', data.tracks?.length || 0);
-      } else if (response.status === 401) {
-        localStorage.removeItem('spotify_jwt');
-        if (flash?.show) flash.show('Tu sesión de Spotify expiró. Vuelve a conectar.', 'error');
-      } else {
-        console.error('Error obteniendo recomendaciones:', response.status);
-      }
-    } catch (error) {
-      console.error('Error cargando recomendaciones:', error);
-    }
-  };
 
   const handleSavePlaylist = async () => {
     if (!analysis || !recommendations.length) return;

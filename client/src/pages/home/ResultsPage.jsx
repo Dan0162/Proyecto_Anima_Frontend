@@ -18,24 +18,6 @@ const ResultsPage = () => {
   
   const { result, photo, recommendations: analysisRecommendations } = location.state || {};
 
-  // 🆕 Usar recomendaciones del análisis o hacer fallback si no las hay
-  useEffect(() => {
-    if (!result || !photo) {
-      navigate('/home/analyze');
-      return;
-    }
-
-    // Usar recomendaciones del análisis si están disponibles
-    if (analysisRecommendations && analysisRecommendations.length > 0) {
-      console.log('✅ Usando recomendaciones del análisis:', analysisRecommendations.length);
-      setRecommendations(analysisRecommendations);
-    } else {
-      // Fallback: hacer fetch de recomendaciones si no vienen del análisis
-      console.log('⚠️ No hay recomendaciones en el análisis, haciendo fetch...');
-      fetchRecommendations();
-    }
-  }, [result, photo, analysisRecommendations, navigate]);
-
   const fetchRecommendations = useCallback(async () => {
     setLoading(true);
     try {
@@ -78,7 +60,25 @@ const ResultsPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [result?.emotion, navigate]);
+  }, [result?.emotion, navigate, flash]);
+
+  // 🆕 Usar recomendaciones del análisis o hacer fallback si no las hay
+  useEffect(() => {
+    if (!result || !photo) {
+      navigate('/home/analyze');
+      return;
+    }
+
+    // Usar recomendaciones del análisis si están disponibles
+    if (analysisRecommendations && analysisRecommendations.length > 0) {
+      console.log('✅ Usando recomendaciones del análisis:', analysisRecommendations.length);
+      setRecommendations(analysisRecommendations);
+    } else {
+      // Fallback: hacer fetch de recomendaciones si no vienen del análisis
+      console.log('⚠️ No hay recomendaciones en el análisis, haciendo fetch...');
+      fetchRecommendations();
+    }
+  }, [result, photo, analysisRecommendations, navigate, fetchRecommendations]);
 
   // 🆕 Función para guardar playlist en Spotify (copiada de AnalysisDetailPage)
   const handleSavePlaylist = async () => {
