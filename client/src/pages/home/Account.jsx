@@ -20,13 +20,15 @@ export default function Account() {
     }));
   };
 
-  // Maneja cambios en los inputs de la contraseña
+  // Maneja cambios en los inputs de la contraseña y limpia errores inline
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
     setPasswordData((prev) => ({
       ...prev,
       [name]: value
     }));
+    // Clear inline error for this field when edited
+    setPasswordErrors(prev => ({ ...prev, [name]: undefined }));
   };
   const location = useLocation();
   const flash = useFlash();
@@ -305,17 +307,26 @@ export default function Account() {
       
     } catch (error) {
       console.error('Error cambiando contraseña:', error);
-      
-      if (error.message.includes('Sesión expirada')) {
+
+      const msg = error && error.message ? error.message : '';
+
+      if (msg.includes('Sesión expirada')) {
         if (flash?.show) {
           flash.show('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'error', 4000);
         }
         setTimeout(() => navigate('/signin'), 2000);
         return;
       }
-      
-      if (flash?.show) {
-        flash.show(error.message || 'Error al cambiar la contraseña', 'error', 4000);
+
+      // Map backend validation messages to inline field errors
+      if (msg.includes('Contraseña actual incorrecta')) {
+        setPasswordErrors(prev => ({ ...prev, current_password: msg }));
+      } else if (msg.includes('La nueva contraseña no puede ser igual')) {
+        setPasswordErrors(prev => ({ ...prev, new_password: msg }));
+      } else {
+        if (flash?.show) {
+          flash.show(msg || 'Error al cambiar la contraseña', 'error', 4000);
+        }
       }
     } finally {
       setPasswordLoading(false);
@@ -536,7 +547,13 @@ export default function Account() {
 
               <button 
                 className="action-item"
-                onClick={() => setShowPasswordDialog(true)}
+                onClick={() => {
+                  // Ensure password fields are cleared to avoid browser autofill and
+                  // to present an empty field for the user to type their current password.
+                  setPasswordData({ current_password: '', new_password: '', confirm_password: '' });
+                  setPasswordErrors({});
+                  setShowPasswordDialog(true);
+                }}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
@@ -583,51 +600,58 @@ export default function Account() {
                   </button>
                 </div>
                 
-                <div className="dialog-content">
-                  <PasswordInput
-                    label="Contraseña Actual"
-                    name="current_password"
-                    value={passwordData.current_password}
-                    onChange={handlePasswordChange}
-                    error={passwordErrors.current_password}
-                    placeholder="Tu contraseña actual"
-                  />
-                  
-                  <PasswordInput
-                    label="Nueva Contraseña"
-                    name="new_password"
-                    value={passwordData.new_password}
-                    onChange={handlePasswordChange}
-                    error={passwordErrors.new_password}
-                    placeholder="Nueva contraseña segura"
-                  />
-                  
-                  <PasswordInput
-                    label="Confirmar Nueva Contraseña"
-                    name="confirm_password"
-                    value={passwordData.confirm_password}
-                    onChange={handlePasswordChange}
-                    error={passwordErrors.confirm_password}
-                    placeholder="Repite la nueva contraseña"
-                  />
-                </div>
-                
-                <div className="dialog-actions">
-                  <button 
-                    className="action-btn cancel"
-                    onClick={() => setShowPasswordDialog(false)}
-                    disabled={passwordLoading}
-                  >
-                    Cancelar
-                  </button>
-                  <button 
-                    className="action-btn save"
-                    onClick={handleChangePassword}
-                    disabled={passwordLoading}
-                  >
-                    {passwordLoading ? 'Cambiando...' : 'Cambiar Contraseña'}
-                  </button>
-                </div>
+                <form autoComplete="off" onSubmit={(e) => { e.preventDefault(); handleChangePassword(); }}>
+                  <div className="dialog-content">
+                    <PasswordInput
+                      label="Contraseña Actual"
+                      name="current_password"
+                      value={passwordData.current_password}
+                      onChange={handlePasswordChange}
+                      error={passwordErrors.current_password}
+                      placeholder="Tu contraseña actual"
+                      autoFocus
+                      autoComplete="off"
+                    />
+
+                    <PasswordInput
+                      label="Nueva Contraseña"
+                      name="new_password"
+                      value={passwordData.new_password}
+                      onChange={handlePasswordChange}
+                      error={passwordErrors.new_password}
+                      placeholder="Nueva contraseña segura"
+                      autoComplete="new-password"
+                    />
+
+                    <PasswordInput
+                      label="Confirmar Nueva Contraseña"
+                      name="confirm_password"
+                      value={passwordData.confirm_password}
+                      onChange={handlePasswordChange}
+                      error={passwordErrors.confirm_password}
+                      placeholder="Repite la nueva contraseña"
+                      autoComplete="new-password"
+                    />
+                  </div>
+
+                  <div className="dialog-actions">
+                    <button 
+                      type="button"
+                      className="action-btn cancel"
+                      onClick={() => setShowPasswordDialog(false)}
+                      disabled={passwordLoading}
+                    >
+                      Cancelar
+                    </button>
+                    <button 
+                      type="submit"
+                      className="action-btn save"
+                      disabled={passwordLoading}
+                    >
+                      {passwordLoading ? 'Cambiando...' : 'Cambiar Contraseña'}
+                    </button>
+                  </div>
+                </form>
               </GlassCard>
             </div>
           </>

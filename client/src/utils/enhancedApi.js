@@ -57,10 +57,30 @@ export const authenticatedFetch = async (url, options = {}, requiresAuth = true,
 
   const response = await fetchWithTimeout(url, authOptions, timeout);
 
-    // If we get 401, token might have expired between check and request
+    // If we get 401, it may be either (A) token expiry or (B) a business-level
+    // rejection (e.g. "Contraseña actual incorrecta"). Attempt to inspect the
+    // response body to decide. If it's clearly a business rejection, return the
+    // response so the caller can handle it (avoid forcing a redirect). Otherwise
+    // treat as token expiry and try to refresh.
     if (response.status === 401 && retries > 0) {
+      let body = null;
+      try {
+        body = await response.clone().json();
+      } catch (e) {
+        // ignore parse errors
+      }
+      const detail = (body && (body.detail || body.message || '')) || '';
+      const low = String(detail).toLowerCase();
+
+      // If the detail message exists and doesn't look like a token/session issue,
+      // assume this is a business rejection (e.g. incorrect password) and return
+      // the response so callers can display inline errors instead of redirecting.
+      if (detail && !(low.includes('sesión') || low.includes('session') || low.includes('token') || low.includes('expir'))) {
+        return response;
+      }
+
       console.log('⚠️ Got 401, attempting token refresh and retry...');
-      
+
       // Force token refresh
       try {
         await tokenManager.refreshAccessToken();
@@ -68,7 +88,7 @@ export const authenticatedFetch = async (url, options = {}, requiresAuth = true,
         return authenticatedFetch(url, options, requiresAuth, retries - 1);
       } catch (refreshError) {
         console.error('❌ Token refresh failed:', refreshError);
-        
+
         // Clear tokens and redirect to login
         tokenManager.clearAllTokens();
         window.location.href = '/signin';
